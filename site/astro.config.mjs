@@ -23,7 +23,6 @@ export default defineConfig({
       title: 'toon',
       logo: { src: './src/assets/toon-mark.svg', alt: '' },
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/kelseythejackson/toon' }],
-      editLink: { baseUrl: 'https://github.com/kelseythejackson/toon/edit/main/site/' },
       description: "The 12 basic principles of animation as a tiny, zero-dependency CSS + Canvas library.",
       // toon.css is bundled straight from the library source, so the docs always match it.
       customCss: [
