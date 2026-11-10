@@ -1,0 +1,34 @@
+/* Style switcher foundation.
+ * <html data-style="graph|riso|collage|crayon" data-theme="light|dark">
+ * Each style file defines the same small set of tokens per mode; this file maps them onto Starlight.
+ * Fonts are declared for every style, but a browser only downloads the ones the active style uses. */
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/space-grotesk';
+@import '@fontsource-variable/caveat';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource/space-mono';
+@import '@fontsource/rubik-mono-one';
+@import '@fontsource-variable/fraunces/full.css';
+@import '@fontsource-variable/nunito';
+
+:root[data-style] {
+  --sl-color-black: var(--paper);  --sl-color-white: var(--ink);
+  --sl-color-gray-1: var(--ink);   --sl-color-gray-2: var(--text);  --sl-color-gray-3: var(--muted);
+  --sl-color-gray-4: var(--faint); --sl-color-gray-5: var(--hair-strong);
+  --sl-color-gray-6: var(--hair);  --sl-color-gray-7: var(--wash);
+  --sl-color-accent-low: var(--accent-low); --sl-color-accent: var(--link); --sl-color-accent-high: var(--ink);
+  --sl-color-text: var(--text); --sl-color-text-accent: var(--link);
+  --sl-color-bg-nav: var(--paper); --sl-color-bg-sidebar: var(--paper);
+  --sl-color-hairline: var(--hair); --sl-color-hairline-light: var(--hair); --sl-color-hairline-shade: var(--hair);
+  --sl-font: var(--font-body); --sl-font-mono: var(--font-mono);
+}
+:root[data-style] :is(h1#_top, .hero h1, .sl-markdown-content :is(h2, h3)) { font-family: var(--display); }
+.hero { position: relative; isolation: isolate; }
+
+/* Shared grain overlay, switched on per style with --grain-opacity. */
+:root[data-style] body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: var(--grain-opacity, 0);
+  mix-blend-mode: overlay;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}

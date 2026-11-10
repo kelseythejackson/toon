@@ -1,0 +1,76 @@
+---
+/** Embeds one of the standalone example pages, sized to its content and dressed in the active style. */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { Code } from '@astrojs/starlight/components';
+
+interface Props { file: string; title?: string; source?: boolean; linkText?: string }
+const { file, title = 'Live demo', source = true } = Astro.props;
+// Link text names the demo, so a page with several links (or a screen reader's link list) tells them apart.
+const linkText = Astro.props.linkText ?? `Open the ${title} on its own page`;
+// The demo's full page source, shown collapsed under it, so fragments on the page always have a runnable reference.
+const code = source ? readFileSync(resolve(process.cwd(), '../examples', file), 'utf8').trim() : '';
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const src = `${base}toon/examples/${file}`;
+---
+<figure class="toon-demo not-content">
+  <iframe src={src} title={title} loading="lazy" data-autosize></iframe>
+  <figcaption><a href={src} target="_blank" rel="noopener">{linkText} ↗</a></figcaption>
+</figure>
+{source && (
+  <details class="toon-demo-source">
+    <summary>Show the demo's source</summary>
+    <p>The complete page: it loads <code>toon.css</code> and <code>toon.js</code>, plus <code>demo-theme.js</code> (theme colors for the docs) and, for the characters, <code>cast.js</code>.</p>
+    <Code code={code} lang="html" />
+  </details>
+)}
+
+<script>
+  // Same-origin iframes: hide the example's own heading (the docs page has one), hand the demo the reader's
+  // sketchbook style and light/dark mode (examples/demo.css + demo-theme.js do the rest), share the site's
+  // fonts, and fit the frame to its content.
+  const frames = [...document.querySelectorAll<HTMLIFrameElement>('iframe[data-autosize]')];
+
+  const EMBED_CSS = 'body>h1:first-of-type,body>h1:first-of-type+p{display:none}body{margin-top:1rem!important}';
+  function dress(frame: HTMLIFrameElement) {
+    try {
+      const doc = frame.contentDocument;
+      if (!doc?.head || frame.contentWindow?.location.href === 'about:blank') return;
+      const own = document.documentElement, theirs = doc.documentElement;
+      theirs.dataset.embedded = '1';                       // stop following prefers-color-scheme
+      if (own.dataset.style) theirs.dataset.style = own.dataset.style;
+      if (own.dataset.theme) theirs.dataset.theme = own.dataset.theme;
+      if (!doc.getElementById('toon-embed')) {
+        const tag = doc.createElement('style'); tag.id = 'toon-embed'; tag.textContent = EMBED_CSS; doc.head.append(tag);
+      }
+      // fonts come from the parent page's bundle: copy its @font-face rules once
+      if (!doc.getElementById('toon-fonts')) {
+        // resolve each font URL against its own stylesheet, so it works under any base path
+        const faces = [...document.styleSheets].flatMap((s) => {
+          try { return [...s.cssRules].filter((r) => r instanceof CSSFontFaceRule).map((r) => [r, s.href || location.href]); } catch { return []; }
+        }).map(([r, href]) => (r as CSSRule).cssText.replace(/url\("?([^")]+)"?\)/g, (_m, u) => `url("${new URL(u, href as string).href}")`));
+        const f = doc.createElement('style'); f.id = 'toon-fonts'; f.textContent = faces.join('\n'); doc.head.append(f);
+      }
+      const body = doc.body, bottom = body.getBoundingClientRect().bottom;
+      frame.style.height = Math.ceil(bottom + parseFloat(getComputedStyle(body).marginBottom || '0')) + 'px';
+    } catch { /* cross-origin: keep the default look and height */ }
+  }
+  for (const frame of frames) {
+    frame.addEventListener('load', () => { dress(frame); setTimeout(() => dress(frame), 400); });
+    dress(frame);
+  }
+  // Re-dress when the reader switches style or light/dark.
+  new MutationObserver(() => frames.forEach(dress))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-style', 'data-theme'] });
+</script>
+
+<style>
+  .toon-demo { margin: 1.5rem 0 .5rem; }
+  .toon-demo-source { margin: 0 0 1.5rem; }
+  .toon-demo-source summary { cursor: pointer; font-size: var(--sl-text-sm); font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+  .toon-demo-source p { font-size: var(--sl-text-sm); }
+  .toon-demo iframe { display: block; width: 100%; height: 640px; border: 0; border-radius: 12px; background: transparent; }
+  .toon-demo figcaption { margin-top: .4rem; font-size: var(--sl-text-sm); }
+  /* 24px+ tap target (WCAG 2.5.8): this link is the only way to a demo's standalone page. */
+  .toon-demo figcaption a { display: inline-flex; align-items: center; min-height: 32px; padding-inline: .1rem; }
+</style>

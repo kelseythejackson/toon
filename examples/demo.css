@@ -1,0 +1,175 @@
+/* demo.css — design tokens for the animated objects in the example pages.
+ *
+ * Driven by the same attributes as the docs site:
+ *   <html data-style="graph|riso|collage|crayon" data-theme="light|dark">
+ * The docs embed sets both. Opened on its own, a page uses Graph Notebook and follows
+ * prefers-color-scheme (demo-theme.js sets data-theme). With no JS at all it falls back to Graph · light.
+ * Canvas code reads these same tokens through DemoTheme (demo-theme.js).
+ *
+ * Contrast (checked in scripts/check-demo-contrast.py): text ≥ 4.5:1 on its background;
+ * objects, guides, ground lines and UI controls ≥ 3:1 against --demo-surface (stage tokens: against --demo-stage).
+ */
+
+/* ── Graph Notebook (default) ───────────────────────────────────────────── */
+:root {
+  --demo-font: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --demo-display: 'Space Grotesk Variable', 'Space Grotesk', system-ui, sans-serif;
+  --demo-radius: 2px;
+  --demo-panel-border: 1.5px solid var(--demo-ink);
+  --demo-panel-shadow: none;
+  /* page + surfaces */
+  --demo-bg: #fbfaf6; --demo-surface: #ffffff; --demo-surface-2: #f3f1ea;
+  --demo-ground: #efebe1; --demo-ground-line: #78746b;
+  /* text */
+  --demo-ink: #121212; --demo-text: #26251f; --demo-muted: #5c5a55;
+  /* lines */
+  --demo-hair: #e7e3d8; --demo-faint: #8f8b82;
+  /* objects */
+  --demo-primary: #d63a20; --demo-secondary: #3b3a36; --demo-secondary-deep: #121212;
+  --demo-tertiary: #6f7a00; --demo-neutral: #57554f; --demo-soft: #e0664c;
+  /* staging theatre (always dark) */
+  --demo-stage: #1c1f24; --demo-stage-crowd: #8c919b; --demo-stage-hero: #ff7a5c; --demo-stage-ink: #f4f1ea;
+  /* controls */
+  --demo-btn: #121212; --demo-on-btn: #ffffff;
+  --demo-shadow-alpha: .35;
+}
+:root[data-theme='dark'] {
+  --demo-bg: #15171b; --demo-surface: #1c1f24; --demo-surface-2: #23272d;
+  --demo-ground: #262a31; --demo-ground-line: #7c818c;
+  --demo-ink: #f4f1ea; --demo-text: #e4e1d9; --demo-muted: #a8a59c;
+  --demo-hair: #2a2e35; --demo-faint: #7c818c;
+  --demo-primary: #ff7a5c; --demo-secondary: #d9d5cb; --demo-secondary-deep: #a8a59c;
+  --demo-tertiary: #e3f25e; --demo-neutral: #9a9fa8; --demo-soft: #ffa58f;
+  --demo-btn: #f4f1ea; --demo-on-btn: #15171b;
+  --demo-shadow-alpha: .6;
+}
+
+/* ── Riso Press ─────────────────────────────────────────────────────────── */
+:root[data-style='riso'] {
+  --demo-font: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --demo-display: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', system-ui, sans-serif;
+  --demo-radius: 6px;
+  --demo-panel-border: 2px solid var(--demo-ink);
+  --demo-panel-shadow: 4px 4px 0 var(--demo-primary);
+  --demo-bg: #f6f1e7; --demo-surface: #fffdf8; --demo-surface-2: #efe9dc;
+  --demo-ground: #ebe4d5; --demo-ground-line: #757086;
+  --demo-ink: #1e1b2e; --demo-text: #2f2b3d; --demo-muted: #5a5568;
+  --demo-hair: #e8e1d2; --demo-faint: #8d879a;
+  --demo-primary: #d92e86; --demo-secondary: #0072b5; --demo-secondary-deep: #005a94;
+  --demo-tertiary: #8f7600; --demo-neutral: #1e1b2e; --demo-soft: #e8559f;
+  --demo-stage: #221f2f; --demo-stage-crowd: #8f8aa3; --demo-stage-hero: #ffe800; --demo-stage-ink: #f6f1e7;
+  --demo-btn: #1e1b2e; --demo-on-btn: #fffdf8;
+  --demo-shadow-alpha: .35;
+}
+:root[data-style='riso'][data-theme='dark'] {
+  --demo-bg: #1b1926; --demo-surface: #221f2f; --demo-surface-2: #2a2639;
+  --demo-ground: #2c2839; --demo-ground-line: #807a95;
+  --demo-ink: #f6f1e7; --demo-text: #e6e0d2; --demo-muted: #ada8bc;
+  --demo-hair: #2f2b3e; --demo-faint: #807a95;
+  --demo-primary: #ff5cba; --demo-secondary: #4fb0f0; --demo-secondary-deep: #2e8fd0;
+  --demo-tertiary: #ffe800; --demo-neutral: #cfc9da; --demo-soft: #ff8fcc;
+  --demo-btn: #f6f1e7; --demo-on-btn: #1b1926;
+  --demo-shadow-alpha: .6;
+}
+
+/* ── Cut & Paste ────────────────────────────────────────────────────────── */
+:root[data-style='collage'] {
+  --demo-font: 'Bricolage Grotesque Variable', 'Bricolage Grotesque', system-ui, sans-serif;
+  --demo-display: 'Rubik Mono One', system-ui, sans-serif;
+  --demo-radius: 4px;
+  --demo-panel-border: 2px solid var(--demo-ink);
+  --demo-panel-shadow: 4px 4px 0 var(--demo-ink);
+  --demo-bg: #fff4e0; --demo-surface: #ffffff; --demo-surface-2: #fbecd2;
+  --demo-ground: #f3e7cf; --demo-ground-line: #7a7368;
+  --demo-ink: #1a1a1a; --demo-text: #2a2724; --demo-muted: #55504a;
+  --demo-hair: #f0e3c9; --demo-faint: #8e877c;
+  --demo-primary: #2f4bff; --demo-secondary: #d9530b; --demo-secondary-deep: #a8410a;
+  --demo-tertiary: #13865b; --demo-neutral: #1a1a1a; --demo-soft: #e8692a;
+  --demo-stage: #2a241e; --demo-stage-crowd: #978c7e; --demo-stage-hero: #ff7d33; --demo-stage-ink: #fff4e0;
+  --demo-btn: #2f4bff; --demo-on-btn: #ffffff;
+  --demo-shadow-alpha: .4;
+}
+:root[data-style='collage'][data-theme='dark'] {
+  --demo-bg: #1d1915; --demo-surface: #2a241e; --demo-surface-2: #332b23;
+  --demo-ground: #362e26; --demo-ground-line: #918679;
+  --demo-ink: #fff4e0; --demo-text: #ede2d3; --demo-muted: #bdb2a3;
+  --demo-hair: #3a3229; --demo-faint: #918679;
+  --demo-panel-shadow: 4px 4px 0 #2f4bff;
+  --demo-primary: #8c9cff; --demo-secondary: #ff7d33; --demo-secondary-deep: #e0661c;
+  --demo-tertiary: #5fcf9f; --demo-neutral: #ede2d3; --demo-soft: #ffa36b;
+  --demo-btn: #fff4e0; --demo-on-btn: #1d1915;
+  --demo-shadow-alpha: .6;
+}
+
+/* ── Crayon Cloud ───────────────────────────────────────────────────────── */
+:root[data-style='crayon'] {
+  --demo-font: 'Nunito Variable', 'Nunito', system-ui, sans-serif;
+  --demo-display: 'Fraunces Variable', 'Fraunces', Georgia, serif;
+  --demo-radius: 18px;
+  --demo-panel-border: 0 solid transparent;
+  --demo-panel-shadow: 0 0 0 6px var(--demo-hair);
+  --demo-bg: #fffbf2; --demo-surface: #ffffff; --demo-surface-2: #f8f4fd;
+  --demo-ground: #f1ebfb; --demo-ground-line: #7b7292;
+  --demo-ink: #2e2440; --demo-text: #3d3352; --demo-muted: #665c7a;
+  --demo-hair: #f1ebfb; --demo-faint: #9188a6;
+  --demo-primary: #7c4ce6; --demo-secondary: #d0602e; --demo-secondary-deep: #a8481f;
+  --demo-tertiary: #1f8a63; --demo-neutral: #2e2440; --demo-soft: #d9577f;
+  --demo-stage: #231e33; --demo-stage-crowd: #8d84a8; --demo-stage-hero: #ffb396; --demo-stage-ink: #f4efff;
+  --demo-btn: #2e2440; --demo-on-btn: #fffbf2;
+  --demo-shadow-alpha: .3;
+}
+:root[data-style='crayon'][data-theme='dark'] {
+  --demo-bg: #1c1828; --demo-surface: #231e33; --demo-surface-2: #2b2442;
+  --demo-ground: #2d2742; --demo-ground-line: #857ca1;
+  --demo-ink: #f4efff; --demo-text: #e4ddf5; --demo-muted: #b4aacb;
+  --demo-hair: #2d2742; --demo-faint: #857ca1;
+  --demo-primary: #b39bff; --demo-secondary: #ffb396; --demo-secondary-deep: #e8916f;
+  --demo-tertiary: #8fe0be; --demo-neutral: #d9d0f0; --demo-soft: #ffa6c4;
+  --demo-btn: #f4efff; --demo-on-btn: #1c1828;
+  --demo-shadow-alpha: .6;
+}
+
+/* ── Page chrome shared by every example ────────────────────────────────── */
+:root { color-scheme: light; --toon-color: var(--demo-primary); }
+:root[data-theme='dark'] { color-scheme: dark; }
+body { font-family: var(--demo-font); color: var(--demo-text); background: var(--demo-bg);
+  transition: background-color .3s, color .3s; }
+h1, h2, h3 { font-family: var(--demo-display); color: var(--demo-ink); }
+a { color: var(--demo-primary); }
+small, .note { color: var(--demo-muted); }
+input { accent-color: var(--demo-primary); }
+code { font-size: .92em; }
+/* Panels: every canvas and demo container uses the site's card treatment. */
+canvas, .demo-panel {
+  background: var(--demo-surface); border-radius: var(--demo-radius);
+  border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow);
+}
+.demo-btn { font: 600 15px var(--demo-font); padding: .7em 1.4em; border: 0; border-radius: max(var(--demo-radius), 6px);
+  background: var(--demo-btn); color: var(--demo-on-btn); cursor: pointer; }
+.demo-btn-quiet { font: 600 14px var(--demo-font); padding: .45em 1.1em; border-radius: max(var(--demo-radius), 6px);
+  border: 1.5px solid var(--demo-faint); background: var(--demo-surface); color: var(--demo-ink); cursor: pointer; }
+.demo-tint-1 { background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
+.demo-tint-2 { background: color-mix(in srgb, var(--demo-secondary) 14%, var(--demo-surface)); }
+.demo-tint-3 { background: color-mix(in srgb, var(--demo-tertiary) 16%, var(--demo-surface)); }
+.demo-tint-4 { background: color-mix(in srgb, var(--demo-soft) 16%, var(--demo-surface)); }
+:is(.demo-tint-1, .demo-tint-2, .demo-tint-3, .demo-tint-4) { color: var(--demo-text); }
+.obj-primary   { --toon-color: var(--demo-primary); }
+.obj-secondary { --toon-color: var(--demo-secondary); }
+.obj-tertiary  { --toon-color: var(--demo-tertiary); }
+.obj-neutral   { --toon-color: var(--demo-neutral); }
+
+/* Reduced motion: paused banner with an opt-in play control (added by demo-theme.js). */
+.demo-motion-note { display: flex; gap: .75rem; align-items: center; margin: 0 0 1rem; padding: .6rem .9rem;
+  border-radius: max(var(--demo-radius), 6px); background: var(--demo-surface-2); color: var(--demo-text); font-size: 14px; }
+
+/* "Try it" hint under an interactive canvas. Kept out of the intro paragraph so it stays visible when the docs embed the demo. */
+.demo-try { margin: .5rem 0 1rem; font-size: 13px; color: var(--demo-muted); }
+.demo-try b { color: var(--demo-text); margin-right: .35em; }
+.demo-try b::before { content: "☞ "; }
+
+/* Action buttons that sit beside interactive canvases, so every canvas action also works from the keyboard. */
+.demo-act { font: 600 13px var(--demo-font, system-ui); padding: .45em 1.1em; margin-right: .6em; border-radius: 999px;
+  border: 1.5px solid var(--demo-text); background: var(--demo-surface); color: var(--demo-text); cursor: pointer; vertical-align: middle; }
+.demo-act-range { color: var(--demo-text); margin-right: .6em; }
+.demo-act:focus-visible, .demo-act-range input:focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 2px; }
+.demo-try:has(.demo-act, .demo-act-range) b::before { content: ""; }

@@ -1,0 +1,35 @@
+---
+title: toon
+description: The 12 basic principles of animation as a tiny, zero-dependency CSS + Canvas library.
+template: splash
+hero:
+  tagline: The 12 basic principles of animation in about 500 lines of vanilla CSS and JavaScript. No dependencies, no build step.
+  image:
+    html: |
+      <div class="actor-row fx-stagger" aria-hidden="true" style="--actor-foot:.15">
+        <div class="actor"><div class="actor-body toon-bounce toon-heavy" style="--toon-height:40px"><img src="toon/brand/cast/brick-neutral.svg" alt=""></div><div class="actor-shadow toon-shadow toon-bounce-shadow toon-heavy"></div><small>Brick</small></div>
+        <div class="actor"><div class="actor-body toon-bounce"><img src="toon/brand/cast/dot-happy.svg" alt=""></div><div class="actor-shadow toon-shadow toon-bounce-shadow"></div><small>Dot</small></div>
+        <div class="actor"><div class="actor-body toon-bounce toon-light"><img src="toon/brand/cast/zip-happy.svg" alt=""></div><div class="actor-shadow toon-shadow toon-bounce-shadow toon-light"></div><small>Zip</small></div>
+      </div>
+  actions:
+    - text: Get started
+      link: getting-started/
+      icon: right-arrow
+    - text: Browse the principles
+      link: principles/
+      variant: minimal
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import PrincipleCards from '../../components/PrincipleCards.astro';
+
+<LinkCard title="Find an effect" href="find-an-effect/" description="Know what you want to build, like a pressable button, a list entrance or a loading indicator? Look it up here." />
+
+<CardGrid>
+  <LinkCard title="CSS module reference" href="api/css/" description="toon.css: presets you add as classes (.toon-bounce, .toon-press, .toon-follow…) and tune with custom properties like --toon-squash." />
+  <LinkCard title="Canvas module reference" href="api/canvas/" description="toon.js: one shared clock, easing, tweens, key poses, arcs, squash and stretch, and spring and rope physics, all under window.Toon." />
+</CardGrid>
+
+## The 12 principles
+
+<PrincipleCards />

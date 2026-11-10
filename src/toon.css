@@ -1,0 +1,190 @@
+/*! toon.css v1.0 — the 12 basic principles of animation for DOM elements.
+ *  Vanilla CSS, zero dependencies. Uses individual transform properties (translate / scale /
+ *  rotate) so effects compose, plus @property, color-mix(), linear() and :has().
+ *  Principle tags match toon.js: [SQUASH] [ANTICIPATION] [STAGING] [STRAIGHT-AHEAD]
+ *  [POSE-TO-POSE] [FOLLOW-THROUGH] [SLOW-IN-OUT] [ARCS] [SECONDARY] [TIMING] [EXAGGERATION]
+ *  [SOLID] [APPEAL]. Every @keyframes block is itself [POSE-TO-POSE]: you set the key poses,
+ *  the browser draws the in-betweens.
+ */
+
+:root {
+  /* [TIMING] */
+  --toon-duration: 800ms;   /* base length of one action */
+  --toon-tempo: 1;          /* higher = SLOWER (multiplies duration): 2 = half speed. JS ticker.timeScale runs the other way. */
+  --toon-overlap: 70ms;     /* [FOLLOW-THROUGH] offset between overlapping parts */
+  /* [SLOW-IN-OUT] */
+  --toon-ease-in: cubic-bezier(.55, 0, 1, .45);
+  --toon-ease-out: cubic-bezier(0, .55, .45, 1);
+  --toon-ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --toon-ease-rise: cubic-bezier(.333, .667, .667, 1);  /* exact quadratic: thrown upward */
+  --toon-ease-fall: cubic-bezier(.333, 0, .667, .333);  /* exact quadratic: falling */
+  /* [ANTICIPATION] [EXAGGERATION] [FOLLOW-THROUGH] */
+  --toon-ease-anticipate: cubic-bezier(.36, 0, .66, -.56);
+  --toon-ease-overshoot: cubic-bezier(.34, 1.56, .64, 1);
+  --toon-ease-elastic: linear(0, .199 5%, .608 10%, .991 15%, 1.22 20%, 1.274 25%, 1.206 30%,
+    1.091 35%, .99 40%, .935 45%, .926 50%, .948 55%, .98 60%, 1.006 65%, 1.019 70%, 1.02 75%,
+    1.013 80%, 1.004 85%, .998 90%, 1);
+  /* [SQUASH] [EXAGGERATION] */
+  --toon-squash: .22;       /* 0 = rigid, .5 = very rubbery */
+  --toon-exaggeration: 1;   /* scales every deformation, height and swing */
+  --toon-height: 140px;     /* jump / bounce height */
+  --toon-distance: 240px;   /* travel for arcs, launches, entrances */
+  --toon-color: #ff6b4a;    /* [SOLID] base color */
+}
+
+/* Derived values, computed on each toon element so local overrides cascade correctly. */
+:where([class*="toon-"]) {
+  --_d: calc(var(--toon-duration) * var(--toon-tempo));
+  --_s: calc(var(--toon-squash) * var(--toon-exaggeration));
+  --_h: calc(var(--toon-height) * var(--toon-exaggeration));
+  --_e: var(--toon-exaggeration);
+}
+
+/* ── [SQUASH] [TIMING] [SLOW-IN-OUT] Bouncing ball ─────────────────────────────
+ * Two animations on independent properties: translate follows gravity easing (slow at the
+ * apex, fast at the ground); scale squashes on contact and stretches at top speed. */
+.toon-bounce {
+  transform-origin: 50% 100%;
+  animation: toon-bounce-y var(--_d) infinite, toon-bounce-scale var(--_d) linear infinite;
+}
+@keyframes toon-bounce-y {
+  0%, 100% { translate: 0 0; animation-timing-function: var(--toon-ease-rise); }
+  50%      { translate: 0 calc(var(--_h) * -1); animation-timing-function: var(--toon-ease-fall); }
+}
+@keyframes toon-bounce-scale {
+  0%, 100% { scale: calc(1 + var(--_s)) calc(1 - var(--_s)); }           /* contact: squash */
+  6%, 94%  { scale: calc(1 - var(--_s) * .4) calc(1 + var(--_s) * .5); } /* top speed: stretch */
+  30%, 70% { scale: 1; }                                                   /* slow at apex: round */
+}
+/* [SOLID] Contact shadow kept in sync: smaller and fainter while the ball is high. */
+.toon-bounce-shadow { animation: toon-shadow var(--_d) infinite; }
+@keyframes toon-shadow {
+  0%, 100% { scale: 1; opacity: .5; animation-timing-function: var(--toon-ease-rise); }
+  50%      { scale: .45; opacity: .15; animation-timing-function: var(--toon-ease-fall); }
+}
+
+/* ── [ANTICIPATION] Prepare the audience for the action ──────────────────────── */
+/* Press: dip quickly while held, spring back past rest on release. */
+.toon-press { transition: scale calc(var(--_d) * .5) var(--toon-ease-overshoot); }
+.toon-press:active {
+  scale: calc(1 - var(--_s) * .4);
+  transition-duration: 80ms; transition-timing-function: var(--toon-ease-out);
+}
+/* Hover/focus wind-up: crouch → spring up → settle slightly raised. */
+.toon-anticipate { transform-origin: 50% 100%; }
+.toon-anticipate:is(:hover, :focus-visible) {
+  animation: toon-anticipate calc(var(--_d) * .7) var(--toon-ease-in-out) both;
+}
+@keyframes toon-anticipate {
+  30%  { translate: 0 calc(4px * var(--_e)); scale: calc(1 + var(--_s) * .3) calc(1 - var(--_s) * .3); }
+  60%  { translate: 0 calc(-8px * var(--_e)); scale: calc(1 - var(--_s) * .15) calc(1 + var(--_s) * .2); }
+  100% { translate: 0 -4px; scale: 1; }
+}
+/* Launch (add the class to play): pull back, shoot forward --toon-distance, overshoot, settle. */
+.toon-launch { animation: toon-launch var(--_d) both; }
+@keyframes toon-launch {
+  0%   { translate: 0 0; animation-timing-function: var(--toon-ease-out); }
+  30%  { translate: calc(var(--toon-distance) * -.12 * var(--_e)) 0; scale: .9 1.08;
+         animation-timing-function: var(--toon-ease-in); }                         /* wind-up */
+  45%  { scale: calc(1 + var(--_s)) calc(1 - var(--_s) * .6); }                  /* stretch */
+  75%  { translate: calc(var(--toon-distance) + 14px * var(--_e)) 0; scale: 1;
+         animation-timing-function: var(--toon-ease-in-out); }                     /* overshoot */
+  100% { translate: var(--toon-distance) 0; scale: 1; }
+}
+
+/* ── [ARCS] X linear + Y on gravity easing = a true parabola ───────────────────
+ * Two nested elements so both axes stay on the compositor (transform only):
+ * <div class="toon-arc"><div>…</div></div> — the wrapper travels, its child rises and falls. */
+.toon-arc { animation: toon-arc-x var(--_d) linear both; }
+.toon-arc > * {
+  animation: toon-arc-y var(--_d) both;
+  animation-iteration-count: inherit; animation-direction: inherit; animation-play-state: inherit;
+}
+@keyframes toon-arc-x { to { translate: var(--toon-distance) 0; } }
+@keyframes toon-arc-y {
+  0%   { translate: 0 0; animation-timing-function: var(--toon-ease-rise); }
+  50%  { translate: 0 calc(var(--_h) * -1); animation-timing-function: var(--toon-ease-fall); }
+  100% { translate: 0 0; }
+}
+
+/* ── [FOLLOW-THROUGH] Parts arrive staggered (overlapping action) and drag past the stop ── */
+.toon-follow > *, .toon-settle {
+  transform-origin: 50% 0;
+  animation: toon-settle var(--_d) var(--toon-ease-out) both;
+  animation-delay: calc(var(--toon-i, 0) * var(--toon-overlap));
+}
+.toon-follow > :nth-child(2) { --toon-i: 1; }  .toon-follow > :nth-child(3) { --toon-i: 2; }
+.toon-follow > :nth-child(4) { --toon-i: 3; }  .toon-follow > :nth-child(5) { --toon-i: 4; }
+.toon-follow > :nth-child(6) { --toon-i: 5; }  .toon-follow > :nth-child(7) { --toon-i: 6; }
+.toon-follow > :nth-child(8) { --toon-i: 7; }  .toon-follow > :nth-child(9) { --toon-i: 8; }
+@keyframes toon-settle {
+  0%   { translate: calc(var(--toon-distance) * -.5) 0; rotate: 0deg; opacity: 0; }
+  55%  { translate: 0 0; rotate: calc(-5deg * var(--_e)); opacity: 1; }  /* body stops, mass swings on */
+  75%  { rotate: calc(2.5deg * var(--_e)); }
+  90%  { rotate: calc(-1deg * var(--_e)); }
+  100% { translate: 0 0; rotate: 0deg; opacity: 1; }
+}
+
+/* ── [SECONDARY] Small supporting motions that run alongside the main action ── */
+.toon-sway { transform-origin: 50% 100%;
+  animation: toon-sway calc(var(--_d) * 3) var(--toon-ease-in-out) infinite alternate; }
+@keyframes toon-sway { from { rotate: calc(-4deg * var(--_e)); } to { rotate: calc(4deg * var(--_e)); } }
+.toon-bob { animation: toon-bob calc(var(--_d) * .6) var(--toon-ease-in-out) infinite alternate; }
+@keyframes toon-bob { to { translate: 0 calc(-5px * var(--_e)); } }
+.toon-blink { animation: toon-blink calc(var(--_d) * 5) infinite; }
+@keyframes toon-blink { 0%, 93%, 100% { scale: 1 1; } 96% { scale: 1 .1; } }
+
+/* ── [STAGING] One idea at a time: the featured/hovered child pops, the rest recede ──
+ * Opacity + scale only: both are composited, unlike filter: blur(), which repaints every frame. */
+.toon-stage > * { transition: opacity .3s var(--toon-ease-out), scale .3s var(--toon-ease-out); }
+.toon-stage:has(> :is(.is-featured, :hover, :focus-visible)) > :not(.is-featured, :hover, :focus-visible) {
+  opacity: .4; scale: .96;
+}
+.toon-stage > :is(.is-featured, :hover, :focus-visible) { scale: 1.04; }
+/* Overlay a spotlight; position with --toon-spot-x / -y / -r. Parent needs position: relative. */
+.toon-spotlight {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at var(--toon-spot-x, 50%) var(--toon-spot-y, 50%),
+    transparent var(--toon-spot-r, 90px), rgb(0 0 0 / .6) calc(var(--toon-spot-r, 90px) * 2));
+}
+
+/* ── [STRAIGHT-AHEAD] Flipbook: drawn frames played one after another, no in-betweens ── */
+.toon-sprite {
+  --toon-frames: 8; --toon-fps: 12; --toon-frame-w: 64px;
+  width: var(--toon-frame-w); background-repeat: no-repeat; background-size: auto 100%;
+  animation: toon-sprite calc(var(--toon-frames) / var(--toon-fps) * 1s) steps(var(--toon-frames)) infinite;
+}
+@keyframes toon-sprite { to { background-position-x: calc(var(--toon-frames) * var(--toon-frame-w) * -1); } }
+
+/* ── [TIMING] Same motion, different weight ── */
+.toon-heavy { --toon-tempo: 1.6; --toon-squash: .06; }
+.toon-light { --toon-tempo: .6;  --toon-squash: .38; }
+
+/* ── [EXAGGERATION] Dial the caricature up or down ── */
+.toon-subtle     { --toon-exaggeration: .5; }
+.toon-exaggerate { --toon-exaggeration: 1.8; }
+
+/* ── [SOLID] Form, light and weight ── */
+.toon-solid {
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    color-mix(in oklab, var(--toon-color), white 60%) 0 6%, var(--toon-color) 38%,
+    color-mix(in oklab, var(--toon-color), black 50%) 90%, color-mix(in oklab, var(--toon-color), black 30%));
+}
+.toon-shadow { border-radius: 50%; background: radial-gradient(closest-side, rgb(0 0 0 / .45), transparent); }
+
+/* ── [APPEAL] Life at rest and confident entrances ── */
+.toon-breathe { transform-origin: 50% 100%;
+  animation: toon-breathe calc(var(--_d) * 2.5) var(--toon-ease-in-out) infinite alternate; }
+@keyframes toon-breathe { to { scale: calc(1 - .025 * var(--_e)) calc(1 + .04 * var(--_e)); } }
+.toon-pop-in { animation: toon-pop-in var(--_d) var(--toon-ease-elastic) both; }
+@keyframes toon-pop-in { from { scale: 0; opacity: 0; } 25% { opacity: 1; } }
+
+/* ── Utilities ── */
+.toon-loop   { animation-iteration-count: infinite; }
+.toon-yoyo   { animation-direction: alternate; }
+.toon-paused { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  [class*="toon-"], .toon-follow > *, .toon-arc > * { animation: none !important; transition: none !important; }
+}

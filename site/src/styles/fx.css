@@ -1,0 +1,75 @@
+/* fx.css — reusable interface motion for the docs site.
+ *
+ * Class-only: nothing here names a Starlight (or any other) element. Elements opt in with a class,
+ * either in markup (<ul class="fx-stagger">) or through fx.bind() in src/scripts/fx.js for markup we
+ * don't own. Everything is tuned with --fx-* custom properties, set globally or per element.
+ *
+ *   Entrance    .fx-enter                       glide up + fade when the element first renders
+ *               .fx-stagger                     children cascade in when fx.reveal() marks it .is-revealed
+ *   Press       .fx-press  (+ .fx-press-soft)   squash on :active, spring back on release
+ *   Hover       .fx-lift   (+ .fx-lift-shadow)  lift on hover, optional shadow change
+ *   Static      .fx-tilt-alt                    children tilt alternately (sticker / collage look)
+ *
+ * Rules: transform-family properties (translate, scale, rotate) + opacity + box-shadow only;
+ * `backwards` fill, so no transform lingers after an animation; namespaced fx- / --fx- / @keyframes fx-*.
+ * Depends on toon.css for --toon-ease-elastic and --toon-ease-out (falls back to plain curves without it). */
+
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --fx-ease-out: var(--toon-ease-out, cubic-bezier(0.2, 0, 0, 1));
+  --fx-ease-glide: cubic-bezier(0.2, 0, 0, 1);
+  --fx-ease-cascade: cubic-bezier(0.16, 1, 0.3, 1);
+  --fx-ease-spring: var(--toon-ease-elastic, cubic-bezier(0.34, 1.56, 0.64, 1));
+
+  --fx-enter-dur: 220ms;    --fx-enter-distance: 8px;
+  --fx-stagger-dur: 320ms;  --fx-stagger-step: 40ms;  --fx-stagger-distance: -16px;
+  --fx-press-down: 90ms;    --fx-press-release: 480ms; --fx-press-scale: .92;
+  --fx-lift-dur: 160ms;     --fx-lift-x: 0px;          --fx-lift-y: -4px;
+  /* Unset by default (opt-in): --fx-lift-rotate, --fx-tilt, --fx-tilt-odd.
+     --fx-lift-shadow is REQUIRED wherever .fx-lift-shadow is used: unset means "no shadow" on hover. */
+}
+
+/* ── Keyframes (global by nature: define once, prefix to avoid clashes) ── */
+@keyframes fx-enter   { from { opacity: 0; translate: 0 var(--fx-enter-distance); } }
+@keyframes fx-stagger { from { opacity: 0; translate: var(--fx-stagger-distance) 0; } }
+@keyframes fx-fade    { from { opacity: 0; } }
+
+/* ── Entrance ───────────────────────────────────────────────────────────── */
+.fx-enter { animation: fx-enter var(--fx-enter-dur) var(--fx-ease-glide) var(--fx-delay, 0s) backwards; }
+.fx-enter::backdrop { animation: fx-fade var(--fx-enter-dur) linear backwards; }   /* <dialog> only */
+
+/* Children wait (only when fx.js is running), then cascade. fx.reveal() sets --fx-i on each child. */
+.fx-js .fx-stagger:not(.is-revealed) > * { opacity: 0; }
+.fx-stagger.is-revealed > * {
+  animation: fx-stagger var(--fx-stagger-dur) var(--fx-ease-cascade) backwards;
+  animation-delay: calc(var(--fx-i, 0) * var(--fx-stagger-step));
+}
+
+/* ── Static tilt: odd children lean left, even lean right. No --fx-tilt → no rotate at all.
+ *    Defined before .fx-lift so a hovered card can straighten (same specificity, later rule wins). ── */
+.fx-tilt-alt > :nth-child(odd)  { rotate: var(--fx-tilt-odd, calc(var(--fx-tilt) * -1)); }
+.fx-tilt-alt > :nth-child(even) { rotate: var(--fx-tilt); }
+
+/* ── Press + hover share one `transition`, built from per-utility slots ──
+ * Two utilities each writing `transition` would overwrite each other, so each fills its own slot. */
+:where(.fx-press, .fx-lift, .fx-lift-shadow) {
+  transition: var(--_fx-scale, scale 0s), var(--_fx-move, translate 0s, rotate 0s), var(--_fx-shadow, box-shadow 0s);
+}
+.fx-press { --_fx-scale: scale var(--fx-press-release) var(--fx-ease-spring); }
+.fx-press:active { scale: var(--fx-press-scale); --_fx-scale: scale var(--fx-press-down) var(--fx-ease-out); }
+.fx-press-soft { --fx-press-scale: .97; }          /* big surfaces squash less */
+
+.fx-lift { --_fx-move: translate var(--fx-lift-dur) var(--fx-ease-out), rotate var(--fx-lift-dur) var(--fx-ease-out); }
+.fx-lift:hover { translate: var(--fx-lift-x) var(--fx-lift-y); rotate: var(--fx-lift-rotate, none); }
+.fx-lift-shadow { --_fx-shadow: box-shadow var(--fx-lift-dur) var(--fx-ease-out); }
+.fx-lift-shadow:hover { box-shadow: var(--fx-lift-shadow, none); }
+
+/* ── Reduced motion: keep feedback, drop movement ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .fx-enter, .fx-stagger.is-revealed > * { animation: fx-fade 150ms linear backwards !important; animation-delay: 0s !important; }
+  :where(.fx-press, .fx-lift, .fx-lift-shadow) { transition: none; }
+  .fx-press:active { scale: none; }
+}
+
+/* View-transition curtain (fx.curtain): let the clip-path reveal replace the default cross-fade. */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }

@@ -1,0 +1,48 @@
+---
+/**
+ * Shows a recipe's code and, under it, the same code running.
+ * The code is read at build time from examples/<dir>/<file> (dir defaults to recipes), from the regions between markers:
+ *   HTML  <!-- @recipe --> … <!-- @end -->      JS  // @recipe … // @end      CSS  /* @recipe *\/ … /* @end *\/
+ * so the snippet on the page and the live example can never drift apart.
+ *   show  which regions to print (0-based indexes, default all)
+ *   demo  embed the running page under the code (default true)
+ *   dir   folder under examples/ (default 'recipes')
+ */
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { Code } from '@astrojs/starlight/components';
+import Demo from './Demo.astro';
+
+interface Props { file: string; show?: number[]; demo?: boolean; title?: string; dir?: string }
+const { file, show, demo = true, title, dir = 'recipes' } = Astro.props;
+
+const source = readFileSync(resolve(process.cwd(), '../examples', dir, file), 'utf8');
+const MARKERS: [RegExp, string][] = [
+  [/<!--\s*@recipe\s*-->\n?([\s\S]*?)\n?[ \t]*<!--\s*@end\s*-->/g, 'html'],
+  [/\/\/\s*@recipe[^\n]*\n([\s\S]*?)\n?[ \t]*\/\/\s*@end/g, 'js'],
+  [/\/\*\s*@recipe\s*\*\/\n?([\s\S]*?)\n?[ \t]*\/\*\s*@end\s*\*\//g, 'css'],
+];
+const dedent = (s: string) => {
+  const lines = s.replace(/\s+$/, '').split('\n');
+  const pad = Math.min(...lines.filter((l) => l.trim()).map((l) => l.match(/^[ \t]*/)![0].length));
+  return lines.map((l) => l.slice(pad)).join('\n');
+};
+const regions = MARKERS.flatMap(([re, lang]) => [...source.matchAll(re)].map((m) => ({ at: m.index!, lang, code: dedent(m[1]) })))
+  .sort((a, b) => a.at - b.at);
+if (!regions.length) throw new Error(`Recipe ${file} has no @recipe regions`);
+const shown = show ? show.map((i) => regions[i]) : regions;
+const pageTitle = title ?? source.match(/<h1>([^<]*)<\/h1>/)?.[1] ?? 'Live example';
+---
+{shown.map((r) => <Code code={r.code} lang={r.lang} wrap />)}
+{demo && (
+  <div class="recipe-result">
+    <p class="recipe-label">Result</p>
+    <Demo file={`${dir}/${file}`} title={pageTitle} source={false} linkText={`Open “${pageTitle.replace(/^Recipe · /, '')}” on its own page`} />
+  </div>
+)}
+
+<style>
+  .recipe-result { margin-top: 1rem; }
+  .recipe-label { margin: 0 0 -.75rem; font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--sl-color-gray-3); }
+</style>

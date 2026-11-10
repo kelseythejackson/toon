@@ -1,0 +1,39 @@
+/* Cut & Paste — maximalist scrapbook: torn paper, tape, stickers, hard shadows. */
+:root[data-style='collage'] {
+  --font-body: 'Bricolage Grotesque Variable', system-ui, sans-serif; --font-mono: 'Space Mono', ui-monospace, monospace;
+  --display: 'Rubik Mono One', sans-serif; --hand: 'Caveat Variable', cursive;
+  --cobalt: #2f4bff; --tangerine: #ff6b1a; --sticker-ink: #1a1a1a; --tape: #e9d3a8cc;
+  --fx-tilt: 1deg; --fx-tilt-odd: -1.2deg; --fx-lift-y: -4px; --fx-lift-shadow: 5px 5px 0 var(--shadow);   /* stuck-on cards straighten on hover */
+}
+:root[data-style='collage'][data-theme='light'] {
+  --paper: #fff4e0; --wash: #fbecd2; --hair: #f0e3c9; --hair-strong: #d8ccb6; --faint: #8e877c;
+  --muted: #55504a; --text: #2a2724; --ink: #1a1a1a; --link: #2438d9; --accent-low: #dfe4ff;
+  --line: #1a1a1a; --shadow: #1a1a1a; --card: #ffffff; --card-a: #eaf9f1; --card-b: #fff0e6;
+  --swatch: #7be0b5; --title: #1a1a1a; --title-ring: #ffffff;
+}
+:root[data-style='collage'][data-theme='dark'] {
+  --paper: #1d1915; --wash: #25201b; --hair: #332c25; --hair-strong: #4a4138; --faint: #8a8074;
+  --muted: #bdb2a3; --text: #ede2d3; --ink: #fff4e0; --link: #8c9cff; --accent-low: #1e2450;
+  --line: #fff4e0; --shadow: #2f4bff; --card: #2a241e; --card-a: #1f2e28; --card-b: #33251c;
+  --swatch: #2b5e4e; --title: #fff4e0; --title-ring: #1a1a1a;
+}
+[data-style='collage'] :is(h1#_top, .hero h1, .sl-markdown-content :is(h2, h3)) { font-weight: 400; letter-spacing: -0.02em; }
+[data-style='collage'] .hero::before { content: ''; position: absolute; z-index: -1; left: -30px; top: 10px; width: 52%; height: 78%; rotate: -2deg;
+  background: var(--swatch);
+  clip-path: polygon(0 4%, 6% 0, 14% 3%, 22% 0, 31% 4%, 40% 1%, 52% 3%, 63% 0, 75% 4%, 86% 1%, 100% 3%, 98% 52%, 100% 97%, 88% 100%, 76% 96%, 63% 100%, 49% 97%, 37% 100%, 24% 96%, 12% 100%, 2% 97%, 0 50%); }
+[data-style='collage'] .hero::after { content: 'look, it bounces!'; position: absolute; right: 6%; top: 6px; padding: .35em .8em; rotate: 6deg;
+  font: 700 1.5rem var(--hand); background: var(--tangerine); color: var(--sticker-ink); border-radius: 999px;
+  border: 2px solid var(--sticker-ink); box-shadow: 3px 3px 0 var(--sticker-ink); pointer-events: none; }
+[data-style='collage'] .hero h1 { font-size: clamp(3rem, 7vw, 5.25rem); line-height: 1; color: var(--title);
+  text-shadow: 3px 3px 0 var(--title-ring), -3px 3px 0 var(--title-ring), 3px -3px 0 var(--title-ring), -3px -3px 0 var(--title-ring), 7px 7px 0 var(--cobalt); }
+[data-style='collage'] .hero .tagline { color: var(--text); }
+[data-style='collage'] .hero .sl-link-button { font-weight: 700; }
+[data-style='collage'] .hero .sl-link-button.primary { border-radius: 999px; border: 2px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); background: var(--cobalt); color: #fff; }
+[data-style='collage'] .hero .sl-link-button:not(.primary) { background: var(--card); color: var(--ink); border: 2px solid var(--line); border-radius: 999px; padding: .6rem 1.25rem; rotate: -2deg; }
+[data-style='collage'] :is(.card, .sl-link-card) { border: 2px solid var(--line) !important; border-radius: 4px !important; background: var(--card) !important;
+  box-shadow: 5px 5px 0 var(--shadow); position: relative; overflow: visible !important; }
+[data-style='collage'] .card-grid > :nth-child(3n) { background: var(--card-a) !important; }
+[data-style='collage'] .card-grid > :nth-child(4n) { background: var(--card-b) !important; }
+[data-style='collage'] :is(.sl-link-card, .card)::before { content: ''; position: absolute; top: -12px; left: 50%; width: 84px; height: 24px; translate: -50% 0; rotate: -4deg; background: var(--tape); }
+[data-style='collage'] .sidebar-content a[aria-current='page'] { background: var(--tangerine) !important; color: var(--sticker-ink) !important; border-radius: 999px; font-weight: 700; rotate: -1deg; }
+[data-style='collage'] .expressive-code .frame { border: 2px solid var(--line); box-shadow: 5px 5px 0 var(--cobalt); border-radius: 6px; }

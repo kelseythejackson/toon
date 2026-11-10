@@ -1,0 +1,66 @@
+{
+  "name": "toon-principles",
+  "version": "1.1.0",
+  "description": "The 12 basic principles of animation as a tiny, zero-dependency CSS + Canvas library.",
+  "author": "Kelsey Jackson",
+  "homepage": "https://kelseythejackson.github.io/toon/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kelseythejackson/toon.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kelseythejackson/toon/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "workspaces": [
+    "site"
+  ],
+  "main": "src/toon.js",
+  "module": "src/toon.mjs",
+  "browser": "src/toon.js",
+  "style": "src/toon.css",
+  "exports": {
+    ".": {
+      "import": "./src/toon.mjs",
+      "default": "./src/toon.js"
+    },
+    "./toon.css": "./src/toon.css",
+    "./toon.js": "./src/toon.js",
+    "./toon.debug.js": "./src/toon.debug.js"
+  },
+  "jsdelivr": "src/toon.js",
+  "unpkg": "src/toon.js",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "*.css",
+    "./src/toon.js"
+  ],
+  "keywords": [
+    "animation",
+    "canvas",
+    "css",
+    "easing",
+    "squash-and-stretch",
+    "12-principles"
+  ],
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "check": "node --env-file-if-exists=.env scripts/check.mjs && node scripts/check-demo-contrast.mjs",
+    "check:contrast": "node scripts/check-demo-contrast.mjs",
+    "check:site": "node --env-file-if-exists=.env scripts/check-site.mjs",
+    "docs:dev": "npm run dev -w site",
+    "docs:stop": "npm run stop -w site",
+    "docs:build": "npm run build -w site",
+    "docs:preview": "npm run preview -w site"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
+  }
+}

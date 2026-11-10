@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>05 · Follow-through &amp; overlapping action — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 340px; }
+  .list { display: grid; gap: .6rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
+  .list > div { padding: .9rem 1.2rem; border-radius: 10px; background: color-mix(in srgb, var(--demo-tertiary) 16%, var(--demo-surface)); }
+  button { font: 600 14px system-ui; padding: .5em 1.2em; border-radius: 999px; border: 1.5px solid var(--demo-faint); background: var(--demo-surface); color: var(--demo-ink); cursor: pointer; margin-bottom: .6rem; }
+</style>
+</head>
+<body>
+<h1>05 · Follow-through &amp; overlapping action</h1>
+<p>Zip stops; its speed-lines keep going, swing past and settle (follow-through). Each line lags by a different
+  amount (overlapping action).</p>
+<canvas id="c" style="cursor:crosshair" role="img" aria-label="Zip darts around and stops. Its three speed-lines keep moving, swing past and settle, each a little behind the others."></canvas>
+<p class="demo-try"><b>Try it</b> Move your pointer over the canvas, or watch the autopilot dart and stop.</p>
+
+<h2>CSS: <code>.toon-follow</code></h2>
+<button id="replay">Replay</button>
+<div class="list toon-follow" id="list">
+  <div>Each item starts <code>--toon-overlap</code> after the previous one…</div>
+  <div>…slides in, stops, and its bottom swings past the stop…</div>
+  <div>…then wobbles back and settles.</div>
+  <div>Overlapping action: no part moves in lock-step.</div>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, Spring, Chain } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const springy = { stiffness: 90, damping: 11 };   // slightly under-damped: the body itself overshoots
+  const head = { x: new Spring(200, springy), y: new Spring(170, springy) };
+  const H = 60;                                     // Zip's body height on screen
+  // three speed-lines, each a short rope hanging off Zip's tail, with its own length and damping (overlap)
+  const tip = Cast.shapes.zip.tail;
+  const lines = [[-6, -12, 4, 0.9], [-12, 2, 5, 0.93], [-4, 16, 3, 0.88]].map(([dx, dy, n, damping]) =>
+    ({ at: [tip[0] + dx, tip[1] + dy], chain: new Chain(n, { x: 200, y: 170, length: 7, damping, stiffness: 0.12 }) }));
+  let flip = false;
+  let target = { x: 200, y: 170 }, lastPointer = -9, nextHop = 0;
+
+  stage.canvas.addEventListener('pointermove', e => {
+    const r = stage.canvas.getBoundingClientRect();
+    target = { x: e.clientX - r.left, y: e.clientY - r.top }; lastPointer = ticker.time;
+  });
+
+  stage.loop((dt, t) => {
+    if (t - lastPointer > 2 && t > nextHop) {          // autopilot: dart, then hold still
+      target = { x: 60 + Math.random() * (stage.width - 120), y: 60 + Math.random() * (stage.height - 120) };
+      nextHop = t + 1.8;
+    }
+    head.x.target = target.x; head.y.target = target.y;
+    const hx = head.x.step(dt), hy = head.y.step(dt), vx = head.x.velocity, vy = head.y.velocity;
+    if (Math.abs(vx) > 40) flip = vx < 0;                 // face the way it's going
+    const pose = { x: hx, y: hy, h: H, flip };
+    for (const l of lines) l.chain.update(Cast.anchor('zip', pose, l.at), dt);
+
+    stage.clear();
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = T.ink; ctx.lineWidth = 2.6;
+    for (const l of lines) {                           // [FOLLOW-THROUGH] speed-lines drag, overshoot, settle
+      ctx.beginPath(); l.chain.points.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.stroke();
+    }
+    const speed = Math.hypot(vx, vy), clamp = v => Math.max(-1, Math.min(1, v));
+    Cast.draw(ctx, 'zip', { ...pose, fill: T.tertiary, ink: T.ink, trail: false,
+      mood: speed > 650 ? 'happy' : 'neutral', look: { x: clamp(Math.abs(vx) / 300), y: clamp(vy / 300) } });
+  });
+
+  const list = document.getElementById('list');
+  document.getElementById('replay').onclick = () => { list.classList.remove('toon-follow'); void list.offsetWidth; list.classList.add('toon-follow'); };
+</script>
+</body>
+</html>

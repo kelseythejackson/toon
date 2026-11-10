@@ -1,0 +1,38 @@
+---
+title: Solid drawing
+description: "Make flat shapes feel 3-D: shading, volume, contact shadows."
+sidebar: { order: 11, label: '11 · Solid drawing' }
+---
+import Demo from '../../../components/Demo.astro';
+
+Even a 2-D animation should feel like it has depth. Shading tells you where the light is and that the shape is round; a contact shadow tells you where the object is in space and how high it is. Surface detail that rotates sells the third dimension.
+
+<Demo file="11-solid-drawing.html" title="Solid drawing demo" />
+
+## Solid drawing in CSS
+
+```html
+<div class="toon-solid" style="--toon-color:#3fa7d6"></div>
+<div class="toon-shadow"></div>
+```
+
+`.toon-solid` builds the same shading from `--toon-color` using `color-mix()`. Pair `.toon-bounce` with `.toon-bounce-shadow` to keep the shadow in sync with the bounce.
+
+## Solid drawing in Canvas
+
+```js
+Toon.drawSolid(ctx, { x, y, r: 48, color: '#3fa7d6', light: { x: -0.45, y: -0.55 } });
+Toon.groundShadow(ctx, x, groundY, 48, heightAboveGround, { maxHeight: 260 });
+```
+
+`drawSolid` paints a highlight, the color, a core shadow and a lighter rim (reflected light). `groundShadow` shrinks and fades as the object rises. In the demo the light follows your pointer, the shadow moves away from it, and the globe's meridians are projected as half-ellipses to show it spinning.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+
+## Solid drawing: tuning tips
+
+- **Keep one light source** for the whole scene, and put every highlight and shadow on the same side.
+- **Anchor the shadow to the ground.** It should stay on the floor and change size and opacity, not move up with the object.
+- **Keep volume constant.** Solid drawing and [squash and stretch](../squash-and-stretch/) work together: the shape deforms but never loses mass.
+
+**API:** [`drawSolid` / `groundShadow` / `shade`](../../api/canvas/#drawing-staging-and-appeal), [`.toon-solid` / `.toon-shadow`](../../api/css/#classes)

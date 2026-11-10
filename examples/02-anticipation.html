@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Anticipation — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 320px; cursor: pointer; }
+  .row { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
+  .btn { font: 600 16px system-ui; padding: .8em 1.6em; border: 0; border-radius: 999px; background: var(--demo-btn); color: var(--demo-on-btn); cursor: pointer; }
+  .card { padding: 1rem 1.4rem; border-radius: 12px; background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
+  .track { width: 100%; height: 50px; position: relative; }
+  .arrow { position: absolute; left: 20px; top: 8px; font-size: 28px; }
+</style>
+</head>
+<body>
+<h1>02 · Anticipation</h1>
+<p>Before a big action, a small opposite move (the crouch) tells the viewer what is about to happen.
+ </p>
+<label><input id="antic" type="checkbox" checked> Anticipation (crouch before the jump)</label>
+<canvas id="c" style="cursor:pointer" role="img" aria-label="Dot crouches down, then jumps and lands. With anticipation switched off, Dot jumps without crouching first."></canvas>
+<p class="demo-try"><button type="button" class="demo-act" id="act">Jump</button> <b>Try it</b> Press <i>Jump</i> or click the canvas, then turn anticipation off and compare.</p>
+
+<h2>CSS</h2>
+<div class="row">
+  <button class="btn toon-press">.toon-press — hold me</button>
+  <div class="card toon-anticipate" tabindex="0">.toon-anticipate — hover me</div>
+  <button class="btn" id="replay">Play .toon-launch</button>
+  <div class="track"><div class="arrow" id="arrow">➜</div></div>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, tween, sequence, ease, withSquash, groundShadow } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const hero = { y: 0, sy: 1 };              // y = height above ground; sx = 1/sy keeps volume
+  const set = v => Object.assign(hero, v);
+  let mood = 'neutral';
+  const to = (pose, duration, e, m) => () => { if (m) mood = m; return tween({ from: { ...hero }, to: pose, duration, ease: e, onUpdate: set }); };
+
+  let busy = false;
+  async function jump() {
+    if (busy) return; busy = true;
+    await sequence(
+      document.getElementById('antic').checked
+        ? to({ y: 0, sy: 0.62 }, 280, ease.outQuad, 'focused')   // [ANTICIPATION] crouch: wind up opposite to the jump
+        : null,
+      to({ y: 30, sy: 1.3 }, 90, ease.linear, 'happy'),  // take-off: stretch
+      to({ y: 170, sy: 1 }, 320, ease.outQuad),        // rise, slowing into the apex
+      to({ y: 0, sy: 1.15 }, 300, ease.inQuad),        // fall, speeding up
+      to({ y: 0, sy: 0.7 }, 70, ease.outQuad, 'surprised'),  // land: squash
+      to({ y: 0, sy: 1 }, 420, ease.outElastic),       // recover
+    );
+    mood = 'neutral'; busy = false;
+  }
+  stage.canvas.addEventListener('click', jump);
+
+  const character = (c, R) => Cast.draw(c, 'dot', { x: 0, y: 0, h: R * 2, fill: T.primary, ink: T.ink, mood });
+
+  stage.loop(() => {
+    const R = 40, x = stage.width / 2, ground = stage.height - 40;
+    stage.clear();
+    ctx.fillStyle = T.ground; ctx.fillRect(0, ground, stage.width, 40);
+    ctx.fillStyle = T.groundLine; ctx.fillRect(0, ground, stage.width, 2);
+    groundShadow(ctx, x, ground, R, hero.y, { maxHeight: 250 });
+    withSquash(ctx, x, ground - R - hero.y, { sx: 1 / hero.sy, sy: hero.sy }, c => character(c, R), { x: 0, y: R });
+  });
+
+  // CSS launch: restart the animation by re-adding the class
+  const arrow = document.getElementById('arrow');
+  document.getElementById('replay').onclick = () => {
+    arrow.classList.remove('toon-launch'); void arrow.offsetWidth; arrow.classList.add('toon-launch');
+  };
+  document.getElementById('act').addEventListener('click', jump);
+</script>
+</body>
+</html>

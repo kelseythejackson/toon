@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipe · A character jump, scripted — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="recipe.css">
+</head>
+<body>
+<h1>Recipe · A character jump, scripted</h1>
+<p>Anticipation, squash and stretch, slow in and slow out, and timing, one tween per beat.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas role="img"
+        aria-label="A ball crouches, jumps and squashes as it lands"></canvas>
+<button>Jump</button>
+<!-- @end -->
+</div>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script>
+// @recipe
+const { createStage, tween, sequence, ease,
+        withSquash, drawSolid, groundShadow } = Toon;
+const stage = createStage(document.querySelector('canvas'));
+const hero = { y: 0, sy: 1 };   // height off ground, y-scale
+
+// One beat: tween the hero from where it is now to `pose`.
+const to = (pose, ms, e) => () => tween({
+  from: { ...hero }, to: pose, duration: ms, ease: e,
+  onUpdate: (v) => Object.assign(hero, v),
+});
+let busy = false;
+async function jump() {
+  if (busy) return; busy = true;
+  await sequence(
+    to({ sy: 0.62 }, 280, ease.outQuad),      // crouch
+    to({ y: 30, sy: 1.3 }, 90, ease.linear),   // take-off stretch
+    to({ y: 170, sy: 1 }, 320, ease.outQuad),  // rise, ease out
+    to({ y: 0, sy: 1.15 }, 300, ease.inQuad),  // fall, ease in
+    to({ sy: 0.7 }, 70, ease.outQuad),         // land squash
+    to({ sy: 1 }, 420, ease.outElastic),       // recover
+  );
+  busy = false;
+}
+
+stage.loop(() => {
+  const r = 30, x = stage.width / 2, groundY = stage.height - 24;
+  stage.clear();
+  groundShadow(stage.ctx, x, groundY, r, hero.y);
+  const scale = { sx: 1 / hero.sy, sy: hero.sy };  // same area
+  // pivot { x: 0, y: r } keeps the base of the ball planted
+  withSquash(stage.ctx, x, groundY - r - hero.y, scale,
+             (c) => drawSolid(c, { r }), { x: 0, y: r });
+});
+document.querySelector('button').onclick = jump;
+jump();
+// @end
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 · Appeal — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 340px; cursor: pointer; }
+  .row { display: flex; gap: 2rem; align-items: center; justify-content: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 2rem; }
+  .avatar { display: block; overflow: visible; }
+  .avatar .eyes { transform-box: fill-box; transform-origin: center; }   /* blink scales the eyes in place */
+  button { font: 600 14px system-ui; padding: .5em 1.2em; border-radius: 999px; border: 1.5px solid var(--demo-faint); background: var(--demo-surface); color: var(--demo-ink); cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>12 · Appeal</h1>
+<p>Appeal is charisma: simple readable shapes, soft curves, and a sense of life. Dot breathes and blinks on an irregular rhythm.</p>
+<canvas id="c" style="cursor:pointer" role="img" aria-label="Dot breathes, blinks on an irregular rhythm and follows the pointer with its eyes. On request, Dot hops happily."></canvas>
+<p class="demo-try"><button type="button" class="demo-act" id="act">Make Dot happy</button> <b>Try it</b> Move your pointer and Dot watches it. Press <i>Make Dot happy</i> or click the canvas.</p>
+
+<h2>CSS: <code>.toon-pop-in</code> + <code>.toon-breathe</code> + <code>.toon-blink</code></h2>
+<div class="row">
+  <div id="pop" class="toon-pop-in">
+    <svg class="avatar toon-breathe" viewBox="48 76 104 110" width="120" height="127" role="img" aria-label="Dot">
+      <path d="M146.0 132.0 C146.0 134.0 145.9 136.0 145.6 138.0 C145.3 140.0 145.0 142.0 144.4 143.9 C143.9 145.8 143.3 147.8 142.5 149.6 C141.7 151.5 140.8 153.3 139.8 155.0 C138.8 156.7 137.7 158.4 136.5 160.0 C135.3 161.6 133.9 163.1 132.5 164.5 C131.1 165.9 129.6 167.3 128.0 168.5 C126.4 169.7 124.7 170.8 123.0 171.8 C121.3 172.8 119.5 173.7 117.6 174.5 C115.8 175.3 113.8 175.9 111.9 176.4 C110.0 177.0 108.0 177.3 106.0 177.6 C104.0 177.9 102.0 178.0 100.0 178.0 C98.0 178.0 96.0 177.9 94.0 177.6 C92.0 177.3 90.0 177.0 88.1 176.4 C86.2 175.9 84.2 175.3 82.4 174.5 C80.5 173.7 78.7 172.8 77.0 171.8 C75.3 170.8 73.6 169.7 72.0 168.5 C70.4 167.3 68.9 165.9 67.5 164.5 C66.1 163.1 64.7 161.6 63.5 160.0 C62.3 158.4 61.2 156.7 60.2 155.0 C59.2 153.3 58.3 151.5 57.5 149.6 C56.7 147.8 56.1 145.8 55.6 143.9 C55.0 142.0 54.7 140.0 54.4 138.0 C54.1 136.0 54.0 134.0 54.0 132.0 C54.0 130.0 54.1 128.0 54.4 126.0 C54.7 124.0 55.0 122.0 55.6 120.1 C56.1 118.2 56.7 116.2 57.5 114.4 C58.3 112.5 59.2 110.7 60.2 109.0 C61.2 107.3 62.3 105.6 63.5 104.0 C64.7 102.4 66.1 100.9 67.5 99.5 C68.9 98.1 70.4 96.7 72.0 95.5 C73.6 94.3 75.3 93.2 77.0 92.2 C78.7 91.2 80.5 90.3 82.4 89.5 C84.2 88.7 86.2 88.1 88.1 87.6 C90.0 87.0 92.0 86.7 94.0 86.4 C96.0 86.1 98.0 86.0 100.0 86.0 C102.0 86.0 104.0 86.1 106.0 86.4 C108.0 86.7 110.0 87.0 111.9 87.6 C113.8 88.1 115.8 88.7 117.6 89.5 C119.5 90.3 121.3 91.2 123.0 92.2 C124.7 93.2 126.4 94.3 128.0 95.5 C129.6 96.7 131.1 98.1 132.5 99.5 C133.9 100.9 135.3 102.4 136.5 104.0 C137.7 105.6 138.8 107.3 139.8 109.0 C140.8 110.7 141.7 112.5 142.5 114.4 C143.3 116.2 143.9 118.2 144.4 120.1 C145.0 122.0 145.3 124.0 145.6 126.0 C145.9 128.0 146.0 130.0 146.0 132.0 Z" style="fill:var(--demo-primary)"/>
+      <path d="M142.9 129.5 C143.0 137.1 140.7 145.8 137.0 152.6 C133.3 159.4 127.2 166.5 120.6 170.3 C113.9 174.1 104.8 175.6 97.0 175.4 C89.2 175.3 80.7 173.2 74.0 169.4 C67.3 165.6 60.7 159.3 57.0 152.6 C53.3 146.0 51.8 137.2 51.8 129.5 C51.8 121.8 53.5 113.2 57.1 106.5 C60.8 99.8 67.2 93.3 73.8 89.4 C80.5 85.4 89.4 82.5 97.0 82.7 C104.6 82.9 112.9 86.6 119.5 90.6 C126.0 94.6 132.5 100.3 136.4 106.8 C140.3 113.2 142.8 121.9 142.9 129.5 Z" fill="none" style="stroke:var(--demo-ink)" stroke-width="2.4" stroke-linejoin="round"/>
+      <g fill="none" stroke="#1A1A1A" stroke-width="2.4" stroke-linecap="round"><path d="M77.2 111 Q85 105 92.8 109"/><path d="M107.2 109 Q115 105 122.8 111"/></g>
+      <g class="eyes toon-blink"><circle cx="86" cy="124" r="8" fill="#fff" stroke="#1A1A1A" stroke-width="1.8"/><circle cx="114" cy="124" r="8" fill="#fff" stroke="#1A1A1A" stroke-width="1.8"/>
+        <circle cx="86.8" cy="124.8" r="3.7" fill="#1A1A1A"/><circle cx="114.8" cy="124.8" r="3.7" fill="#1A1A1A"/></g>
+      <path d="M90 146 Q100 155 110 146" fill="none" stroke="#1A1A1A" stroke-width="2.6" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <button id="replay">Replay entrance</button>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, tween, sequence, ease, breathe, blink, Spring, withSquash, groundShadow, clamp } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const dot = { hop: 0, sy: 1 };
+  let happy = false, busy = false, mouse = { x: stage.width / 2, y: stage.height / 2 };
+  const look = { x: new Spring(0, { stiffness: 140, damping: 16 }), y: new Spring(0, { stiffness: 140, damping: 16 }) };
+  const set = v => Object.assign(dot, v);
+  const to = (pose, d, e) => () => tween({ from: { ...dot }, to: pose, duration: d, ease: e, onUpdate: set });
+
+  stage.canvas.addEventListener('pointermove', e => { const r = stage.canvas.getBoundingClientRect(); mouse = { x: e.clientX - r.left, y: e.clientY - r.top }; });
+  const act = async () => {
+    if (busy) return; busy = happy = true;
+    await sequence(to({ sy: 0.8 }, 120, ease.outQuad), to({ hop: 60, sy: 1.12 }, 260, ease.outQuad),
+                   to({ hop: 0, sy: 1 }, 240, ease.inQuad), to({ sy: 0.82 }, 70, ease.outQuad), to({ sy: 1 }, 450, ease.outElastic));
+    busy = false; setTimeout(() => (happy = false), 600);
+  };
+  stage.canvas.addEventListener('click', act);
+  document.getElementById('act').addEventListener('click', act);
+
+  stage.loop((dt, t) => {
+    const H = 140, cx = stage.width / 2, ground = stage.height - 40, cy = ground - H / 2 - dot.hop;
+    const b = breathe(t, { rate: 0.35, amount: 0.025 });               // [APPEAL] alive at rest
+    const shut = happy ? 0 : blink(t, { every: 3 });
+    look.x.target = clamp((mouse.x - cx) / 120, -1, 1); look.y.target = clamp((mouse.y - cy) / 120, -1, 1);
+    const lx = look.x.step(dt), ly = look.y.step(dt);
+    stage.clear();
+    groundShadow(ctx, cx, ground, 60, dot.hop, { maxHeight: 200 });
+    withSquash(ctx, cx, cy, { sx: b.sx / dot.sy, sy: b.sy * dot.sy }, c =>
+      Cast.draw(c, 'dot', { x: 0, y: 0, h: H, fill: T.primary, ink: T.ink, mood: happy ? 'happy' : 'neutral',
+        blink: shut, look: { x: lx, y: ly } }), { x: 0, y: H / 2 });
+  });
+
+  const pop = document.getElementById('pop');
+  document.getElementById('replay').onclick = () => { pop.classList.remove('toon-pop-in'); void pop.offsetWidth; pop.classList.add('toon-pop-in'); };
+</script>
+</body>
+</html>

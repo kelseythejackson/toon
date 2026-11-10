@@ -1,0 +1,42 @@
+---
+title: Squash & stretch
+description: "Make things feel soft or heavy: they flatten on impact and stretch when fast."
+sidebar: { order: 1, label: '1 · Squash & stretch' }
+---
+import Demo from '../../../components/Demo.astro';
+
+An object flattens when it hits something and stretches when it moves fast. The trick that keeps it believable is **constant volume**: as it gets wider it gets shorter. toon always keeps `sx · sy = 1`.
+
+This demo also shows **timing** (gravity sets the beat), **slow in and slow out** (the trail dots bunch up at the apex) and **arcs** (the trail is a parabola).
+
+<Demo file="01-squash-and-stretch.html" title="Bouncing ball demo" />
+
+## Squash & stretch in CSS
+
+```html
+<div class="toon-solid toon-bounce" style="--toon-squash:.3"></div>
+<div class="toon-shadow toon-bounce-shadow"></div>
+```
+
+`.toon-bounce` runs two animations on separate properties. `translate` follows exact gravity easing (`--toon-ease-rise` and `--toon-ease-fall`). `scale` squashes at contact, stretches at top speed and goes round near the apex, where the ball is slow. `transform-origin: bottom` keeps the squash on the ground.
+
+## Squash & stretch in Canvas
+
+```js
+const s = touching
+  ? Toon.impact(0.4)                                   // flatten on contact
+  : Toon.squash(vx, vy, { amount: 0.0005 });            // stretch along the velocity
+Toon.withSquash(ctx, x, y, s, c => Toon.drawSolid(c, { r }), touching ? { x: 0, y: r } : undefined);
+```
+
+`squash()` rotates the stretch to line up with the direction of travel. A [pivot](../../glossary/#pivot) of `{ x: 0, y: r }` pins the bottom of the shape so it stays on the floor while it squashes.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above, or see the [character jump recipe](../../recipes/#a-character-jump-scripted), which runs as-is.
+
+## Squash & stretch: tuning tips
+
+- **Hold the contact for a few frames.** Keeping the ball on the ground for about 70–90 ms while squashed reads much better than squashing as it leaves.
+- **Match squash to the material.** Use `.06` for a bowling ball, `.2` for a tennis ball and `.4`+ for rubber. Rigid objects shouldn't deform at all.
+- **Avoid deforming at rest.** Squash and stretch belong to impacts and high speed.
+
+**API:** [`squash`](../../api/canvas/#squash-and-stretch), [`impact`](../../api/canvas/#squash-and-stretch), [`withSquash`](../../api/canvas/#squash-and-stretch), [`.toon-bounce`](../../api/css/#classes)

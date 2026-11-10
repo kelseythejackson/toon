@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Straight ahead vs pose to pose — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  canvas { display: block; width: 100%; height: 300px; }
+  .flip { display: flex; gap: 2rem; align-items: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1rem 1.5rem; }
+  .sprite { height: 96px; }
+</style>
+</head>
+<body>
+<h1>04 · Straight ahead vs pose to pose</h1>
+<div class="pair">
+  <div><h3>Straight ahead</h3><canvas id="sa" role="img" aria-label="Smoke drawn straight ahead: each puff grows from the frame before it, so the smoke drifts and curls unpredictably."></canvas>
+    <p>Smoke drawn frame after frame at 24 fps: each frame grows out of the previous one. Spontaneous, fluid, hard to plan.</p></div>
+  <div><h3>Pose to pose</h3><canvas id="pp" role="img" aria-label="Loop raises an arm through planned key poses, shown as faint ghost frames, with the frames in between filled in."></canvas>
+    <p>Loop's wave, built from 5 key poses (ghosted). <code>poses()</code> draws every in-between. Planned, precise, easy to retime.</p></div>
+</div>
+
+<h2>CSS flipbook: <code>.toon-sprite</code></h2>
+<div class="flip">
+  <div class="sprite toon-sprite" id="flame" style="--toon-frames:8; --toon-fps:12; --toon-frame-w:64px"></div>
+  <p>Eight flame frames drawn straight ahead (each one perturbs the last) into a sprite sheet, then played
+    with <code>steps()</code> so there are no in-betweens.</p>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, straightAhead, poses, ease, noise } = Toon;
+
+  /* [STRAIGHT-AHEAD] smoke: state integrates forward one frame at a time */
+  const sa = createStage(document.getElementById('sa'));
+  const puffs = [];
+  straightAhead((h, frame) => {
+    if (!sa.visible) return;                           // frozen while scrolled away
+    puffs.push({ x: sa.width / 2 + (Math.random() - 0.5) * 12, y: sa.height - 24, vx: 0, vy: -70, r: 6, life: 0, seed: Math.random() * 99 });
+    for (const p of puffs) {
+      p.vx += noise(p.seed + p.life * 1.5) * 120 * h;   // turbulence depends on where it already is
+      p.x += p.vx * h; p.y += p.vy * h; p.r += 14 * h; p.life += h;
+    }
+    while (puffs.length && puffs[0].life > 3.2) puffs.shift();
+    sa.clear();
+    for (const p of puffs) {
+      sa.ctx.fillStyle = T.alpha(T.muted, 0.2 * (1 - p.life / 3.2));
+      sa.ctx.beginPath(); sa.ctx.arc(p.x, p.y, p.r, 0, 7); sa.ctx.fill();
+    }
+  }, { fps: 24 });
+
+  /* [POSE-TO-POSE] arm: shoulder angle a, elbow bend b (degrees, 0 = hanging down) */
+  const pp = createStage(document.getElementById('pp'));
+  const keys = [
+    { at: 0,    pose: { a: 15,  b: 10 } },                          // rest
+    { at: 0.15, pose: { a: 5,   b: 35 } },                          // anticipation dip
+    { at: 0.4,  pose: { a: 150, b: 30 }, ease: ease.outBack },      // arm up (overshoots)
+    { at: 0.55, pose: { a: 155, b: -30 } },                         // wave
+    { at: 0.7,  pose: { a: 150, b: 30 } },
+    { at: 0.85, pose: { a: 155, b: -30 } },
+    { at: 1,    pose: { a: 15,  b: 10 } },                          // back to rest
+  ];
+  let arm = keys[0].pose;
+  poses(keys, { duration: 3000, repeat: Infinity, onUpdate: p => (arm = p) });
+
+  pp.loop(() => {
+    const ctx = pp.ctx, at = { x: pp.width / 2 - 14, y: pp.height / 2 + 18, h: 170 };
+    pp.clear();
+    for (const k of new Set(keys.map(k => k.pose)))                                     // the key poses, ghosted
+      Cast.draw(ctx, 'loop', { ...at, only: 'arms', arms: { r: k }, ink: T.alpha(T.secondary, .3), bg: T.surface });
+    const waving = arm.a > 100;                                                          // happy while the arm is up
+    Cast.draw(ctx, 'loop', { ...at, fill: T.secondary, ink: T.ink, bg: T.surface, arms: { r: arm },
+      mood: waving ? 'happy' : 'neutral', noWink: true, look: { x: 0.7, y: -0.4 } });   // the live in-between
+  });
+
+  /* CSS flipbook: draw 8 frames straight ahead into a sprite sheet (redrawn in the new colors on theme change) */
+  function buildFlame() {
+  const F = 8, FW = 64, FH = 96, sheet = document.createElement('canvas');
+  sheet.width = F * FW; sheet.height = FH;
+  const sc = sheet.getContext('2d');
+  let radii = Array(12).fill(1);
+  for (let f = 0; f < F; f++) {
+    radii = radii.map(r => Math.min(1.3, Math.max(0.75, r + (Math.random() - 0.5) * 0.35))); // grows from last frame
+    const pts = radii.map((r, i) => {
+      const th = (i / radii.length) * Math.PI * 2, up = Math.max(0, -Math.sin(th));
+      return { x: f * FW + 32 + Math.cos(th) * 18 * r * (1 - up * 0.5), y: 66 + Math.sin(th) * 18 * r * (1 + up * 1.6) };
+    });
+    const g = sc.createRadialGradient(f * FW + 32, 70, 2, f * FW + 32, 60, 44);
+    g.addColorStop(0, '#fff6b0'); g.addColorStop(0.4, T.tertiary); g.addColorStop(1, T.primary);
+    sc.fillStyle = g; sc.beginPath();
+    pts.forEach((p, i) => { const n = pts[(i + 1) % pts.length]; sc.quadraticCurveTo(p.x, p.y, (p.x + n.x) / 2, (p.y + n.y) / 2); });
+    sc.closePath(); sc.fill();
+  }
+  document.getElementById('flame').style.backgroundImage = `url(${sheet.toDataURL()})`;
+  }
+  buildFlame(); T.onChange(buildFlame);
+</script>
+</body>
+</html>

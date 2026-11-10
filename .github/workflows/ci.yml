@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      # Use Playwright's pinned Chromium in CI (reproducible), not whatever Chrome the runner image ships.
+      CHECK_BROWSER: bundled
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      # One install for everything: the docs site is an npm workspace of the root package.
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Size budget, example smoke test, error handling, contrast
+        run: npm run check
+      - name: Docs build + site check (phone overflow, links, anchors, script errors)
+        run: npm run check:site

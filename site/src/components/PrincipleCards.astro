@@ -1,0 +1,18 @@
+---
+/**
+ * The 12 principle cards, generated from the principle pages themselves: title, number (sidebar.order) and
+ * description all come from each page's frontmatter, so they're written in exactly one place.
+ * Used on the home page and on the principles overview.
+ */
+import { getCollection } from 'astro:content';
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const pages = (await getCollection('docs', ({ id }) => id.startsWith('principles/') && id !== 'principles' && id !== 'principles/index'))
+  .sort((a, b) => (a.data.sidebar.order ?? 0) - (b.data.sidebar.order ?? 0));
+---
+<CardGrid>
+  {pages.map((p) => (
+    <LinkCard title={`${p.data.sidebar.order} · ${p.data.title}`} href={`${base}${p.id}/`} description={p.data.description} />
+  ))}
+</CardGrid>

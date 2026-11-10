@@ -1,0 +1,48 @@
+---
+title: Recipes
+description: Several principles combined into common UI and character effects.
+---
+
+import Recipe from '../../components/Recipe.astro';
+
+Each recipe shows its code, then that same code running. The snippets are read from the example pages in `examples/recipes/`, so what you see is what runs. Only the page styling (the panel, fonts and theme colors) is left out.
+
+## A button that feels physical
+
+This combines **anticipation**, **squash** and an **overshoot** on release. One class does it:
+
+<Recipe file="physical-button.html" show={[0]} demo={false} />
+
+To wind up on hover as well, add the anticipation preset. Use `--toon-exaggeration` to tone it down for a business app or up for a game:
+
+<Recipe file="physical-button.html" show={[1]} />
+
+## A list that settles in
+
+**Follow-through** plus **overlapping action**: each item arrives slightly after the one before it, and its bottom swings past the stop.
+
+<Recipe file="settling-list.html" show={[0]} demo={false} />
+
+To replay it (for example, after new data arrives), remove the class, force a reflow and add it back:
+
+<Recipe file="settling-list.html" show={[1]} />
+
+## A character jump, scripted
+
+This uses **anticipation**, **squash and stretch**, **slow in and slow out** and **timing**. Each `tween` is one beat, and `sequence` plays them in order. A `withSquash` pivot at the ball's base keeps it planted while it squashes:
+
+<Recipe file="character-jump.html" />
+
+## Throwing something along a path
+
+**Arcs** plus **squash along velocity**. Running a quadratic arc with linear timing gives true projectile motion:
+
+<Recipe file="throw-along-path.html" />
+
+## Respect reduced motion on canvas
+
+`toon.css` handles reduced motion for you. On canvas, check the media query yourself and either jump to the end state or slow decorative motion right down:
+
+<Recipe file="reduced-motion.html" />
+
+When the clock is frozen, tweens stop advancing, so set any element that must reach its final state directly (for example, `onComplete` values) instead of animating to it.

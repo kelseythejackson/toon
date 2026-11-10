@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Slow in &amp; slow out — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 360px; }
+  .lanes { display: grid; gap: .8rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.2rem 1.5rem; }
+  .lane { position: relative; height: 22px; border-bottom: 1px dashed var(--demo-faint); }
+  .lane span { position: absolute; right: 0; top: 0; font: 12px ui-monospace, monospace; color: var(--demo-muted); }
+  .dot { position: absolute; left: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--demo-primary);
+         animation: ex06-slide 1.6s infinite alternate; }
+  @keyframes ex06-slide { to { left: calc(100% - 20px); } }
+</style>
+</head>
+<body>
+<h1>06 · Slow in &amp; slow out</h1>
+<p>Objects need time to accelerate and to slow down. The ghost dots are an animator's <i>spacing chart</i>:
+  one dot per frame. Where the dots bunch up, the ball is moving slowly; where they spread out, it's fast. Evenly spaced dots look mechanical.</p>
+<canvas id="c" role="img" aria-label="Balls slide across the canvas with different easings. Faint dots mark each frame: they bunch up where a ball moves slowly and spread out where it moves fast."></canvas>
+
+<h2>CSS: easing custom properties</h2>
+<div class="lanes">
+  <div class="lane"><div class="dot" style="animation-timing-function: linear"></div><span>linear</span></div>
+  <div class="lane"><div class="dot" style="animation-timing-function: var(--toon-ease-in)"></div><span>var(--toon-ease-in)</span></div>
+  <div class="lane"><div class="dot" style="animation-timing-function: var(--toon-ease-out)"></div><span>var(--toon-ease-out)</span></div>
+  <div class="lane"><div class="dot" style="animation-timing-function: var(--toon-ease-in-out)"></div><span>var(--toon-ease-in-out)</span></div>
+  <div class="lane"><div class="dot" style="animation-timing-function: var(--toon-ease-overshoot)"></div><span>var(--toon-ease-overshoot)</span></div>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, tween, ease } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const lanes = [
+    ['ease.linear — mechanical', ease.linear],
+    ['ease.inQuad — slow out of the first pose', ease.inQuad],
+    ['ease.outQuad — slow into the last pose', ease.outQuad],
+    ['ease.inOutCubic — slow out + slow in', ease.inOutCubic],
+    ['ease.cubicBezier(.7, 0, .2, 1) — custom', ease.cubicBezier(0.7, 0, 0.2, 1)],
+    ['ease.outBack — slow in with overshoot', ease.outBack],
+  ];
+  let p = 0;
+  tween({ duration: 1600, ease: ease.linear, repeat: Infinity, yoyo: true, onUpdate: v => (p = v) });
+
+  stage.loop(() => {
+    const x0 = 30, x1 = stage.width - 40, gap = stage.height / lanes.length;
+    stage.clear();
+    lanes.forEach(([label, fn], i) => {
+      const y = gap * i + gap * 0.62;
+      ctx.fillStyle = T.muted; ctx.font = '12px ui-monospace, monospace'; ctx.fillText(label, x0, y - 18);
+      ctx.strokeStyle = T.hair; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+      for (let f = 0; f <= 16; f++) {                       // spacing chart: one ghost per frame
+        ctx.fillStyle = T.alpha(T.secondary, .45);
+        ctx.beginPath(); ctx.arc(Toon.lerp(x0, x1, fn(f / 16)), y, 3, 0, 7); ctx.fill();
+      }
+      ctx.fillStyle = T.primary;
+      ctx.beginPath(); ctx.arc(Toon.lerp(x0, x1, fn(p)), y, 9, 0, 7); ctx.fill();
+    });
+  });
+</script>
+</body>
+</html>

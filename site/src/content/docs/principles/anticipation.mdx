@@ -1,0 +1,44 @@
+---
+title: Anticipation
+description: "A small wind-up before the main move: button presses, jumps, launches."
+sidebar: { order: 2, label: '2 · Anticipation' }
+---
+import Demo from '../../../components/Demo.astro';
+
+Before jumping, you crouch. Before throwing, you pull your arm back. Anticipation is a small move in the **opposite direction** of the main action. It prepares the viewer's eye, so the action itself is easy to follow even when it's fast.
+
+<Demo file="02-anticipation.html" title="Anticipation demo" />
+
+## Anticipation in CSS
+
+```html
+<button class="toon-press">Hold me</button>          <!-- dip on :active, overshoot on release -->
+<div class="toon-anticipate" tabindex="0">Hover</div> <!-- crouch → spring on hover / focus -->
+<div class="toon-launch">➜</div>                      <!-- one-shot: pull back, shoot, overshoot -->
+```
+
+The `--toon-ease-anticipate` easing dips below zero before moving forward, so you can use it on any transition of your own.
+
+## Anticipation in Canvas
+
+Write the action as a sequence of beats. The first beat is the wind-up:
+
+```js
+await Toon.sequence(
+  to({ sy: 0.62 }, 280, ease.outQuad),       // crouch: the anticipation
+  to({ y: 170, sy: 1 }, 320, ease.outQuad),  // the action
+  /* … */
+);
+```
+
+For a single tween, `ease.anticipate(s)` (also available as `ease.inBack`) produces the dip-back inside the easing curve itself.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above, or see the [character jump recipe](../../recipes/#a-character-jump-scripted), which runs as-is.
+
+## Anticipation: tuning tips
+
+- **Size the wind-up to the action.** A small action needs only a small wind-up. For a big leap, the crouch should be the longest beat before it.
+- **Fast actions need more anticipation.** If the main move is only a few frames, the wind-up is what makes it readable.
+- **In UI, keep it subtle.** About 3–6% of scale or a few pixels is enough for buttons.
+
+**API:** [`sequence`](../../api/canvas/#timing-and-sequencing), [`ease.anticipate`](../../api/canvas/#easing), [`.toon-press` / `.toon-anticipate` / `.toon-launch`](../../api/css/#classes)

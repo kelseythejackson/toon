@@ -1,0 +1,31 @@
+---
+/**
+ * Overrides Starlight's ThemeSelect: adds a sketchbook-style picker beside the light/dark switch.
+ * The choice is applied and saved by src/scripts/motion.js (inlined in <head>, so there's no flash).
+ */
+import Default from '@astrojs/starlight/components/ThemeSelect.astro';
+import Select from '@astrojs/starlight/components/Select.astro';
+
+const styles = [
+  { value: 'graph', label: 'Graph Notebook' },
+  { value: 'riso', label: 'Riso Press' },
+  { value: 'collage', label: 'Cut & Paste' },
+  { value: 'crayon', label: 'Crayon Cloud' },
+];
+---
+<div class="toon-pickers">
+  <toon-style-select>
+    <Select icon="pencil" label="Sketchbook style"
+      options={styles.map((s, i) => ({ ...s, selected: i === 0 }))} width="11.25em" />
+  </toon-style-select>
+  <Default />
+</div>
+
+{/* Sync the picker with the saved style before paint. */}
+<script is:inline>
+  document.querySelectorAll('toon-style-select select').forEach((s) => (s.value = document.documentElement.dataset.style));
+</script>
+
+<style>
+  .toon-pickers { display: flex; gap: 1rem; align-items: center; }
+</style>

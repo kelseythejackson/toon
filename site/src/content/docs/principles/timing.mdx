@@ -1,0 +1,50 @@
+---
+title: Timing
+description: "Duration sets weight and mood: fast is light, slow is heavy."
+sidebar: { order: 9, label: '9 · Timing' }
+---
+import Demo from '../../../components/Demo.astro';
+
+Timing is how long an action takes; [spacing](../../glossary/#spacing) is how the motion is spread across that time. Together they convey weight and mood: a bowling ball drops hard and barely bounces, a rubber ball rebounds fast, and a balloon drifts. In the demo, Brick plays the bowling ball, Dot the rubber ball and Zip the balloon.
+
+<Demo file="09-timing.html" title="Timing and weight demo" />
+
+## Timing in CSS
+
+```html
+<div class="toon-bounce toon-heavy"></div>   <!-- slower, stiffer -->
+<div class="toon-bounce toon-light"></div>   <!-- faster, squashier -->
+```
+
+Every preset's duration is `--toon-duration × --toon-tempo`, so you can set `--toon-tempo` on a container to retime a whole section.
+
+## Timing in Canvas
+
+Everything runs from one clock, so you can change the tempo of a whole scene in one place:
+
+```js
+Toon.ticker.timeScale = 0.25;   // slow motion for everything — great for debugging
+```
+
+Weight comes from four settings: gravity, bounciness, drag and how much the object squashes. For a hand-drawn look, animate [**on twos**](../../glossary/#on-twos) by holding each drawing for two frames at 24 fps:
+
+```js
+Toon.ticker.add((dt, t) => {
+  update(dt);
+  const q = Toon.quantize(t, 12);
+  if (q === lastDrawn) return;   // hold the previous drawing
+  lastDrawn = q; draw();
+});
+```
+
+`ease.steps(n)` does the same inside a single tween.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above, or see the [reduced-motion recipe](../../recipes/#respect-reduced-motion-on-canvas), which runs as-is.
+
+## Timing: tuning tips
+
+- **Heavy objects** take longer to get going, stop abruptly, deform little and rebound barely at all.
+- **Light objects** react instantly, float, flutter and overshoot.
+- **UI timing:** 150–250 ms for small feedback, 300–500 ms for larger movements across the screen. Anything longer starts to feel slow.
+
+**API:** [`ticker`](../../api/canvas/#timing-and-sequencing), [`quantize`](../../api/canvas/#timing-and-sequencing), [`.toon-heavy` / `.toon-light`](../../api/css/#classes)

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Staging — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 320px; cursor: pointer; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
+  .cards > div { aspect-ratio: 3 / 4; border-radius: 12px; display: grid; place-items: center; font-size: 34px; cursor: pointer; background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
+  .cards > div:nth-child(2) { background: color-mix(in srgb, var(--demo-secondary) 14%, var(--demo-surface)); } .cards > div:nth-child(3) { background: color-mix(in srgb, var(--demo-tertiary) 16%, var(--demo-surface)); } .cards > div:nth-child(4) { background: color-mix(in srgb, var(--demo-soft) 16%, var(--demo-surface)); }
+</style>
+</head>
+<body>
+<h1>03 · Staging</h1>
+<p>Present one idea at a time so it reads instantly. Loop, the performer, is colored, moving and lit; the crowd of
+  Bricks is gray, still and in shadow, and every one of them looks at Loop.</p>
+<canvas id="c" style="cursor:pointer" role="img" aria-label="A spotlit performer hops in the middle of the stage while a crowd of dim, gray Bricks stands still and watches. Picking another character moves the spotlight to them."></canvas>
+<p class="demo-try"><button type="button" class="demo-act" id="act">Next performer</button> <b>Try it</b> Press <i>Next performer</i> or click anyone to give them the stage; the spotlight follows on a spring.</p>
+
+<h2>CSS: <code>.toon-stage</code></h2>
+<p>Hover a card, or click to pin it with <code>.is-featured</code>. Everything else recedes.</p>
+<div class="cards toon-stage" id="cards"><div>🎬</div><div>🎨</div><div>🎵</div><div>🎭</div></div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, noise, Spring, groundShadow } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const actors = Array.from({ length: 14 }, (_, i) => ({ seed: i * 9.3, bx: 0.07 + (i % 7) * 0.143, by: i < 7 ? 0.42 : 0.78 }));
+  let hero = 10;
+  const spring = { stiffness: 60, damping: 13 };
+  const spot = { x: new Spring(stage.width / 2, spring), y: new Spring(stage.height / 2, spring) };
+  const pos = (a, t) => ({ x: a.bx * stage.width + noise(t * 0.3 + a.seed) * 16,
+                           y: a.by * stage.height + noise(t * 0.3 + a.seed + 50) * 6 });
+
+  stage.canvas.addEventListener('click', e => {
+    const r = stage.canvas.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    let best = 0, dist = Infinity;
+    actors.forEach((a, i) => { const p = pos(a, ticker.time), d = Math.hypot(p.x - mx, p.y - my); if (d < dist) { dist = d; best = i; } });
+    hero = best;
+  });
+
+  stage.loop((dt, t) => {
+    stage.clear(T.stage);                                   // the theatre stays dark in both modes
+    const h = pos(actors[hero], t);
+    actors.forEach((a, i) => {
+      const p = pos(a, t), isHero = i === hero;
+      if (isHero) {                                           // Loop performs: hops, arms up, lit
+        const hop = Math.abs(Math.sin(t * 4)) * 30;
+        groundShadow(ctx, p.x, p.y + 22, 16, hop, { maxHeight: 90, alpha: 0.5 });
+        Cast.draw(ctx, 'loop', { x: p.x, y: p.y - 10 - hop, h: 62, fill: T.stageHero, ink: T.stageInk, bg: T.stage, mood: 'happy' });
+      } else {                                                // the crowd: quiet Bricks, all watching the hero
+        groundShadow(ctx, p.x, p.y + 22, 16, 0, { maxHeight: 90, alpha: 0.5 });
+        Cast.draw(ctx, 'brick', { x: p.x, y: p.y + 4, h: 34, fill: T.stageCrowd, ink: T.stageInk, look: { x: Math.sign(h.x - p.x), y: 0 } });
+      }
+    });
+    spot.x.target = h.x; spot.y.target = h.y - 12;
+    spot.x.step(dt); spot.y.step(dt);
+    stage.spotlight(spot.x.value, spot.y.value, 55, { dim: 0.72 });   // [STAGING] light leads the eye
+  });
+
+  const cards = document.getElementById('cards');
+  cards.addEventListener('click', e => {
+    const card = e.target.closest('#cards > div'); if (!card) return;
+    const was = card.classList.contains('is-featured');
+    cards.querySelectorAll('.is-featured').forEach(c => c.classList.remove('is-featured'));
+    if (!was) card.classList.add('is-featured');
+  });
+  document.getElementById('act').addEventListener('click', () => { hero = (hero + 1) % actors.length; });
+</script>
+</body>
+</html>

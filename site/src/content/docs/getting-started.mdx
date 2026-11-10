@@ -1,0 +1,88 @@
+---
+title: Getting started
+description: Install toon and animate your first element in CSS and on a canvas.
+---
+
+import Recipe from '../../components/Recipe.astro';
+
+toon comes as two files that you can use together or separately:
+
+- **`toon.css`** animates DOM elements with classes and custom properties.
+- **`toon.js`** animates on `<canvas>` with a JavaScript API (`window.Toon`).
+
+Neither depends on the other or on anything else.
+
+## Install
+
+Copy two files into your project. There's nothing to install and no build step:
+
+- [`toon.css`](../toon/src/toon.css) for the CSS presets
+- [`toon.js`](../toon/src/toon.js) for the Canvas API (`window.Toon`)
+- optional: [`toon.mjs`](../toon/src/toon.mjs), an ES module wrapper, if you prefer `import`
+- optional, while developing: [`toon.debug.js`](../toon/src/toon.debug.js), which checks every call's arguments and explains mistakes (see [Errors and debugging](../api/canvas/#errors-and-debugging))
+
+Right-click a link and choose **Save link as…**, or copy them from `src/` in the project. Then include them:
+
+```html
+<link rel="stylesheet" href="toon.css">
+<script src="toon.js"></script>
+```
+
+```js
+// or, as an ES module (toon.mjs loads toon.js next to it)
+import { tween, arc, ease } from './toon.mjs';
+```
+
+The classic script works from `file://`, so you don't even need a server.
+
+## Your first CSS animation
+
+With `toon.css` included, two classes make a bouncing ball, and a second element under it makes its contact shadow:
+
+<Recipe dir="start" file="first-css.html" show={[0]} demo={false} />
+
+Tune it with custom properties on the element, or on `:root` to change everything at once. Here the ball gets more squash, a higher bounce and a slower tempo (remember: a higher tempo is *slower*):
+
+<Recipe dir="start" file="first-css.html" show={[1]} />
+
+## Your first Canvas animation
+
+With `toon.js` included, this throws a ball back and forth along an arc. Each frame works out the ball's velocity, so it stretches along its direction of travel:
+
+<Recipe dir="start" file="first-canvas.html" />
+
+## Using with frameworks
+
+toon has no framework bindings. You use it the same way you use any CSS classes or canvas code.
+
+**React.** Put the classes in `className`. To replay a one-shot effect such as `.toon-pop-in` or `.toon-follow`, change the element's `key` so React mounts it again. Create the stage in an effect and clean it up on unmount:
+
+```jsx
+function Thrown() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const stage = Toon.createStage(ref.current);
+    const stop = stage.loop(() => { stage.clear(); /* draw… */ });
+    return stop;                       // unsubscribes from the shared clock
+  }, []);
+  return <canvas ref={ref} style={{ width: '100%', height: 300 }} />;
+}
+```
+
+**Vue.** Use `:class` and `:key` the same way. Create the stage in `onMounted(() => …)` and call the returned stop function in `onUnmounted`.
+
+**Server rendering (Next, Nuxt, Astro, SvelteKit).** `toon.css` is safe everywhere. `toon.js` touches `window`, so load it only in the browser: put it in a client-only component, use a dynamic `import('./toon.mjs')` inside the effect, or guard with `typeof window !== 'undefined'`.
+
+## Key ideas
+
+- **One clock.** All Canvas motion runs on `Toon.ticker`. Draw with `stage.loop(fn)` so a canvas stops rendering while it's scrolled out of view. Set `ticker.timeScale = 0.25` to slow everything down, which is handy for debugging timing.
+- **Speed controls run in opposite directions.** CSS `--toon-tempo` multiplies duration, so **higher is slower**. JS `ticker.timeScale` multiplies time, so **higher is faster**.
+- **Mistakes explain themselves.** Load `toon.debug.js` after `toon.js` while you develop. Wrong arguments then throw a message like `toon.arc: end point must be { x, y } numbers`, instead of failing deep inside or drawing nothing.
+- **Units.** `tween`, `wait`, `poses` and `stagger` take **milliseconds**. Ticker callbacks and physics use **seconds**, and velocities are in **px/s**.
+- **Tweens are awaitable.** `await tween({...})` and `sequence(...)` let you write a whole action as a script. See [Anticipation](../principles/anticipation/).
+- **CSS presets compose.** They use the individual `translate`, `scale` and `rotate` properties, so they don't overwrite your `transform`. Two presets that both set `animation` must go on nested elements.
+- **Reduced motion.** `toon.css` turns animation off under `prefers-reduced-motion: reduce`. On canvas that decision is yours; see the [reduced-motion recipe](../recipes/#respect-reduced-motion-on-canvas).
+
+## Browser support
+
+Chrome and Edge 116+, Firefox 128+ and Safari 17.2+. These versions are needed for `@property`, `linear()`, `:has()` and `color-mix()`. The JavaScript targets ES2020.

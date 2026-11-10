@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>toon error-message fixture (used by scripts/check.mjs)</title>
+<canvas id="c"></canvas>
+<script src="../../src/toon.js"></script>
+<script>
+  // Core-only behavior (no debug file): the clock survives a throwing callback; createStage explains itself.
+  const core = {};
+  let n = 0; Toon.ticker.add(() => { n++; });
+  Toon.tween({ duration: 50, onUpdate() { throw new Error('boom'); } });
+  setTimeout(() => { core.before = n; }, 150);
+  setTimeout(() => { core.after = n; }, 450);
+  try { Toon.createStage(null); } catch (e) { core.createStage = e.message; }
+  core.selector = !!Toon.createStage('#c').ctx;
+  core.squashDefault = Toon.squash().sx;
+  window.core = core;
+</script>
+<script src="../../src/toon.debug.js"></script>
+<script>
+  // With toon.debug.js: every misuse throws a message that names the function.
+  const cases = {
+    arc: () => Toon.arc({ x: 0, y: 0 }),
+    path: () => Toon.path([]),
+    poses: () => Toon.poses([{ at: 0, pose: {} }, { at: 0.9, pose: {} }, { at: 0.2, pose: {} }]),
+    tween: () => Toon.tween({ from: 0, to: { x: 1 }, onUpdate() {} }),
+    drawSolid: () => Toon.drawSolid(null),
+    withSquash: () => Toon.withSquash(document.getElementById('c').getContext('2d'), 0, 0, {}, 'nope'),
+    Spring: () => new Toon.Spring('a'),
+    Chain: () => new Toon.Chain(1),
+  };
+  window.debugMessages = Object.entries(cases).map(([name, fn]) => {
+    try { fn(); return [name, null]; } catch (e) { return [name, e.message]; }
+  });
+</script>

@@ -1,0 +1,45 @@
+---
+title: Slow in & slow out
+description: "Easing: speed up and slow down instead of moving at constant speed."
+sidebar: { order: 6, label: '6 · Slow in & slow out' }
+---
+import Demo from '../../../components/Demo.astro';
+
+Real objects accelerate out of a pose (slow out) and decelerate into the next one (slow in). Animators show this with a **spacing chart**, one mark per frame: marks bunched together mean slow, marks spread apart mean fast. Even spacing looks mechanical.
+
+<Demo file="06-slow-in-slow-out.html" title="Easing spacing chart demo" />
+
+## Slow in & slow out in CSS
+
+```css
+.panel { transition: translate 400ms var(--toon-ease-in-out); }
+```
+
+| Variable | Use it for |
+|---|---|
+| `--toon-ease-out` | Things arriving: settling *into* a pose (slow in) |
+| `--toon-ease-in` | Things leaving: slow out of a pose |
+| `--toon-ease-in-out` | Moving from one rest pose to another |
+| `--toon-ease-rise` / `--toon-ease-fall` | Exact quadratics: real gravity |
+| `--toon-ease-overshoot` / `--toon-ease-elastic` | Lively arrivals |
+
+## Slow in & slow out in Canvas
+
+All easings live on `Toon.ease`, and every tween takes one:
+
+```js
+Toon.tween({ from: 0, to: 300, duration: 600, ease: Toon.ease.inOutCubic, onUpdate: v => (x = v) });
+Toon.tween({ /* … */ ease: Toon.ease.cubicBezier(0.7, 0, 0.2, 1) });  // same model as CSS
+```
+
+Available curves are `linear`, `inQuad`, `outQuad`, `inOutQuad`, `inCubic`, `outCubic`, `inOutCubic`, `inOutSine`, `inBack`, `outBack`, `outElastic` and `outBounce`. The factories `cubicBezier`, `anticipate`, `overshoot`, `elastic` and `steps` make custom ones.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+
+## Slow in & slow out: tuning tips
+
+- **The naming is counter-intuitive.** "Slow in" is an *ease-out* curve, because it slows into the end pose.
+- **Use quadratics for gravity.** Anything thrown or falling should use quadratic easing, which is what `outQuad` and `inQuad` are.
+- **Use linear only on purpose**, for machines, scrolling backgrounds, or one axis of an [arc](../arcs/).
+
+**API:** [`ease`](../../api/canvas/#easing), [`tween`](../../api/canvas/#timing-and-sequencing), [easing variables](../../api/css/#custom-properties)

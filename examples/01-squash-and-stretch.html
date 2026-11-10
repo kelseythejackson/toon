@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Squash &amp; stretch — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 320px; }
+  .row { display: flex; gap: 2rem; justify-content: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1rem; }
+  .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 220px; }
+  .ball { width: 56px; height: 56px; }
+  .shadow { width: 64px; height: 14px; margin-top: -7px; }
+</style>
+</head>
+<body>
+<h1>01 · Squash &amp; stretch</h1>
+<p>Dot flattens on contact and stretches along its velocity, keeping its volume (sx · sy = 1).
+  Also on show: <b>timing</b> (gravity sets the beat), <b>slow in / slow out</b> (the trail dots bunch up at the apex)
+  and <b>arcs</b> (the trail is a parabola).</p>
+<label>Squash amount <input id="amt" type="range" min="0" max="2" step="0.05" value="1"></label>
+<canvas id="c" role="img" aria-label="Dot, a round character, bounces on the floor. It stretches as it falls, flattens on landing, and leaves a trail of dots that bunch together at the top of each bounce."></canvas>
+
+<h2>CSS: <code>.toon-bounce</code></h2>
+<div class="row">
+  <div class="cell" style="--toon-squash:0"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>squash 0 (rigid)</small></div>
+  <div class="cell"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>default .22</small></div>
+  <div class="cell" style="--toon-squash:.45"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>squash .45 (rubber)</small></div>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, squash, impact, withSquash, groundShadow } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const amt = document.getElementById('amt');
+  const R = 26, G = 2000, BOUNCE = 950, CONTACT = 0.09;  // [TIMING] gravity + launch speed = rhythm
+  let x = 0, y = 60, vx = 240, vy = 0, contact = 0;
+  const trail = [];
+
+  stage.loop(dt => {
+    const W = stage.width, ground = stage.height - 30, k = +amt.value;
+    if (contact > 0) {                       // hold a few frames on the ground while squashed
+      contact -= dt; y = ground - R;
+      if (contact <= 0) vy = -BOUNCE;
+    } else {
+      vy += G * dt; y += vy * dt;
+      if (y >= ground - R) { y = ground - R; contact = CONTACT; }
+    }
+    x += vx * dt;
+    if (x > W + R) { x = -R; trail.length = 0; }
+    trail.push({ x, y }); if (trail.length > 100) trail.shift();
+
+    // [SQUASH] flatten while in contact, otherwise stretch along velocity
+    const s = contact > 0
+      ? impact(Math.sin((1 - contact / CONTACT) * Math.PI) * 0.4, k)
+      : squash(vx, vy, { amount: 0.0005, exaggeration: k });
+
+    stage.clear();
+    ctx.fillStyle = T.ground; ctx.fillRect(0, ground, W, stage.height - ground);
+    ctx.fillStyle = T.groundLine; ctx.fillRect(0, ground, W, 2);
+    trail.forEach((p, i) => {                // [ARCS] + [SLOW-IN-OUT] spacing made visible
+      ctx.fillStyle = T.alpha(T.primary, (i / trail.length) * 0.45);
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, 7); ctx.fill();
+    });
+    groundShadow(ctx, x, ground, R, ground - R - y, { maxHeight: 260 });
+    const mood = contact > 0 ? 'happy' : 'neutral';                         // a grin on every landing
+    const look = { x: Math.sign(vx) * 0.7, y: Math.max(-1, Math.min(1, vy / 900)) };   // eyes lead the motion
+    withSquash(ctx, x, y, s, c => Cast.draw(c, 'dot', { x: 0, y: 0, h: R * 2, fill: T.primary, ink: T.ink, mood, look }),
+      contact > 0 ? { x: 0, y: R } : undefined);
+  });
+</script>
+</body>
+</html>

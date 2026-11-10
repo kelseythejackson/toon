@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipe · Throwing something along a path — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="recipe.css">
+</head>
+<body>
+<h1>Recipe · Throwing something along a path</h1>
+<p>Arcs plus squash along velocity. The dots show the path.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas role="img"
+        aria-label="A ball is thrown back and forth along a dotted arc"></canvas>
+<button>Throw</button>
+<!-- @end -->
+</div>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script>
+// @recipe
+const stage = Toon.createStage(document.querySelector('canvas'));
+const pathColor = getComputedStyle(document.body).color;
+let fly, t = 0, left = true;
+
+function throwIt() {
+  const y = stage.height - 30;
+  const a = { x: 40, y }, b = { x: stage.width - 40, y };
+  fly = left ? Toon.arc(a, b, { height: 120 })
+             : Toon.arc(b, a, { height: 120 });
+  left = !left;
+  // Linear timing on a quadratic curve = true projectile motion.
+  Toon.tween({ duration: 900, ease: Toon.ease.linear,
+               onUpdate: (v) => (t = v) });
+}
+
+stage.loop(() => {
+  const ctx = stage.ctx;
+  stage.clear();
+  ctx.fillStyle = pathColor;
+  for (let i = 0; i <= 24; i++) {                 // dotted path
+    const p = fly(i / 24);
+    ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+  }
+  const a = fly(t), b = fly(Math.min(1, t + 0.01));
+  const k = 1000 / (0.01 * 900);   // progress → px/s
+  const vx = (b.x - a.x) * k, vy = (b.y - a.y) * k;
+  // stretch along the direction of travel
+  const s = Toon.squash(vx, vy, { amount: 0.0006 });
+  Toon.withSquash(ctx, a.x, a.y, s,
+                  (c) => Toon.drawSolid(c, { r: 16 }));
+});
+document.querySelector('button').onclick = throwIt;
+throwIt();
+// @end
+</script>
+</body>
+</html>

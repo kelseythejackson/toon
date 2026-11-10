@@ -1,0 +1,54 @@
+---
+title: Straight ahead vs pose to pose
+description: "Simulate motion frame by frame, or plan it with keyframes."
+sidebar: { order: 4, label: '4 · Straight ahead vs pose to pose' }
+---
+import Demo from '../../../components/Demo.astro';
+
+**Straight ahead**: draw frame 1, then frame 2 based on frame 1, and so on. The result is spontaneous and fluid (fire, smoke, water, hair), but hard to control.
+**Pose to pose**: draw the key poses first, then fill in the [in-betweens](../../glossary/#in-betweens). The result is planned and easy to retime, which suits acting and UI.
+
+<Demo file="04-straight-ahead-vs-pose-to-pose.html" title="Straight ahead vs pose to pose demo" />
+
+## Straight ahead vs pose to pose in CSS
+
+Every `@keyframes` block is already pose to pose. For straight-ahead flipbook frames, use `.toon-sprite`, which plays a sprite sheet with `steps()` so there are no in-betweens:
+
+```html
+<div class="toon-sprite"
+     style="--toon-frames:8; --toon-fps:12; --toon-frame-w:64px; height:96px;
+            background-image:url(flame.png)"></div>
+```
+
+## Straight ahead vs pose to pose in Canvas
+
+**Straight ahead** runs a step function at a fixed frame rate. Each frame updates the state left by the previous one:
+
+```js
+Toon.straightAhead((h, frame) => {
+  for (const p of puffs) { p.vx += Toon.noise(p.seed + p.life) * 120 * h; p.x += p.vx * h; /* … */ }
+  draw();
+}, { fps: 24 });
+```
+
+**Pose to pose** takes key poses on a 0–1 timeline. Each key's `ease` controls the move *into* that pose:
+
+```js
+Toon.poses([
+  { at: 0,    pose: { a: 15,  b: 10 } },
+  { at: 0.15, pose: { a: 5,   b: 35 } },                        // anticipation
+  { at: 0.4,  pose: { a: 150, b: 30 }, ease: Toon.ease.outBack }, // arm up, overshoot
+  { at: 1,    pose: { a: 15,  b: 10 } },
+], { duration: 3000, repeat: Infinity, onUpdate: pose => (arm = pose) });
+```
+
+`Toon.samplePoses(keys, p)` is the same interpolation as a pure function, which is useful for scrubbing or drawing ghost frames.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+
+## Straight ahead vs pose to pose: tuning tips
+
+- **Mix the two approaches.** Pose the main body, then simulate hair, cloth and tails straight ahead on top (see [Follow-through](../follow-through/)).
+- **Use a lower fps for a hand-made feel.** 12 or 24 fps straight-ahead motion looks more drawn than 60.
+
+**API:** [`straightAhead`](../../api/canvas/#timing-and-sequencing), [`poses` / `samplePoses`](../../api/canvas/#timing-and-sequencing), [`.toon-sprite`](../../api/css/#classes)

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · Exaggeration — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 340px; cursor: pointer; }
+  .row { display: flex; gap: 2.5rem; align-items: flex-end; justify-content: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; min-height: 230px; }
+  .cell { display: flex; flex-direction: column; align-items: center; }
+  .ball { width: 56px; height: 56px; } .shadow { width: 64px; height: 14px; margin-top: -7px; }
+  .btn { font: 600 16px system-ui; padding: .8em 1.6em; border: 0; border-radius: 999px; background: var(--demo-btn); color: var(--demo-on-btn); cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>10 · Exaggeration</h1>
+<p>Push poses past realism so the idea is clear at a glance. One slider drives both modules: the canvas poses
+  go through <code>exaggerate()</code> and the CSS reads <code>--toon-exaggeration</code>.</p>
+<label>Exaggeration <input id="ex" type="range" min="0" max="2.5" step="0.05" value="1"> <output id="out">1</output></label>
+<canvas id="c" style="cursor:pointer" role="img" aria-label="Loop stands still. On a take, Loop squints, then shoots upward with huge eyes before settling back; the slider sets how exaggerated the take is."></canvas>
+<p class="demo-try"><button type="button" class="demo-act" id="act">Do the take</button> <b>Try it</b> Drag the slider, then press <i>Do the take</i> or click the canvas.</p>
+
+<h2>CSS: <code>--toon-exaggeration</code></h2>
+<div class="row">
+  <div class="cell"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div></div>
+  <button class="btn toon-press toon-anticipate">Hover &amp; press me</button>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, poses, ease, exaggerate, withSquash, groundShadow } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const ex = document.getElementById('ex'), out = document.getElementById('out');
+  ex.oninput = () => { document.documentElement.style.setProperty('--toon-exaggeration', ex.value); out.textContent = ex.value; };
+
+  const REST = { sy: 1, eye: 1, y: 0, brow: 0 };
+  const take = [                                                      // a classic cartoon "take"
+    { at: 0,    pose: REST },
+    { at: 0.18, pose: { sy: 0.8,  eye: 0.5, y: 0,  brow: 4 } },        // anticipation squint
+    { at: 0.3,  pose: { sy: 1.35, eye: 1.8, y: 45, brow: -10 }, ease: ease.outBack }, // the take
+    { at: 0.7,  pose: { sy: 1.25, eye: 1.7, y: 35, brow: -9 } },       // moving hold
+    { at: 1,    pose: REST, ease: ease.outElastic },
+  ];
+  let pose = REST, playing = false;
+  const act = () => {
+    if (playing) return; playing = true;
+    poses(take, { duration: 1600, onUpdate: p => (pose = p) }).then(() => (playing = false));
+  };
+  stage.canvas.addEventListener('click', act);
+  document.getElementById('act').addEventListener('click', act);
+
+  stage.loop(() => {
+    const k = +ex.value, H = 130, x = stage.width / 2, ground = stage.height - 40;
+    // [EXAGGERATION] amplify each pose's distance from rest
+    const sy = Math.max(0.3, exaggerate(pose.sy, k, 1)), eye = Math.max(0.15, exaggerate(pose.eye, k, 1));
+    const y = pose.y * k, brow = pose.brow * k;
+    stage.clear();
+    ctx.fillStyle = T.ground; ctx.fillRect(0, ground, stage.width, 40);
+    ctx.fillStyle = T.groundLine; ctx.fillRect(0, ground, stage.width, 2);
+    groundShadow(ctx, x, ground, 34, y, { maxHeight: 200 });
+    const mood = eye > 1.25 ? 'surprised' : eye < 0.8 ? 'focused' : 'neutral';   // squint → take → settle
+    withSquash(ctx, x, ground - H / 2 - 4 - y, { sx: 1 / sy, sy }, c =>
+      Cast.draw(c, 'loop', { x: 0, y: 0, h: H, fill: T.secondary, ink: T.ink, bg: T.surface, mood, noWink: true,
+        eyeScale: Math.max(0.6, Math.min(2.2, mood === 'surprised' ? eye / 1.25 : 1)) }), { x: 0, y: H / 2 + 4 });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+---
+title: Exaggeration
+description: "Push a motion past realistic so it's clear at a glance."
+sidebar: { order: 10, label: '10 · Exaggeration' }
+---
+import Demo from '../../../components/Demo.astro';
+
+Realistic motion often looks flat on screen. Exaggeration pushes each pose further from rest (bigger eyes, a deeper crouch, a higher jump) so the emotion or idea is unmistakable. It's a dial, not a switch: a game might want 1.8 and a banking app 0.5.
+
+<Demo file="10-exaggeration.html" title="Exaggeration demo" />
+
+## Exaggeration in CSS
+
+A single variable scales every squash, height, swing and wind-up in `toon.css`:
+
+```css
+:root { --toon-exaggeration: 1; }      /* global default */
+.game-ui { --toon-exaggeration: 1.8; } /* or use .toon-exaggerate */
+.settings { --toon-exaggeration: .5; } /* or use .toon-subtle */
+```
+
+## Exaggeration in Canvas
+
+`exaggerate(value, factor, rest)` scales a value's distance from its rest value. Apply it to every channel of a pose:
+
+```js
+const k = 1.6;
+const sy  = Toon.exaggerate(pose.sy, k, 1);   // rest scale = 1
+const eye = Toon.exaggerate(pose.eye, k, 1);
+const y   = pose.y * k;                       // rest height = 0
+```
+
+The `ease.overshoot(s)` and `ease.elastic(period)` factories exaggerate in time instead of space, by flying past the target before settling.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+
+## Exaggeration: tuning tips
+
+- **Exaggerate the important beat, not every frame.** In a ["take"](../../glossary/#take), the surprise pose gets the big push and everything else stays readable.
+- **Stay consistent.** Pick one exaggeration level per product or scene; mixing levels feels accidental.
+- **Clamp the results.** Very high factors can produce negative scales, so clamp them (the demo keeps `sy ≥ 0.3`).
+
+**API:** [`exaggerate`](../../api/canvas/#physics), [`ease.overshoot`](../../api/canvas/#easing), [`--toon-exaggeration`](../../api/css/#custom-properties)

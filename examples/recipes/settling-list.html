@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipe · A list that settles in — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="recipe.css">
+</head>
+<body>
+<h1>Recipe · A list that settles in</h1>
+<p>Follow-through plus overlapping action. Press Replay to run it again.</p>
+<div class="panel">
+<!-- @recipe -->
+<ul class="toon-follow" style="--toon-overlap:60ms">
+  <li>First</li><li>Second</li><li>Third</li>
+</ul>
+<!-- @end -->
+<button id="replay">Replay</button>
+</div>
+<script src="../demo-theme.js"></script>
+<script>
+// @recipe
+const list = document.querySelector('.toon-follow');
+const replay = document.querySelector('#replay');
+replay.addEventListener('click', () => {
+  list.classList.remove('toon-follow');
+  void list.offsetWidth;               // force a reflow…
+  list.classList.add('toon-follow');   // …so it plays again
+});
+// @end
+</script>
+</body>
+</html>

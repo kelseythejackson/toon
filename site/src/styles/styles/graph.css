@@ -1,0 +1,36 @@
+/* Graph Notebook (default) — grid paper, one tomato accent, handwritten margin notes. */
+:root[data-style='graph'] {
+  --font-body: 'Inter Variable', system-ui, sans-serif; --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --display: 'Space Grotesk Variable', sans-serif; --hand: 'Caveat Variable', cursive;
+  --tomato: #e8442a;
+  --fx-lift-x: -3px; --fx-lift-y: -3px; --fx-lift-shadow: 3px 3px 0 var(--line);   /* hover: offset print shadow */
+}
+:root[data-style='graph'][data-theme='light'] {
+  --paper: #fbfaf6; --wash: #f3f1ea; --hair: #e7e3d8; --hair-strong: #d6d2c6; --faint: #95928a;
+  --muted: #5c5a55; --text: #26251f; --ink: #121212; --link: #b8321c; --accent-low: #ffe3dc;
+  --line: #121212; --grid: #e7e3d8; --swipe: #eeff6b; --card: #ffffff;
+}
+:root[data-style='graph'][data-theme='dark'] {
+  --paper: #15171b; --wash: #1c1f24; --hair: #2a2e35; --hair-strong: #3a3f47; --faint: #6e7380;
+  --muted: #a8a59c; --text: #e4e1d9; --ink: #f4f1ea; --link: #ff8a6e; --accent-low: #3a1d16;
+  --line: #e4e1d9; --grid: #22252b; --swipe: #5d5d33; --card: #1c1f24;
+}
+[data-style='graph'] body {
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: -1px -1px;
+}
+[data-style='graph'] :is(h1#_top, .hero h1, .sl-markdown-content :is(h2, h3)) { font-weight: 700; letter-spacing: -0.035em; }
+[data-style='graph'] .hero h1 { font-size: clamp(3.5rem, 8vw, 6rem); line-height: .95; display: inline;
+  background: linear-gradient(transparent 58%, var(--swipe) 58%, var(--swipe) 88%, transparent 88%); }
+[data-style='graph'] .hero::after { content: 'hand-tuned easing,\A no dependencies!'; white-space: pre; position: absolute; left: 39%; top: 38px;
+  font: 600 1.6rem/1 var(--hand); color: var(--tomato); rotate: -6deg; padding-left: 46px; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 40'%3E%3Cpath d='M46 8 C30 2 12 10 8 30 M8 30 L3 20 M8 30 L17 25' fill='none' stroke='%23e8442a' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") left center / 42px no-repeat; }
+[data-style='graph'] .hero .sl-link-button.primary { border-radius: 2px; border: 1.5px solid var(--ink); background: var(--ink); color: var(--paper); }
+[data-style='graph'] .hero .sl-link-button:not(.primary) { font-family: var(--hand); font-size: 1.5rem; color: var(--ink);
+  text-decoration: underline wavy var(--tomato) 1.5px; text-underline-offset: 6px; }
+[data-style='graph'] :is(.card, .sl-link-card) { border: 1.5px solid var(--line) !important; border-radius: 2px !important; background: var(--card) !important; }
+[data-style='graph'] .sidebar-content a[aria-current='page'] { background: linear-gradient(transparent 45%, var(--swipe) 45%) !important;
+  color: var(--ink) !important; font-weight: 700; border-radius: 0; }
+[data-style='graph'] .sl-markdown-content h2::before { content: '§ '; color: var(--tomato); }
+[data-style='graph'] .sl-markdown-content strong { background: linear-gradient(transparent 60%, var(--swipe) 60%); }
+[data-style='graph'] .expressive-code .frame { border: 1.5px solid var(--line); border-radius: 2px; }

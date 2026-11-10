@@ -1,0 +1,43 @@
+---
+title: Secondary action
+description: "Small supporting motions (glances, swings, blinks) that add life."
+sidebar: { order: 8, label: '8 · Secondary action' }
+---
+import Demo from '../../../components/Demo.astro';
+
+The primary action is what the character is doing, such as walking. Secondary actions support it: arms swinging against the step, eyes glancing around, an occasional blink. In the demo, Loop's walk is the primary action and the rest is secondary. They make the main action richer, but they must never compete with it.
+
+<Demo file="08-secondary-action.html" title="Secondary action demo" />
+
+## Secondary action in CSS
+
+```html
+<span class="toon-sway">🌻</span>     <!-- gentle rotation from the base -->
+<span class="toon-bob">3 new</span>   <!-- small vertical float -->
+<span class="toon-blink">👀</span>     <!-- occasional squash to a line -->
+```
+
+## Secondary action in Canvas
+
+```js
+Toon.ticker.add((dt, t) => {
+  const phase = t * Math.PI * 2 * 1.6;          // primary: the walk cycle
+  const bob = Math.abs(Math.sin(phase)) * 8;
+  const swing = Math.sin(phase) * 28;           // secondary: arms swing against the legs, driven by the walk
+  const glance = Toon.noise(t * 0.6);           // secondary: idle eye movement
+  const shut = Toon.blink(t, { every: 2.8 });   // secondary: the odd blink
+  // draw the body at y − bob, arms at ±swing, eyes offset by glance, lids by shut
+});
+```
+
+`noise(t)` gives smooth, organic randomness for fidgets and glances. `wave(t, { amp, freq, decay })` gives a regular or decaying oscillation.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+
+## Secondary action: tuning tips
+
+- **Keep amplitudes small.** If people notice the secondary action first, it is too big.
+- **Drive it from the primary motion.** Arms that swing from the walk phase stay in step for free, while an independent loop can feel disconnected.
+- **Turn it off and compare.** The demo's checkbox shows how lifeless the walk is without it.
+
+**API:** [`Chain`](../../api/canvas/#physics), [`wave` / `noise`](../../api/canvas/#physics), [`.toon-sway` / `.toon-bob` / `.toon-blink`](../../api/css/#classes)

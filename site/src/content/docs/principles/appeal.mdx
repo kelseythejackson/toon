@@ -1,0 +1,46 @@
+---
+title: Appeal
+description: "Idle life (breathing, blinking, reacting) that makes things likeable."
+sidebar: { order: 12, label: '12 · Appeal' }
+---
+import Demo from '../../../components/Demo.astro';
+
+Appeal is charisma, and it isn't the same as cuteness. A villain can be appealing too. It comes from clear, simple shapes, pleasing proportions and signs of life. A character that breathes, blinks and reacts feels present even when it's doing nothing. In the demo, Dot does all three.
+
+<Demo file="12-appeal.html" title="Appeal demo" />
+
+## Appeal in CSS
+
+```html
+<div class="toon-pop-in">                 <!-- elastic entrance on the wrapper -->
+  <div class="avatar toon-breathe">       <!-- breathing on the body -->
+    <span class="eye toon-blink"></span>
+    <span class="eye toon-blink"></span>
+  </div>
+</div>
+```
+
+Nest the elements: each preset sets `animation`, so one element per preset.
+
+## Appeal in Canvas
+
+```js
+Toon.ticker.add((dt, t) => {
+  const b = Toon.breathe(t, { rate: 0.35, amount: 0.025 });  // { sx, sy } idle breathing
+  const shut = Toon.blink(t, { every: 3 });                  // 0 open … 1 shut, slightly irregular
+  look.x.target = (mouse.x - cx) / 25;                       // eyes follow the pointer on a Spring
+  // draw body with withSquash(ctx, cx, cy, b, …), eyes squashed by (1 - shut)
+});
+```
+
+`blink()` varies the gap between blinks deterministically, so it never feels like a metronome.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+
+## Appeal: tuning tips
+
+- **Simplify the silhouette.** If you can't recognize the shape filled in black, simplify it.
+- **Vary proportions.** Big and small shapes together are more interesting than all-medium ones.
+- **Idle motion should be very subtle.** 2–4% scale is enough; more makes the character look anxious.
+
+**API:** [`breathe` / `blink`](../../api/canvas/#drawing-staging-and-appeal), [`Spring`](../../api/canvas/#physics), [`.toon-pop-in` / `.toon-breathe`](../../api/css/#classes)

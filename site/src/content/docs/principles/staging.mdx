@@ -1,0 +1,42 @@
+---
+title: Staging
+description: "Point attention at one thing: highlight it and quiet everything else."
+sidebar: { order: 3, label: '3 · Staging' }
+---
+import Demo from '../../../components/Demo.astro';
+
+Staging means directing attention. In the demo, Loop performs under the spotlight while a crowd of gray Bricks stands still and watches. Use contrast in color, light, motion and size so the viewer looks where you want, and give the important thing a clear silhouette and a moment to itself.
+
+<Demo file="03-staging.html" title="Staging demo" />
+
+## Staging in CSS
+
+```html
+<div class="toon-stage">
+  <div>…</div>
+  <div class="is-featured">…</div>   <!-- or just hover/focus a child -->
+  <div>…</div>
+</div>
+```
+
+When one child is featured, hovered or focused, its siblings fade and shrink slightly. Only `opacity` and `scale` are animated, so the browser can run it on the GPU. Avoid animating `filter: blur()` here; it repaints every sibling on every frame. For a pointed effect, add a `.toon-spotlight` overlay and position it with `--toon-spot-x`, `--toon-spot-y` and `--toon-spot-r`.
+
+## Staging in Canvas
+
+```js
+const stage = Toon.createStage(canvas, { background: '#2b2a33' });
+// …draw the scene, then:
+stage.spotlight(hero.x, hero.y, 55, { dim: 0.72 });
+```
+
+In the demo, the spotlight position runs through two `Spring`s, so when the focus changes the light glides to the new subject instead of jumping.
+
+> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+
+## Staging: tuning tips
+
+- **Animate one thing at a time.** If everything moves, nothing stands out. Keep the crowd still or on slow idle motion.
+- **Use several kinds of contrast together.** Color, brightness, motion and scale reinforce each other.
+- **Move focus smoothly.** A sudden jump disorients people; a short eased glide doesn't.
+
+**API:** [`createStage`](../../api/canvas/#drawing-staging-and-appeal), [`Spring`](../../api/canvas/#physics), [`.toon-stage` / `.toon-spotlight`](../../api/css/#classes)

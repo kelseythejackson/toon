@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Timing — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 340px; }
+  .controls { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: .6rem; }
+  .row { display: flex; gap: 2rem; justify-content: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1rem; }
+  .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 220px; }
+  .ball { width: 56px; height: 56px; } .shadow { width: 64px; height: 14px; margin-top: -7px; }
+</style>
+</head>
+<body>
+<h1>09 · Timing</h1>
+<p>The number of frames an action takes tells us how heavy something is. Same drop, three weights:
+  Brick (heavy as a bowling ball), Dot (a rubber ball) and Zip (light as a balloon).</p>
+<div class="controls">
+  <label><input id="twos" type="checkbox"> On twos (12 fps)</label>
+  <label>Time scale <input id="scale" type="range" min="0.1" max="2" step="0.05" value="1"> <output id="out">1×</output></label>
+</div>
+<canvas id="c" role="img" aria-label="Brick, Dot and Zip drop side by side. Brick falls hard and barely bounces, Dot rebounds quickly, and Zip drifts down slowly like a balloon."></canvas>
+<p class="demo-try"><b>Try it</b> Switch on "on twos" (12 drawings/s) or slow motion.</p>
+
+<h2>CSS: <code>.toon-heavy</code> / <code>.toon-light</code></h2>
+<div class="row">
+  <div class="cell"><div class="ball toon-solid toon-bounce toon-heavy" style="--toon-color:var(--demo-neutral); --toon-height:60px"></div><div class="shadow toon-shadow toon-bounce-shadow toon-heavy"></div><small>.toon-heavy</small></div>
+  <div class="cell"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>default</small></div>
+  <div class="cell"><div class="ball toon-solid toon-bounce toon-light" style="--toon-color:var(--demo-tertiary)"></div><div class="shadow toon-shadow toon-bounce-shadow toon-light"></div><small>.toon-light</small></div>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, quantize, impact, squash, withSquash, groundShadow } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const twos = document.getElementById('twos'), scale = document.getElementById('scale'), out = document.getElementById('out');
+  scale.oninput = () => { ticker.timeScale = +scale.value; out.textContent = scale.value + '×'; }; // [TIMING] global clock
+
+  // [TIMING] weight lives in gravity, restitution, drag and how much it deforms
+  const things = [
+    { name: 'Brick · heavy', who: 'brick', color: 'neutral',  r: 32, g: 2600, e: 0.2,  drag: 0,   squash: 0.05 },
+    { name: 'Dot · bouncy',  who: 'dot',   color: 'primary',  r: 26, g: 1800, e: 0.78, drag: 0,   squash: 0.4 },
+    { name: 'Zip · light',   who: 'zip',   color: 'tertiary', r: 30, g: 300,  e: 0.45, drag: 1.6, squash: 0.25 },
+  ].map(o => ({ ...o, y: 0, vy: 0, hold: 0, out: 0 }));
+  const HOLD = 0.07;
+  let since = 99, lastDrawn = -1;
+
+  stage.loop((dt, t) => {
+    const ground = stage.height - 50;
+    since += dt;
+    if (since > 4.5) { since = 0; things.forEach(o => Object.assign(o, { y: 40, vy: 0, hold: 0 })); }
+    for (const o of things) {
+      const floor = ground - o.r;
+      if (o.hold > 0) { o.hold -= dt; if (o.hold <= 0) o.vy = -o.out; continue; }
+      o.vy += o.g * dt; o.vy *= 1 - o.drag * dt; o.y += o.vy * dt;
+      if (o.y >= floor) { o.y = floor; o.out = o.vy * o.e; o.vy = 0; o.hold = o.out > 40 ? HOLD : 0; o.hit = o.out; }
+    }
+    if (twos.checked) { const q = quantize(t, 12); if (q === lastDrawn) return; lastDrawn = q; } // hold drawings
+
+    stage.clear();
+    ctx.fillStyle = T.ground; ctx.fillRect(0, ground, stage.width, 50);
+    ctx.fillStyle = T.groundLine; ctx.fillRect(0, ground, stage.width, 2);
+    things.forEach((o, i) => {
+      const x = stage.width * (i + 1) / 4;
+      const s = o.hold > 0
+        ? impact(Math.sin((1 - o.hold / HOLD) * Math.PI) * o.squash * Math.min(1, o.hit / 500))
+        : squash(0, o.vy, { amount: o.squash * 0.0015 });
+      groundShadow(ctx, x, ground, o.r, ground - o.r - o.y, { maxHeight: 280 });
+      const mood = o.who === 'brick' ? 'neutral' : o.hold > 0 || o.who === 'zip' ? 'happy' : 'neutral';   // Brick stays unflappable
+      withSquash(ctx, x, o.y, s, c => Cast.draw(c, o.who, { x: 0, y: 0, h: o.r * 2, fill: T[o.color], ink: T.ink, trail: false, mood,
+        look: { x: 0, y: Math.max(-1, Math.min(1, o.vy / 800)) } }), o.hold > 0 ? { x: 0, y: o.r } : undefined);
+      ctx.fillStyle = T.muted; ctx.font = '13px system-ui'; ctx.textAlign = 'center'; ctx.fillText(o.name, x, ground + 30);
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Arcs — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  canvas { display: block; width: 100%; height: 360px; cursor: crosshair; }
+  .row { display: grid; gap: 1rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
+  .track { height: 170px; position: relative; border-bottom: 2px solid var(--demo-ground-line); }
+  .ball { width: 34px; height: 34px; }
+  .track > .toon-arc, .track > .ball { position: absolute; left: 0; bottom: 0; }
+  .line { animation: ex07-line 1.4s linear infinite alternate; }
+  @keyframes ex07-line { to { translate: 240px -140px; } }
+  small { position: absolute; right: 0; bottom: 4px; color: var(--demo-muted); }
+</style>
+</head>
+<body>
+<h1>07 · Arcs</h1>
+<p>Living things and thrown objects move on curves. The comet follows <code>path()</code>, a smooth curve through a few points.</p>
+<label><input id="useArc" type="checkbox" checked> Use an arc</label>
+<canvas id="c" style="cursor:pointer" role="img" aria-label="Dot is thrown along a curved path and leaves a dotted trail, while a comet follows a wavy path above. With arcs switched off, Dot travels in a straight line instead."></canvas>
+<p class="demo-try"><button type="button" class="demo-act" id="act">Throw</button> <b>Try it</b> Press <i>Throw</i> or click the canvas to throw Dot there. Untick <i>Use an arc</i> to see the same throw as a straight, mechanical line.</p>
+
+<h2>CSS: <code>.toon-arc</code></h2>
+<div class="row">
+  <div class="track"><div class="toon-arc toon-loop toon-yoyo" style="--toon-duration:1.4s; --toon-height:140px"><div class="ball toon-solid"></div></div><small>.toon-arc: wrapper moves X (linear), child moves Y (gravity)</small></div>
+  <div class="track"><div class="ball toon-solid line" style="--toon-color:var(--demo-neutral)"></div><small>straight line (for contrast)</small></div>
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script>
+  const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
+  const { createStage, ticker, tween, ease, arc, path, squash, withSquash, lerp } = Toon;
+  const stage = createStage(document.getElementById('c'));
+  const { ctx } = stage;
+  const useArc = document.getElementById('useArc');
+  const DUR = 900;
+  let flight = null, lastThrow = -9;
+
+  function throwTo(p1) {
+    const p0 = { x: 50, y: stage.height - 50 };
+    const fn = useArc.checked
+      ? arc(p0, p1, { height: 90 + Math.random() * 60 })             // [ARCS] ballistic parabola
+      : t => ({ x: lerp(p0.x, p1.x, t), y: lerp(p0.y, p1.y, t) });
+    const f = (flight = { fn, t: 0 });
+    tween({ duration: DUR, ease: ease.linear, onUpdate: v => (f.t = v) });
+    lastThrow = ticker.time;
+  }
+  stage.canvas.addEventListener('click', e => {
+    const r = stage.canvas.getBoundingClientRect(); throwTo({ x: e.clientX - r.left, y: e.clientY - r.top });
+  });
+
+  const W = () => stage.width, H = () => stage.height;
+  const comet = path([0.08, 0.3, 0.5, 0.7, 0.92].map((x, i) => ({ x, y: i % 2 ? 0.12 : 0.3 })));
+  let cometT = 0;
+  tween({ duration: 3200, ease: ease.inOutSine, repeat: Infinity, yoyo: true, onUpdate: v => (cometT = v) });
+
+  stage.loop(() => {
+    if (ticker.time - lastThrow > 2) throwTo({ x: W() * (0.45 + Math.random() * 0.45), y: H() * (0.45 + Math.random() * 0.4) });
+    stage.clear();
+    // comet on a spline, with a fading tail sampled behind it
+    ctx.strokeStyle = T.hair; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= 60; i++) { const p = comet(i / 60); ctx.lineTo(p.x * W(), p.y * H()); } ctx.stroke();
+    for (let i = 10; i >= 0; i--) {
+      const p = comet(Math.max(0, cometT - i * 0.008));
+      ctx.fillStyle = T.alpha(T.tertiary, 1 - i / 11); ctx.beginPath(); ctx.arc(p.x * W(), p.y * H(), 8 - i * 0.5, 0, 7); ctx.fill();
+    }
+    // hand
+    ctx.fillStyle = T.ground; ctx.strokeStyle = T.groundLine; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(50, H() - 50, 18, 0, 7); ctx.fill(); ctx.stroke();
+    if (!flight) return;
+    const { fn, t: ft } = flight;
+    ctx.setLineDash([4, 6]); ctx.strokeStyle = T.faint; ctx.beginPath();            // planned path
+    for (let i = 0; i <= 40; i++) { const p = fn(i / 40); ctx.lineTo(p.x, p.y); } ctx.stroke(); ctx.setLineDash([]);
+    for (let i = 0; i < ft * 14; i++) {                                             // spacing ghosts
+      const p = fn(i / 14); ctx.fillStyle = T.alpha(T.secondary, .4); ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, 7); ctx.fill();
+    }
+    const a = fn(ft), b = fn(Math.min(1, ft + 0.01)), k = 1000 / (0.01 * DUR);   // velocity in px/s
+    const s = ft < 1 ? squash((b.x - a.x) * k, (b.y - a.y) * k, { amount: 0.0006 }) : { };
+    const look = { x: Math.sign(b.x - a.x), y: Math.max(-1, Math.min(1, (b.y - a.y) * k / 600)) };  // eyes on the landing spot
+    withSquash(ctx, a.x, a.y, s, c => Cast.draw(c, 'dot', { x: 0, y: 0, h: 34, fill: T.primary, ink: T.ink, look,
+      mood: ft < 1 ? 'happy' : 'neutral' }));
+  });
+  document.getElementById('act').addEventListener('click', () => throwTo({ x: stage.width * 0.75, y: stage.height * 0.55 }));
+</script>
+</body>
+</html>

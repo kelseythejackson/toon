@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting started · Your first CSS animation — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="../recipes/recipe.css">
+<style>
+  /* Page chrome: two columns, each tall enough for its bounce, shadow at the bottom. */
+  .panel { justify-content: space-around; align-items: flex-end; }
+  .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; min-height: 280px; }
+  .cell .note { margin-top: .75rem; }
+</style>
+</head>
+<body>
+<h1>Your first CSS animation</h1>
+<p>A bouncing ball from two classes, then the same ball tuned with custom properties.</p>
+<div class="panel">
+  <div class="cell">
+<!-- @recipe -->
+<div class="toon-solid toon-bounce" style="width:48px; height:48px"></div>
+<div class="toon-shadow toon-bounce-shadow" style="width:56px; height:12px"></div>
+<!-- @end -->
+    <p class="note">defaults</p>
+  </div>
+  <div class="cell">
+<!-- @recipe -->
+<div class="toon-solid toon-bounce"
+     style="width:48px; height:48px;
+            --toon-squash:.4; --toon-height:200px; --toon-tempo:1.3"></div>
+<div class="toon-shadow toon-bounce-shadow"
+     style="width:56px; height:12px; --toon-tempo:1.3"></div>
+<!-- @end -->
+    <p class="note">tuned: more squash, higher, slower</p>
+  </div>
+</div>
+<script src="../demo-theme.js"></script>
+</body>
+</html>

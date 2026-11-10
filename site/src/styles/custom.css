@@ -1,0 +1,17 @@
+/* Actor row: characters (or any element) bouncing over contact shadows, with a caption under each.
+ * Markup: .actor-row > .actor > (.actor-body[toon-bounce…] > img|svg|div) + .actor-shadow[toon-shadow…] + small
+ * Motion comes from toon.css presets on the children; this only lays them out. Tune per row or per actor:
+ *   --actor-size      box of the drawn figure (default 104px)
+ *   --actor-foot      empty space below the figure's feet inside its box, as a fraction (0 for a plain shape)
+ *   --actor-row-height, --actor-gap */
+.actor-row { display: flex; gap: var(--actor-gap, clamp(.5rem, 4vw, 2rem)); justify-content: center; align-items: flex-end;
+  height: var(--actor-row-height, 240px); max-width: 100%; }
+.actor { --_size: var(--actor-size, clamp(64px, 22vw, 104px)); min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: .2rem; }
+.actor-body > * { display: block; width: var(--_size); height: var(--_size); }
+.actor-shadow { width: calc(var(--_size) * .58); height: calc(var(--_size) * .125);
+  margin-top: calc(var(--_size) * var(--actor-foot, 0) * -1 - var(--_size) * .06); }
+.actor small { color: var(--sl-color-gray-3); font-size: var(--sl-text-xs); }
+
+/* The splash hero must never be wider than the screen (it pushed the header's search off-screen on phones). */
+.hero { overflow-x: clip; }
