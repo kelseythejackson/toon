@@ -15,7 +15,7 @@ const src = `${base}toon/examples/${file}`;
 ---
 <figure class="toon-demo not-content">
   <iframe src={src} title={title} loading="lazy" data-autosize></iframe>
-  <figcaption><a href={src} target="_blank" rel="noopener">{linkText} ↗</a></figcaption>
+  <figcaption><a href={src} target="_blank" rel="noopener">{linkText}<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true">&nbsp;↗</span></a></figcaption>
 </figure>
 {source && (
   <details class="toon-demo-source">
@@ -28,10 +28,20 @@ const src = `${base}toon/examples/${file}`;
 <script>
   // Same-origin iframes: hide the example's own heading (the docs page has one), hand the demo the reader's
   // sketchbook style and light/dark mode (examples/demo.css + demo-theme.js do the rest), share the site's
-  // fonts, and fit the frame to its content.
+  // fonts, and fit the frame to its content (again whenever that content changes size: window resize, zoom, a projector).
+  // An intro paragraph marked .demo-hint carries instructions ("Press Replay…"), so it stays visible.
   const frames = [...document.querySelectorAll<HTMLIFrameElement>('iframe[data-autosize]')];
 
-  const EMBED_CSS = 'body>h1:first-of-type,body>h1:first-of-type+p{display:none}body{margin-top:1rem!important}';
+  const EMBED_CSS = 'body>h1:first-of-type,body>h1:first-of-type+p:not(.demo-hint){display:none}body>h1:first-of-type+p.demo-hint{margin-top:0}body{margin-top:1rem!important}';
+  const watched = new WeakSet<Document>();   // one ResizeObserver per loaded document
+  function fit(frame: HTMLIFrameElement) {
+    try {
+      const body = frame.contentDocument?.body;
+      if (!body) return;
+      const h = Math.ceil(body.getBoundingClientRect().bottom + parseFloat(getComputedStyle(body).marginBottom || '0'));
+      if (h > 0) frame.style.height = h + 'px';
+    } catch { /* cross-origin: keep the default height */ }
+  }
   function dress(frame: HTMLIFrameElement) {
     try {
       const doc = frame.contentDocument;
@@ -51,8 +61,9 @@ const src = `${base}toon/examples/${file}`;
         }).map(([r, href]) => (r as CSSRule).cssText.replace(/url\("?([^")]+)"?\)/g, (_m, u) => `url("${new URL(u, href as string).href}")`));
         const f = doc.createElement('style'); f.id = 'toon-fonts'; f.textContent = faces.join('\n'); doc.head.append(f);
       }
-      const body = doc.body, bottom = body.getBoundingClientRect().bottom;
-      frame.style.height = Math.ceil(bottom + parseFloat(getComputedStyle(body).marginBottom || '0')) + 'px';
+      fit(frame);
+      const RO = (frame.contentWindow as (Window & typeof globalThis) | null)?.ResizeObserver;
+      if (RO && !watched.has(doc)) { watched.add(doc); new RO(() => fit(frame)).observe(doc.body); }
     } catch { /* cross-origin: keep the default look and height */ }
   }
   for (const frame of frames) {
@@ -73,4 +84,5 @@ const src = `${base}toon/examples/${file}`;
   .toon-demo figcaption { margin-top: .4rem; font-size: var(--sl-text-sm); }
   /* 24px+ tap target (WCAG 2.5.8): this link is the only way to a demo's standalone page. */
   .toon-demo figcaption a { display: inline-flex; align-items: center; min-height: 32px; padding-inline: .1rem; }
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 </style>

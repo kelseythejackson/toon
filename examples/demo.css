@@ -161,6 +161,7 @@ canvas, .demo-panel {
 /* Reduced motion: paused banner with an opt-in play control (added by demo-theme.js). */
 .demo-motion-note { display: flex; gap: .75rem; align-items: center; margin: 0 0 1rem; padding: .6rem .9rem;
   border-radius: max(var(--demo-radius), 6px); background: var(--demo-surface-2); color: var(--demo-text); font-size: 14px; }
+.demo-motion-note.is-nudged { outline: 2px solid var(--demo-primary); outline-offset: 2px; }
 
 /* "Try it" hint under an interactive canvas. Kept out of the intro paragraph so it stays visible when the docs embed the demo. */
 .demo-try { margin: .5rem 0 1rem; font-size: 13px; color: var(--demo-muted); }
@@ -171,5 +172,6 @@ canvas, .demo-panel {
 .demo-act { font: 600 13px var(--demo-font, system-ui); padding: .45em 1.1em; margin-right: .6em; border-radius: 999px;
   border: 1.5px solid var(--demo-text); background: var(--demo-surface); color: var(--demo-text); cursor: pointer; vertical-align: middle; }
 .demo-act-range { color: var(--demo-text); margin-right: .6em; }
-.demo-act:focus-visible, .demo-act-range input:focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 2px; }
+/* One visible focus ring for every control in every style (browser defaults vary and can vanish on tinted panels). */
+:is(button, input, select, textarea, a, [tabindex]):focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 2px; }
 .demo-try:has(.demo-act, .demo-act-range) b::before { content: ""; }

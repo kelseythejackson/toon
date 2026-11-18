@@ -15,13 +15,17 @@ Copy `src/toon.css` and `src/toon.js` into your project. There's nothing to inst
 <button class="toon-press">Save</button>                 <!-- squashes when pressed -->
 <ul class="toon-follow"><li>One</li><li>Two</li></ul>      <!-- items settle in one by one -->
 
+<canvas id="c" style="width:100%; height:300px"></canvas>  <!-- the Canvas half draws here -->
 <script src="toon.js"></script>
 <script>
-  const stage = Toon.createStage('#c');                    // a <canvas id="c">
-  const fly = Toon.arc({ x: 40, y: 260 }, { x: 400, y: 260 }, { height: 160 });
+  const stage = Toon.createStage('#c');
   let t = 0;
   Toon.tween({ duration: 1000, ease: 'linear', repeat: Infinity, yoyo: true, onUpdate: (v) => (t = v) });
-  stage.loop(() => { stage.clear(); const p = fly(t); Toon.drawSolid(stage.ctx, { x: p.x, y: p.y, r: 20 }); });
+  stage.loop(() => {
+    const y = stage.height - 40;   // an arc across the canvas, rebuilt each frame so it follows resizes
+    const p = Toon.arc({ x: 40, y }, { x: stage.width - 40, y }, { height: 160 })(t);
+    stage.clear(); Toon.drawSolid(stage.ctx, { x: p.x, y: p.y, r: 20 });
+  });
 </script>
 ```
 
@@ -94,7 +98,7 @@ npm run docs:dev
 - **Stop the docs server:** `npm run docs:stop`. Astro 7 can keep the dev server running in the background after the command returns, so stop it this way. Closing the terminal may not stop it. `npm run status -w site` shows whether it's running.
 - **Checks:** `npm run check` prints the browser it chose, then should end with:
   ```
-  ✓ core size: 499/500 lines
+  ✓ core size: 514/520 lines
   ✓ error handling (core + toon.debug.js)
   total failures: 0
   ```
@@ -127,9 +131,23 @@ All optional. Put them in `.env` (copied from `.env.example`). The checks and th
 | `✗ CHROME_PATH points to …, which doesn't exist` | A typo, or Chrome moved | Fix or remove `CHROME_PATH` in `.env`. Auto-detection usually works without it. |
 | `Dev server already running at http://localhost:4321` | A previous `npm run docs:dev` is still running in the background | `npm run docs:stop`, then start again |
 | The docs open on port 4322 instead of 4321 | Something else is using port 4321 | Use the printed URL, or free the port (`lsof -i :4321` on macOS/Linux, `netstat -ano \| findstr 4321` on Windows) |
-| `.env not found. Continuing without it.` | You haven't created a `.env` | Harmless. It's optional. |
+| `.env not found. Continuing without it.` | Node prints this when there's no `.env` | Harmless. It's optional. |
 | Demos in `site/public/toon/` don't show your edits | That folder is a copy made by `scripts/sync.mjs` when the dev server starts | Restart `npm run docs:dev`, or run `npm run sync -w site`. Edit `src/` and `examples/`, never `site/public/toon/`. |
+| `npm run setup` or `docs:dev` fails right after you open a new terminal, although it worked before | The new shell started an older default Node (check `node --version`) | `nvm use`, or make Node 22 the default: `nvm alias default 22` |
+| Every demo opens with "The drawings are paused…" and the home page characters stand still | Your system's **Reduce motion** setting is on, and toon respects it | That is the intended behavior. Press **Play** on a demo, or turn the setting off (macOS: System Settings → Accessibility → Display → Reduce motion) |
 | Results differ from CI | Your installed Chrome is a different version from CI's pinned Chromium | Run with `CHECK_BROWSER=bundled` after `npx playwright install chromium` |
+
+### Before a live demo or talk
+
+Do these on the presentation machine, on a good network, the day before:
+
+1. **Node:** `node --version` must print 22.23.4 or newer. If not: `nvm install && nvm use && nvm alias default 22`.
+2. **Install once, while online:** `npm run setup`. It downloads the docs' dependencies and, only if no Chrome is installed, about 150 MB of Chromium. After that nothing needs the network: `npm run docs:dev` and every page in `examples/` work offline.
+3. **Clear old servers:** `npm run docs:stop`, then `npm run docs:dev`, and check that it prints port **4321**. An old background server would otherwise keep 4321 and serve a stale build.
+4. **Pin the look:** open the docs as `http://localhost:4321/?style=graph&theme=light` (any style: `graph`, `riso`, `collage`, `crayon`; theme `light` or `dark`). The choice is remembered, and standalone demos take the same `?style=…&theme=…` parameters, so the browser's saved style and the OS dark mode can't change what you rehearsed.
+5. **Motion settings:** check that **Reduce motion** is off on the presentation machine, unless you want to show the reduced-motion behavior. With it on, demos open paused.
+6. **Random demos:** smoke and flame (04), Zip's autopilot (05) and the comet's targets (07) are randomized, so they never play exactly the same way twice. Rehearse the general idea, not exact moments.
+7. **Projector:** embedded demos resize with the window, so switching resolution or zooming mid-talk is safe.
 
 ## For maintainers: docs site, checks and publishing
 
@@ -143,7 +161,7 @@ site/                          Astro Starlight docs site
     ├── components/Demo.astro  embeds an example page, auto-sized, heading hidden
     └── content/docs/          the docs pages (Markdown/MDX)
 scripts/setup.mjs              npm run setup: Node check, npm ci, browser for the checks
-scripts/check.mjs              size budget (≤500 lines), smoke test of every example, error-handling tests
+scripts/check.mjs              size budget (≤520 lines), smoke test of every example, error-handling tests
 scripts/check-demo-contrast.mjs  WCAG contrast of every demo color token, all styles × modes
 scripts/check-site.mjs         builds the docs into site/dist-check and crawls them: phones, links, anchors, script errors
 scripts/browser.mjs            picks the browser for the checks (CHROME_PATH → installed Chrome → Playwright)
@@ -159,7 +177,7 @@ Readers can choose a style from the pencil menu next to the light/dark switch: G
 - `site/src/components/ThemeSelect.astro` renders the picker.
 - `site/src/scripts/motion.js` applies and saves the choice.
 - Interface motion (page glide, button squash, card lift and cascade, the circle reveal) lives in reusable `fx-` utilities: `site/src/styles/fx.css` and `site/src/scripts/fx.js`. `motion.js` maps Starlight's markup onto them. See [`site/MOTION.md`](site/MOTION.md).
-- The embedded demos take on the active style's paper, fonts and accent. In dark mode they stay a light sheet, so the canvas drawings keep their contrast.
+- The embedded demos take on the active style's paper, fonts and accent, and its light or dark mode: `examples/demo.css` has a full palette for every style × mode, checked by `npm run check:contrast`.
 
 To add a style:
 1. Copy one of the style files and change its tokens, including its `--fx-*` hover tokens (`--fx-lift-y`, `--fx-lift-shadow`, …).
@@ -183,7 +201,7 @@ CI runs both on every push and pull request, with the Node version from `.nvmrc`
 2. In the repo, go to **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**.
 3. Push to `main`. The site appears at `https://<you>.github.io/<repo>/`. The workflow sets the base path automatically, and also handles a custom domain if you add one in the same settings page.
 
-To host on Netlify, Vercel or Cloudflare Pages instead, set the build command to `npm run build`, the base directory to `site`, and the output directory to `site/dist`.
+To host on Netlify, Vercel or Cloudflare Pages instead, build from the repo root (the docs site is an npm workspace, so it needs the root install): leave the base/root directory empty, set the build command to `npm run docs:build` and the output directory to `site/dist`. Set `SITE_URL` (and `BASE_PATH` if the site isn't at `/`) in the host's environment variables.
 
 **npm**: toon isn't published to npm; the supported install is copying `src/toon.css` and `src/toon.js` (see Getting started). `package.json` keeps its `exports` map so a local `npm install ../toon` still works.
 

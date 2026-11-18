@@ -4,6 +4,39 @@
 
 Everything since 1.1.0, newest first.
 
+### Audit fixes (bugs, copy, accessibility, live-demo risks)
+- **Core (514/520 lines; budget raised from 500 to fit these fixes):**
+  - A tween whose `onUpdate` or easing throws now settles with `null`, so `sequence` and `busy` flags no longer hang. The handle gains `catch` and `finally`.
+  - `ease: 'anticipate' | 'overshoot' | 'elastic'` by name use the default curve instead of producing `NaN`. `'steps'` and `'cubicBezier'` warn that they need arguments.
+  - `shade`/`drawSolid` accept any CSS color in a browser (`'tomato'`, `hsl()`…) and throw `toon.shade:` for colors they can't read, instead of drawing the wrong color.
+  - `stage.destroy()` removes the resize listener and IntersectionObserver. `path()` with fewer than 2 points throws `toon.path:`.
+- **CSS:**
+  - Selectors match only classes that start with `toon-`, so `cartoon-card` is left alone.
+  - Under reduced motion, `.toon-launch` and `.toon-arc` sit at their end position.
+  - `.toon-follow` staggers 12 children instead of 9.
+  - The header no longer claims `@property`.
+- **Demos:**
+  - Reduced motion: the banner says what is paused. Pressing an action while paused points at Play. The time-scale slider no longer un-pauses. The reduced-motion recipe owns its own control.
+  - Keyboard-operable staging cards. Readable Appeal SVG features in every style. Guides drawn in `faint` (≥3:1). One focus ring for every control.
+  - Distinct button labels in the button recipe, and the starter arc sized to the canvas. The throw path follows light/dark.
+- **Docs site:**
+  - Embedded demos resize with their content.
+  - Recipe instructions (`.demo-hint`) stay visible when embedded.
+  - The new-tab link is announced.
+  - Decorative `::before`/`::after` text is hidden from screen readers.
+  - `--faint` meets 4.5:1 in every style.
+  - `?style=` and `?theme=` pin the look.
+  - Card grids can't stay hidden.
+- **Docs and README:**
+  - The quick start includes its `<canvas>`.
+  - The React example uses `stage.destroy()`.
+  - The debug load order is explained.
+  - Netlify/Vercel settings are corrected.
+  - New *Before a live demo or talk* checklist.
+- **Scripts:**
+  - `npm run check` explains a missing Playwright and tests the new core behavior.
+  - `make-portable.py` fails loudly if it can't patch search.
+
 ### Local setup, part 2 (recommendations D1–D5, D7, D8)
 - **One command:** `npm run setup` checks Node, installs everything, and finds a browser for the checks. It downloads Playwright's
   Chromium only if no Chrome, Chromium or Edge is installed.

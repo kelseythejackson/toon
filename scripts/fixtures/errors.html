@@ -7,12 +7,18 @@
   // Core-only behavior (no debug file): the clock survives a throwing callback; createStage explains itself.
   const core = {};
   let n = 0; Toon.ticker.add(() => { n++; });
-  Toon.tween({ duration: 50, onUpdate() { throw new Error('boom'); } });
+  Toon.tween({ duration: 50, onUpdate() { throw new Error('boom'); } }).then(v => { core.settled = v === null; });
   setTimeout(() => { core.before = n; }, 150);
   setTimeout(() => { core.after = n; }, 450);
   try { Toon.createStage(null); } catch (e) { core.createStage = e.message; }
   core.selector = !!Toon.createStage('#c').ctx;
   core.squashDefault = Toon.squash().sx;
+  { let ok = true;   // a factory's name ('anticipate') means its default curve, not NaN
+    Toon.tween({ duration: 60, ease: 'anticipate', onUpdate(v) { ok &&= Number.isFinite(v); }, onComplete() { core.easeByName = ok; } }); }
+  core.shadeNamed = Toon.shade('tomato', 0) === 'rgb(255,99,71)';
+  try { Toon.shade('not-a-color', 0); } catch (e) { core.shadeBad = e.message; }
+  try { Toon.path([{ x: 0, y: 0 }]); } catch (e) { core.path = e.message; }
+  { const s = Toon.createStage('#c'); s.loop(() => {}); s.destroy(); core.destroyed = typeof s.destroy === 'function'; }
   window.core = core;
 </script>
 <script src="../../src/toon.debug.js"></script>

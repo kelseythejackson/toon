@@ -33,11 +33,11 @@ import { tween, arc } from './toon.mjs';     // or as an ES module
 
 **Reused values.** For object and array values, `onUpdate` receives the *same* object every frame, updated in place, so animation creates no garbage. Copy it (`{ ...v }`) if you need to keep a snapshot.
 
-**`tween` options:** `from = 0`, `to = 1`, `duration = 500`, `delay = 0`, `ease = ease.inOutCubic` (a function, or a name such as `'outQuad'`), `repeat = 0` (or `Infinity`), `yoyo = false`, `onUpdate(value, progress)`, `onComplete(value)`. `from`/`to` can be numbers, arrays or flat objects of numbers. Keys present on only one side hold still.
+**`tween` options:** `from = 0`, `to = 1`, `duration = 500`, `delay = 0`, `ease = ease.inOutCubic` (a function, or a name such as `'outQuad'`; the names `'anticipate'`, `'overshoot'` and `'elastic'` use those curves' defaults, while `steps` and `cubicBezier` need arguments, so pass `ease.steps(4)`), `repeat = 0` (or `Infinity`), `yoyo = false`, `onUpdate(value, progress)`, `onComplete(value)`. `from`/`to` can be numbers, arrays or flat objects of numbers. Keys present on only one side hold still.
 
 If a callback throws, toon logs the error and stops only that animation; everything else keeps running.
 
-**Handle:** `{ then, pause(), resume(), cancel() }`. It is awaitable, and `cancel()` resolves it with `null`. `poses` takes the same options except `from`, `to` and `ease`; its `onUpdate` receives `(pose, progress)`.
+**Handle:** `{ then, catch, finally, pause(), resume(), cancel() }`. It is awaitable and never rejects: `cancel()` resolves it with `null`, and so does an `onUpdate` or easing function that throws, so a `sequence` or a `busy` flag never gets stuck. `poses` takes the same options except `from`, `to` and `ease`; its `onUpdate` receives `(pose, progress)`.
 
 **See it in:** [Anticipation](../../principles/anticipation/) (a jump scripted as beats) · [Timing](../../principles/timing/) · [the character jump recipe](../../recipes/#a-character-jump-scripted)
 
@@ -104,12 +104,13 @@ If a callback throws, toon logs the error and stops only that animation; everyth
 |---|---|---|
 | `createStage(canvas, { width?, height?, background? })` | stage | HiDPI-aware. Resizes with the window when no width is given |
 | `stage.loop(fn(dt, time))` | `stop()` | Like `ticker.add`, but runs only while the canvas is on screen (IntersectionObserver) |
+| `stage.destroy()` | — | Stops every `stage.loop` and removes the window resize listener and IntersectionObserver. Call it when the canvas is removed (a component unmounting) |
 | `stage.visible` | boolean | Whether the canvas is currently on screen |
 | `stage.clear(fill?)` | — | Clears, optionally filling with a color |
 | `stage.spotlight(x, y, r, { dim = 0.65, feather = 2 })` | — | Darkens everything outside a soft circle |
 | `drawSolid(ctx, { x = 0, y = 0, r = 20, color, light = {x: -.45, y: -.55} })` | — | Shaded sphere with highlight and rim light. Gradients are cached by size, color and light |
 | `groundShadow(ctx, x, groundY, r, height, { maxHeight = 300, alpha = .35 })` | — | Shrinks and fades with height |
-| `shade(hex, amt)` | `rgb()` string | `amt` from −1 (black) to 1 (white) |
+| `shade(color, amt)` | `rgb()` string | `amt` from −1 (black) to 1 (white). Takes `#rgb`, `#rrggbb` or `rgb()` anywhere, and any CSS color (`'tomato'`, `hsl()`…) in a browser. Throws `toon.shade: can't read the color` otherwise |
 | `breathe(t, { rate = 0.3, amount = 0.03 })` | `{ sx, sy }` | Idle breathing |
 | `blink(t, { every = 3.2, duration = 0.15 })` | 0 … 1 | Eyelid closure at a slightly irregular rhythm |
 
@@ -123,11 +124,12 @@ If a callback throws, toon logs the error and stops only that animation; everyth
 
 The core reports the most common mistakes on its own:
 
-- If a callback throws (an `onUpdate`, a `ticker.add` function or a stage loop), toon logs it and stops **only that animation**. Everything else keeps running.
+- If a callback throws (an `onUpdate`, a `ticker.add` function or a stage loop), toon logs it and stops **only that animation**. Everything else keeps running, and a tween that stops this way resolves with `null` so code awaiting it carries on.
+- `path` throws `toon.path: expects an array of at least 2 { x, y } points` when given fewer.
 - `createStage` accepts a `<canvas>` or a selector, and throws `toon.createStage: expected a <canvas> element or selector` otherwise.
 - `tween` accepts an easing by name (`'outQuad'`), warns about unknown names, and warns when `duration` looks like seconds (under 20ms).
 
-For everything else, load the optional **`toon.debug.js`** while developing. It wraps the API with argument checks, and each message names the function and the argument:
+For everything else, load the optional **`toon.debug.js`** while developing. It wraps the API with argument checks, and each message names the function and the argument. With classic scripts it goes **after** `toon.js`; with ES modules it is imported **first** (both orders work, because it patches `Toon` the moment it appears):
 
 ```html
 <script src="toon.js"></script>

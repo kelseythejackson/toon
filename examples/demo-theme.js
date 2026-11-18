@@ -5,12 +5,18 @@
  *   DemoTheme.onChange(fn)  — re-run one-off drawing (e.g. a pre-rendered sprite sheet) when the theme changes
  * Also: follows prefers-color-scheme when opened on its own (the docs embed sets data-theme/data-style
  * instead), and under prefers-reduced-motion starts every canvas paused with an opt-in Play button.
+ *   DemoTheme.setSpeed(x)   — set the clock's speed without un-pausing it (use instead of ticker.timeScale = x)
+ * A page that handles reduced motion itself opts out with <html data-motion-control="page">.
  */
 (function () {
   const root = document.documentElement;
   const dark = matchMedia('(prefers-color-scheme: dark)');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
-  const followSystem = () => { if (!root.dataset.embedded) root.dataset.theme = dark.matches ? 'dark' : 'light'; };
+  // ?theme=dark / ?style=riso pin the look of a standalone page (handy for a rehearsed demo); otherwise follow the OS.
+  const params = new URLSearchParams(location.search), pinned = /^(light|dark)$/.test(params.get('theme') || '');
+  if (/^(graph|riso|collage|crayon)$/.test(params.get('style') || '')) root.dataset.style = params.get('style');
+  if (pinned) root.dataset.theme = params.get('theme');
+  const followSystem = () => { if (!root.dataset.embedded && !pinned) root.dataset.theme = dark.matches ? 'dark' : 'light'; };
   if (!root.dataset.theme) followSystem();
   dark.addEventListener('change', followSystem);
 
@@ -25,6 +31,8 @@
       return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`;
     },
     onChange(fn) { listeners.push(fn); },
+    paused: false, speed: 1,
+    setSpeed(x) { T.speed = x; if (window.Toon) Toon.ticker.timeScale = T.paused ? 0 : x; },
   };
   function read() {
     const cs = getComputedStyle(root);
@@ -43,22 +51,38 @@
     Toon.drawSolid = (ctx, o = {}) => drawSolid(ctx, { color: T.primary, ...o });
   }
 
-  // Reduced motion: hold every canvas still until the reader chooses to play it.
+  // Reduced motion: hold every canvas still until the reader chooses to play it. CSS presets (toon.css) are off
+  // too and show their end state; the banner says which applies, so nothing on the page looks broken.
   addEventListener('DOMContentLoaded', () => {
-    if (!window.Toon || !reduce.matches) return;
-    Toon.ticker.timeScale = 0;
+    if (!reduce.matches || root.dataset.motionControl === 'page') return;
+    const canvas = !!(window.Toon && document.querySelector('canvas'));
     const note = document.createElement('div');
-    note.className = 'demo-motion-note';
-    note.innerHTML = '<span>Animation is paused because your system asks for reduced motion.</span>';
-    const btn = document.createElement('button');
-    btn.className = 'demo-btn-quiet'; btn.type = 'button'; btn.textContent = 'Play';
-    btn.setAttribute('aria-pressed', 'false');
-    btn.onclick = () => {
-      const on = Toon.ticker.timeScale === 0;
-      Toon.ticker.timeScale = on ? 1 : 0;
-      btn.textContent = on ? 'Pause' : 'Play'; btn.setAttribute('aria-pressed', String(on));
-    };
-    note.append(btn);
+    note.className = 'demo-motion-note'; note.setAttribute('role', 'status');
+    const text = document.createElement('span');
+    text.textContent = canvas
+      ? 'The drawings are paused because your system asks for reduced motion. Press Play to watch them move.'
+        + (document.querySelector('[class^="toon-"], [class*=" toon-"]') ? ' CSS effects stay off and show their end state.' : '')
+      : 'Animations are switched off because your system asks for reduced motion, so each effect shows its end state.';
+    note.append(text);
+    if (canvas) {
+      T.paused = true; Toon.ticker.timeScale = 0;
+      const btn = document.createElement('button');
+      btn.className = 'demo-btn-quiet'; btn.type = 'button'; btn.textContent = 'Play';
+      btn.setAttribute('aria-pressed', 'false');
+      btn.onclick = () => {
+        T.paused = !T.paused; Toon.ticker.timeScale = T.paused ? 0 : T.speed;
+        btn.textContent = T.paused ? 'Play' : 'Pause'; btn.setAttribute('aria-pressed', String(!T.paused));
+        note.classList.remove('is-nudged');
+      };
+      note.append(btn);
+      // An action button pressed while paused would seem dead: point at Play instead.
+      document.addEventListener('click', (e) => {
+        const b = e.target.closest?.('button');
+        if (!T.paused || !b || b === btn || note.classList.contains('is-nudged')) return;
+        note.classList.add('is-nudged');
+        text.textContent = 'Paused for reduced motion, so that action is waiting. Press Play to see it.';
+      });
+    }
     (document.querySelector('h1 + p') || document.querySelector('h1') || document.body.firstChild)?.after(note);
   });
 })();

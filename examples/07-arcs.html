@@ -15,6 +15,7 @@
   .track > .toon-arc, .track > .ball { position: absolute; left: 0; bottom: 0; }
   .line { animation: ex07-line 1.4s linear infinite alternate; }
   @keyframes ex07-line { to { translate: 240px -140px; } }
+  @media (prefers-reduced-motion: reduce) { .line { animation: none; } }  /* toon.css only stops toon-* classes */
   small { position: absolute; right: 0; bottom: 4px; color: var(--demo-muted); }
 </style>
 </head>
@@ -66,7 +67,7 @@
     if (ticker.time - lastThrow > 2) throwTo({ x: W() * (0.45 + Math.random() * 0.45), y: H() * (0.45 + Math.random() * 0.4) });
     stage.clear();
     // comet on a spline, with a fading tail sampled behind it
-    ctx.strokeStyle = T.hair; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.strokeStyle = T.faint; ctx.lineWidth = 2; ctx.beginPath();
     for (let i = 0; i <= 60; i++) { const p = comet(i / 60); ctx.lineTo(p.x * W(), p.y * H()); } ctx.stroke();
     for (let i = 10; i >= 0; i--) {
       const p = comet(Math.max(0, cometT - i * 0.008));

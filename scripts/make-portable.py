@@ -13,6 +13,11 @@ def fix_url(v, file_dir):
     if path.endswith('/') or path in ('.', '..'): path = path.rstrip('/') + '/index.html'
     return path + ('#' + frag if frag else '')
 
+# Starlight's search script hard-codes the site root. Match it loosely (quotes, spacing) so a minifier change
+# doesn't silently skip it, and fail loudly below if search is built but nothing was patched.
+SEARCH = re.compile(r'baseUrl:\s*([`"\'])/\1\s*,\s*bundlePath:\s*([`"\'])/\2\.replace\(/\\/\$/,\s*([`"\'])\3\)\s*\+\s*([`"\'])/pagefind/\4')
+patched = 0
+
 for dirpath, _, files in os.walk(out):
     for f in files:
         p = os.path.join(dirpath, f)
@@ -24,7 +29,9 @@ for dirpath, _, files in os.walk(out):
             s = open(p, encoding='utf-8').read(); open(p, 'w', encoding='utf-8').write(s.replace('url(/_astro/', 'url(./'))
         elif f.endswith('.js') and dirpath.endswith('_astro'):
             s = open(p, encoding='utf-8').read()
-            t = s.replace('baseUrl:`/`,bundlePath:`/`.replace(/\\/$/,``)+`/pagefind/`',
-                          "baseUrl:new URL(`../`,import.meta.url).pathname,bundlePath:new URL(`../pagefind/`,import.meta.url).pathname")
-            if t != s: open(p, 'w', encoding='utf-8').write(t); print('patched search paths in', f)
+            t = SEARCH.sub("baseUrl:new URL(`../`,import.meta.url).pathname,bundlePath:new URL(`../pagefind/`,import.meta.url).pathname", s)
+            if t != s: open(p, 'w', encoding='utf-8').write(t); patched += 1; print('patched search paths in', f)
+if os.path.isdir(os.path.join(out, 'pagefind')) and not patched:
+    sys.exit('✗ search is built, but its base-path code was not found, so search would break in the portable copy.\n'
+             '  Starlight or Pagefind probably changed their output: update SEARCH in scripts/make-portable.py.')
 print('portable copy written to', out)

@@ -48,7 +48,7 @@ toon's classes come in four kinds. **Effects** move on their own. **Shapes** are
 | `.toon-anticipate` | Anticipation | Crouch → spring on `:hover` / `:focus-visible` |
 | `.toon-launch` | Anticipation, exaggeration | One-shot: pull back, shoot `--toon-distance`, overshoot |
 | `.toon-arc` | Arcs | Parabolic hop over `--toon-distance`. Wrapper moves X (linear); its child moves Y (gravity) |
-| `.toon-follow` | Follow-through, overlap | Children enter staggered and swing past the stop |
+| `.toon-follow` | Follow-through, overlap | Children enter staggered and swing past the stop. The first 12 are staggered automatically; set `--toon-i` inline on later ones |
 | `.toon-settle` | Follow-through | The same entrance for one element |
 | `.toon-sway` | Secondary action | Gentle rotation from the base |
 | `.toon-bob` | Secondary action | Small vertical float |
@@ -90,8 +90,9 @@ Modifiers are custom properties, so they also apply to everything inside the ele
 
 ## Notes
 
-- Presets animate only the individual `translate`, `scale` and `rotate` properties plus `opacity`. The browser runs these on the GPU, and they leave your own `transform` alone.
+- Presets animate the individual `translate`, `scale` and `rotate` properties plus `opacity`, which the browser runs on the GPU and which leave your own `transform` alone. The one exception is `.toon-sprite`, which steps `background-position-x` through the frames.
 - `.toon-arc` needs a child element: `<div class="toon-arc"><div>…</div></div>`.
 - Two presets that both set `animation` on one element conflict, so nest them instead.
 - To replay a one-shot class, remove it, read `el.offsetWidth`, then add it back.
-- Everything turns off under `prefers-reduced-motion: reduce`.
+- Everything turns off under `prefers-reduced-motion: reduce`. `.toon-launch` and `.toon-arc` jump straight to their end position, so the layout matches the animated version.
+- Only classes that start with `toon-` are affected, so names like `cartoon-card` are left alone.

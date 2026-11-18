@@ -10,7 +10,7 @@
 </head>
 <body>
 <h1>Recipe · Throwing something along a path</h1>
-<p>Arcs plus squash along velocity. The dots show the path.</p>
+<p class="demo-hint">Arcs plus squash along velocity. The dots show the path. Press Throw to send the ball back.</p>
 <div class="panel">
 <!-- @recipe -->
 <canvas role="img"
@@ -23,7 +23,6 @@
 <script>
 // @recipe
 const stage = Toon.createStage(document.querySelector('canvas'));
-const pathColor = getComputedStyle(document.body).color;
 let fly, t = 0, left = true;
 
 function throwIt() {
@@ -40,7 +39,7 @@ function throwIt() {
 stage.loop(() => {
   const ctx = stage.ctx;
   stage.clear();
-  ctx.fillStyle = pathColor;
+  ctx.fillStyle = getComputedStyle(document.body).color;  // read each frame: follows light/dark
   for (let i = 0; i <= 24; i++) {                 // dotted path
     const p = fly(i / 24);
     ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);

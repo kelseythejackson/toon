@@ -11,7 +11,7 @@
   canvas { display: block; width: 100%; height: 320px; cursor: pointer; }
   .row { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
   .btn { font: 600 16px system-ui; padding: .8em 1.6em; border: 0; border-radius: 999px; background: var(--demo-btn); color: var(--demo-on-btn); cursor: pointer; }
-  .card { padding: 1rem 1.4rem; border-radius: 12px; background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
+  .card { padding: 1rem 1.4rem; border-radius: 12px; border: 0; font: inherit; color: inherit; background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
   .track { width: 100%; height: 50px; position: relative; }
   .arrow { position: absolute; left: 20px; top: 8px; font-size: 28px; }
 </style>
@@ -26,10 +26,11 @@
 
 <h2>CSS</h2>
 <div class="row">
-  <button class="btn toon-press">.toon-press — hold me</button>
-  <div class="card toon-anticipate" tabindex="0">.toon-anticipate — hover me</div>
+  <button type="button" class="btn toon-press" aria-describedby="fx-only">.toon-press — press and hold</button>
+  <button type="button" class="card toon-anticipate" aria-describedby="fx-only">.toon-anticipate — hover or focus</button>
   <button class="btn" id="replay">Play .toon-launch</button>
-  <div class="track"><div class="arrow" id="arrow">➜</div></div>
+  <div class="track"><div class="arrow" id="arrow" aria-hidden="true">➜</div></div>
+  <p class="note" id="fx-only" style="margin:0">The first two buttons only show their effect; they don't do anything else.</p>
 </div>
 
 <script src="../src/toon.js"></script>

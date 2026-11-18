@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-motion-control="page">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,13 +10,13 @@
 </head>
 <body>
 <h1>Recipe · Respect reduced motion on canvas</h1>
-<p>The clock follows the reader's reduced-motion setting. The checkbox stands in for that setting.</p>
+<p class="demo-hint">The clock follows the reader's reduced-motion setting. The checkbox starts at your system setting: tick it to see the frozen clock, untick it to play anyway.</p>
 <div class="panel">
 <!-- @recipe -->
 <canvas role="img"
         aria-label="A ball bobs up and down; it stops when motion is reduced"></canvas>
 <label>
-  <input type="checkbox" id="pretend"> Pretend reduced motion
+  <input type="checkbox" id="pretend"> Reduce motion
 </label>
 <p class="note" id="status"></p>
 <!-- @end -->
@@ -28,15 +28,15 @@
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const pretend = document.querySelector('#pretend');
 const apply = () => {
-  const on = reduce.matches || pretend.checked;
+  const on = pretend.checked;           // starts at the system setting
   Toon.ticker.timeScale = on ? 0 : 1;   // 0 freezes the clock
   const pref = reduce.matches ? 'reduce' : 'no-preference';
   document.querySelector('#status').textContent =
-    `prefers-reduced-motion: ${pref} · clock ` +
-    (on ? 'frozen' : 'running');
+    `System setting: ${pref} · clock ` + (on ? 'frozen' : 'running');
 };
-apply();
-reduce.addEventListener('change', apply);
+const follow = () => { pretend.checked = reduce.matches; apply(); };
+follow();
+reduce.addEventListener('change', follow);
 pretend.addEventListener('change', apply);
 
 // Something decorative to freeze: a ball bobbing on the clock.

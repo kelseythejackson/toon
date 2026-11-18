@@ -37,6 +37,13 @@ window.fx = (() => {
       el.classList.add(className);
       onReveal?.(el);
     };
+    // Never leave content hidden: no IntersectionObserver, or printing, reveals everything at once.
+    if (!('IntersectionObserver' in window)) {
+      const all = () => list(targets).forEach(show);
+      document.readyState === 'loading' ? addEventListener('DOMContentLoaded', all, { once: true }) : all();
+      return () => {};
+    }
+    addEventListener('beforeprint', () => list(targets).forEach(show));
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
         if (e.isIntersecting) { show(e.target); if (once) io.unobserve(e.target); }

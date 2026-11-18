@@ -43,7 +43,8 @@
   const stage = createStage(document.getElementById('c'));
   const { ctx } = stage;
   const twos = document.getElementById('twos'), scale = document.getElementById('scale'), out = document.getElementById('out');
-  scale.oninput = () => { ticker.timeScale = +scale.value; out.textContent = scale.value + '×'; }; // [TIMING] global clock
+  // [TIMING] global clock. setSpeed = ticker.timeScale, except it leaves a reduced-motion pause in place (demo-theme.js).
+  scale.oninput = () => { T.setSpeed(+scale.value); out.textContent = scale.value + '×'; };
 
   // [TIMING] weight lives in gravity, restitution, drag and how much it deforms
   const things = [

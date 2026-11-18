@@ -16,9 +16,17 @@
 
   // ── Style switcher: apply the saved sketchbook style before paint (no flash of the default) ──
   const STYLES = ['graph', 'riso', 'collage', 'crayon'];
+  // ?style=riso and ?theme=dark pin the look (and remember it), so a presenter's bookmark always opens the same way.
+  const params = new URLSearchParams(location.search);
   let saved = null;
-  try { saved = localStorage.getItem('toon-style'); } catch {}
-  root.dataset.style = STYLES.includes(saved) ? saved : STYLES[0];
+  try {
+    if (STYLES.includes(params.get('style'))) localStorage.setItem('toon-style', params.get('style'));
+    if (['light', 'dark', 'auto'].includes(params.get('theme'))) localStorage.setItem('starlight-theme', params.get('theme'));
+    saved = localStorage.getItem('toon-style');
+  } catch {}
+  root.dataset.style = STYLES.includes(params.get('style')) ? params.get('style') : STYLES.includes(saved) ? saved : STYLES[0];
+  const theme = params.get('theme');
+  if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
   window.toonSetStyle = (style) => {
     if (!STYLES.includes(style)) return;
     root.dataset.style = style;

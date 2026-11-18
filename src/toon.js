@@ -78,23 +78,27 @@
   function tween({ from = 0, to = 1, duration = 500, delay = 0, ease: fn = ease.inOutCubic,
                    repeat = 0, yoyo = false, onUpdate, onComplete } = {}) {
     let t = -delay, loops = 0, paused = false, done = false, resolve, out;
-    if (typeof fn !== 'function') { if (!ease[fn]) console.warn(`toon.tween: unknown ease "${fn}", using linear`); fn = ease[fn] || ease.linear; }
+    if (typeof fn !== 'function') {                   // by name; a factory's name means its default curve
+      const f = ease[{ anticipate: 'inBack', overshoot: 'outBack', elastic: 'outElastic' }[fn] ?? fn], ok = f && f !== steps && f !== cubicBezier;
+      if (!ok) console.warn(`toon.tween: ${f ? `ease "${fn}" needs arguments, so pass ease.${fn}(…)` : `unknown ease "${fn}"`}; using linear`);
+      fn = ok ? f : ease.linear;
+    }
     if (duration > 0 && duration < 20) console.warn(`toon.tween: duration is in ms; ${duration}ms is very short. Did you mean ${duration * 1000}?`);
-    const promise = new Promise(r => (resolve = r));
+    const promise = new Promise(r => (resolve = r)), finish = v => { if (!done) { done = true; resolve(v); } };
     const off = ticker.add(dt => {
       if (paused || (t += dt * 1000) < 0) return;
       const p = duration > 0 ? min(t / duration, 1) : 1;
-      const v = (out = mix(from, to, fn(yoyo && loops % 2 ? 1 - p : p), out));
-      onUpdate?.(v, p);
+      try { out = mix(from, to, fn(yoyo && loops % 2 ? 1 - p : p), out); onUpdate?.(out, p); }
+      catch (e) { finish(null); throw e; }          // settle (null, like cancel) so awaiting code moves on; the ticker logs e
       if (p < 1) return;
       if (++loops <= repeat) { t -= duration; return; }
-      done = true; onComplete?.(v); resolve(v);
+      finish(out); onComplete?.(out);
       return false;
     });
     return {
-      then: (a, b) => promise.then(a, b),
+      then: (a, b) => promise.then(a, b), catch: f => promise.catch(f), finally: f => promise.finally(f),
       pause() { paused = true; }, resume() { paused = false; },
-      cancel() { off(); if (!done) { done = true; resolve(null); } },
+      cancel() { off(); finish(null); },
     };
   }
   const wait = ms => tween({ duration: ms, ease: ease.linear });
@@ -137,6 +141,7 @@
   }
   /** Smooth Catmull-Rom curve through every point. → t ↦ {x, y} */
   function path(points) {
+    if (!(points?.length >= 2)) throw new TypeError(`toon.path: expects an array of at least 2 { x, y } points, got ${points?.length ?? points}`);
     const n = points.length - 1;
     return t => {
       const s = clamp(t) * n, i = min(floor(s), n - 1), f = s - i;
@@ -246,24 +251,32 @@
         g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${dim})`);
         ctx.fillStyle = g; ctx.fillRect(0, 0, stage.width, stage.height);
       },
+      /** Stop every loop and remove the resize and visibility listeners — call it when the canvas goes away. */
+      destroy() { for (const off of loops.values()) off?.(); loops.clear(); root.removeEventListener('resize', onResize); io?.disconnect(); },
     };
     stage.resize();
-    if (width == null) root.addEventListener('resize', () => stage.resize());
-    root.IntersectionObserver && new IntersectionObserver(([e]) => {   // pause loops when scrolled away
+    const onResize = () => stage.resize(); if (width == null) root.addEventListener('resize', onResize);
+    const io = root.IntersectionObserver && new IntersectionObserver(([e]) => {   // pause loops when scrolled away
       stage.visible = e.isIntersecting;
       for (const [fn, off] of loops) {
         if (stage.visible && !off) loops.set(fn, ticker.add(fn));
         else if (!stage.visible && off) { off(); loops.set(fn, null); }
       }
-    }).observe(canvas);
+    }); io?.observe(canvas);
     return stage;
   }
   /* ── [SOLID] Volume, light and weight ── */
-  /** Lighten (amt > 0) or darken (amt < 0) a #rgb / #rrggbb color. */
-  function shade(hex, amt) {
-    const n = parseInt(hex.slice(1).replace(/^(.)(.)(.)$/, '$1$1$2$2$3$3'), 16);
-    const c = [n >> 16, (n >> 8) & 255, n & 255].map(v => round(lerp(v, amt < 0 ? 0 : 255, abs(amt))));
-    return `rgb(${c.join(',')})`;
+  /** Lighten (amt > 0) or darken (amt < 0) a color: #rgb, #rrggbb or rgb() anywhere; any CSS color in a browser. */
+  let probe;
+  function shade(color, amt) {
+    if (root.document && !/^#([\da-f]{3}){1,2}$/i.test(color)) {   // let the browser parse names, hsl(), #rrggbbaa…
+      (probe ??= document.createElement('canvas').getContext('2d')).fillStyle = '#010203'; probe.fillStyle = color;
+      if (probe.fillStyle !== '#010203') color = probe.fillStyle;    // unchanged = the browser rejected it
+    }
+    const n = parseInt(String(color).slice(1).replace(/^(.)(.)(.)$/, '$1$1$2$2$3$3'), 16), rgb = /^#([\da-f]{3}){1,2}$/i.test(color)
+      ? [n >> 16, (n >> 8) & 255, n & 255] : String(color).match(/^rgba?\(([^)]+)\)$/)?.[1].match(/[\d.]+/g)?.slice(0, 3).map(Number) ?? [];
+    if (rgb.length < 3) throw new TypeError(`toon.shade: can't read the color ${JSON.stringify(color)}; use #rrggbb, rgb() or a CSS color name`);
+    return `rgb(${rgb.map(v => round(lerp(v, amt < 0 ? 0 : 255, abs(amt)))).join(',')})`;
   }
   /** Shaded sphere: highlight, core shadow and reflected rim light. Gradients are built at the origin and
    *  cached by size/color/light, so a moving sphere costs no new gradient per frame. */

@@ -26,7 +26,7 @@ Look up what you're trying to do, then use the CSS class or Canvas function next
 | I want to… | CSS | Canvas |
 |---|---|---|
 | [Bounce a ball or mascot with squash and stretch](../principles/squash-and-stretch/)<br/><small>Squash & stretch</small> | `.toon-bounce` + `.toon-bounce-shadow` | `squash`, `impact`, `withSquash` |
-| [Script a jump: crouch, leap, land](../recipes/#a-character-jump-scripted) | `.toon-launch` | `sequence` of `tween`s |
+| [Script a jump: crouch, leap, land](../recipes/#a-character-jump-scripted) | — (`.toon-anticipate` gives only the crouch) | `sequence` of `tween`s |
 | [Blink, glance, sway (small signs of life)](../principles/secondary-action/)<br/><small>Secondary action</small> | `.toon-blink`, `.toon-sway` | `blink(t)`, `noise(t)` |
 | [Follow the cursor or a target with springy lag](../principles/follow-through/)<br/><small>Follow-through</small> | — | `Spring` |
 | [Draw a tail, rope, hair or cable that trails behind](../principles/follow-through/)<br/><small>Follow-through</small> | — | `Chain` |

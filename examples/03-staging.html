@@ -10,20 +10,23 @@
   body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 320px; cursor: pointer; }
   .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
-  .cards > div { aspect-ratio: 3 / 4; border-radius: 12px; display: grid; place-items: center; font-size: 34px; cursor: pointer; background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
-  .cards > div:nth-child(2) { background: color-mix(in srgb, var(--demo-secondary) 14%, var(--demo-surface)); } .cards > div:nth-child(3) { background: color-mix(in srgb, var(--demo-tertiary) 16%, var(--demo-surface)); } .cards > div:nth-child(4) { background: color-mix(in srgb, var(--demo-soft) 16%, var(--demo-surface)); }
+  .cards > button { aspect-ratio: 3 / 4; border-radius: 12px; display: grid; place-items: center; font: inherit; font-size: 34px; cursor: pointer; border: 0; padding: 0; color: inherit; background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
+  .cards > button:focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 3px; }
+  .cards > button:nth-child(2) { background: color-mix(in srgb, var(--demo-secondary) 14%, var(--demo-surface)); } .cards > button:nth-child(3) { background: color-mix(in srgb, var(--demo-tertiary) 16%, var(--demo-surface)); } .cards > button:nth-child(4) { background: color-mix(in srgb, var(--demo-soft) 16%, var(--demo-surface)); }
 </style>
 </head>
 <body>
 <h1>03 · Staging</h1>
-<p>Present one idea at a time so it reads instantly. Loop, the performer, is colored, moving and lit; the crowd of
-  Bricks is gray, still and in shadow, and every one of them looks at Loop.</p>
-<canvas id="c" style="cursor:pointer" role="img" aria-label="A spotlit performer hops in the middle of the stage while a crowd of dim, gray Bricks stands still and watches. Picking another character moves the spotlight to them."></canvas>
-<p class="demo-try"><button type="button" class="demo-act" id="act">Next performer</button> <b>Try it</b> Press <i>Next performer</i> or click anyone to give them the stage; the spotlight follows on a spring.</p>
+<p>Present one idea at a time so it reads instantly. The performer (Loop) is colored, moving and lit; the crowd of
+  Bricks is gray, still and in shadow, and every one of them looks at the performer.</p>
+<canvas id="c" style="cursor:pointer" role="img" aria-label="A spotlit performer, Loop, hops in the middle of the stage while a crowd of dim, gray Bricks stands still and watches. Giving someone else the stage turns them into the performer and moves the spotlight to them."></canvas>
+<p class="demo-try"><button type="button" class="demo-act" id="act">Next performer</button> <b>Try it</b> Press <i>Next performer</i> or click anyone to give them the stage: they step up as the new Loop, and the spotlight follows on a spring.</p>
 
 <h2>CSS: <code>.toon-stage</code></h2>
-<p>Hover a card, or click to pin it with <code>.is-featured</code>. Everything else recedes.</p>
-<div class="cards toon-stage" id="cards"><div>🎬</div><div>🎨</div><div>🎵</div><div>🎭</div></div>
+<p>Hover or tab to a card, or press it to pin it with <code>.is-featured</code>. Everything else recedes.</p>
+<div class="cards toon-stage" id="cards" role="group" aria-label="Cards to feature">
+  <button type="button" aria-pressed="false" aria-label="Film">🎬</button><button type="button" aria-pressed="false" aria-label="Art">🎨</button><button type="button" aria-pressed="false" aria-label="Music">🎵</button><button type="button" aria-pressed="false" aria-label="Theatre">🎭</button>
+</div>
 
 <script src="../src/toon.js"></script>
 <script src="demo-theme.js"></script>
@@ -69,10 +72,10 @@
 
   const cards = document.getElementById('cards');
   cards.addEventListener('click', e => {
-    const card = e.target.closest('#cards > div'); if (!card) return;
+    const card = e.target.closest('#cards > button'); if (!card) return;
     const was = card.classList.contains('is-featured');
-    cards.querySelectorAll('.is-featured').forEach(c => c.classList.remove('is-featured'));
-    if (!was) card.classList.add('is-featured');
+    cards.querySelectorAll('.is-featured').forEach(c => { c.classList.remove('is-featured'); c.setAttribute('aria-pressed', 'false'); });
+    if (!was) { card.classList.add('is-featured'); card.setAttribute('aria-pressed', 'true'); }
   });
   document.getElementById('act').addEventListener('click', () => { hero = (hero + 1) % actors.length; });
 </script>

@@ -23,7 +23,9 @@
 // @recipe
 const { createStage, tween, arc, ease, squash, withSquash, drawSolid } = Toon;
 const stage = createStage(document.getElementById('c'));
-const fly = arc({ x: 40, y: 260 }, { x: 400, y: 260 }, { height: 160 });
+// The arc spans the canvas, so build it from the stage's current size (it follows the window).
+const fly = (t) => arc({ x: 40, y: stage.height - 40 },
+                       { x: stage.width - 40, y: stage.height - 40 }, { height: 160 })(t);
 
 let t = 0;
 tween({ duration: 1000, ease: ease.linear, repeat: Infinity, yoyo: true,

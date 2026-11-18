@@ -1,6 +1,6 @@
-/*! toon.css v1.0 — the 12 basic principles of animation for DOM elements.
+/*! toon.css v1.1 — the 12 basic principles of animation for DOM elements.
  *  Vanilla CSS, zero dependencies. Uses individual transform properties (translate / scale /
- *  rotate) so effects compose, plus @property, color-mix(), linear() and :has().
+ *  rotate) so effects compose, plus color-mix(), linear() and :has().
  *  Principle tags match toon.js: [SQUASH] [ANTICIPATION] [STAGING] [STRAIGHT-AHEAD]
  *  [POSE-TO-POSE] [FOLLOW-THROUGH] [SLOW-IN-OUT] [ARCS] [SECONDARY] [TIMING] [EXAGGERATION]
  *  [SOLID] [APPEAL]. Every @keyframes block is itself [POSE-TO-POSE]: you set the key poses,
@@ -32,8 +32,9 @@
   --toon-color: #ff6b4a;    /* [SOLID] base color */
 }
 
-/* Derived values, computed on each toon element so local overrides cascade correctly. */
-:where([class*="toon-"]) {
+/* Derived values, computed on each toon element so local overrides cascade correctly.
+ * Matches classes that START with toon- (not "cartoon-card" or "platoon-list"). */
+:where([class^="toon-"], [class*=" toon-"]) {
   --_d: calc(var(--toon-duration) * var(--toon-tempo));
   --_s: calc(var(--toon-squash) * var(--toon-exaggeration));
   --_h: calc(var(--toon-height) * var(--toon-exaggeration));
@@ -113,10 +114,10 @@
   animation: toon-settle var(--_d) var(--toon-ease-out) both;
   animation-delay: calc(var(--toon-i, 0) * var(--toon-overlap));
 }
-.toon-follow > :nth-child(2) { --toon-i: 1; }  .toon-follow > :nth-child(3) { --toon-i: 2; }
-.toon-follow > :nth-child(4) { --toon-i: 3; }  .toon-follow > :nth-child(5) { --toon-i: 4; }
-.toon-follow > :nth-child(6) { --toon-i: 5; }  .toon-follow > :nth-child(7) { --toon-i: 6; }
-.toon-follow > :nth-child(8) { --toon-i: 7; }  .toon-follow > :nth-child(9) { --toon-i: 8; }
+.toon-follow > :nth-child(2)  { --toon-i: 1; }  .toon-follow > :nth-child(3)  { --toon-i: 2; }  .toon-follow > :nth-child(4)  { --toon-i: 3; }
+.toon-follow > :nth-child(5)  { --toon-i: 4; }  .toon-follow > :nth-child(6)  { --toon-i: 5; }  .toon-follow > :nth-child(7)  { --toon-i: 6; }
+.toon-follow > :nth-child(8)  { --toon-i: 7; }  .toon-follow > :nth-child(9)  { --toon-i: 8; }  .toon-follow > :nth-child(10) { --toon-i: 9; }
+.toon-follow > :nth-child(11) { --toon-i: 10; } .toon-follow > :nth-child(n+12) { --toon-i: 11; }  /* past 12: set --toon-i inline */
 @keyframes toon-settle {
   0%   { translate: calc(var(--toon-distance) * -.5) 0; rotate: 0deg; opacity: 0; }
   55%  { translate: 0 0; rotate: calc(-5deg * var(--_e)); opacity: 1; }  /* body stops, mass swings on */
@@ -186,5 +187,6 @@
 .toon-paused { animation-play-state: paused; }
 
 @media (prefers-reduced-motion: reduce) {
-  [class*="toon-"], .toon-follow > *, .toon-arc > * { animation: none !important; transition: none !important; }
+  :is([class^="toon-"], [class*=" toon-"]), .toon-follow > *, .toon-arc > * { animation: none !important; transition: none !important; }
+  .toon-launch, .toon-arc { translate: var(--toon-distance) 0; }   /* skip straight to where the motion ends */
 }

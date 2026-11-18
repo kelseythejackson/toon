@@ -6,12 +6,12 @@
   --fx-lift-x: -2px; --fx-lift-y: -2px; --fx-lift-shadow: 7px 7px 0 var(--yellow);   /* hover: yellow plate shows */
 }
 :root[data-style='riso'][data-theme='light'] {
-  --paper: #f6f1e7; --wash: #efe9dc; --hair: #e8e1d2; --hair-strong: #cfc8b8; --faint: #8d879a;
+  --paper: #f6f1e7; --wash: #efe9dc; --hair: #e8e1d2; --hair-strong: #cfc8b8; --faint: #6a6674;
   --muted: #5a5568; --text: #2f2b3d; --ink: #1e1b2e; --link: #005a94; --accent-low: #ffd6ec;
   --line: #1e1b2e; --card: #f6f1e7;
 }
 :root[data-style='riso'][data-theme='dark'] {
-  --paper: #1b1926; --wash: #232030; --hair: #2f2b3e; --hair-strong: #45405a; --faint: #7d7891;
+  --paper: #1b1926; --wash: #232030; --hair: #2f2b3e; --hair-strong: #45405a; --faint: #8c879e;
   --muted: #ada8bc; --text: #e6e0d2; --ink: #f6f1e7; --link: #6cc0f5; --accent-low: #3d1530;
   --line: #f6f1e7; --card: #221f2f;
 }
