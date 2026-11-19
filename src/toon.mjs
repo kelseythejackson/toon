@@ -7,7 +7,7 @@ import './toon.js';
 const Toon = globalThis.Toon;
 export default Toon;
 export const {
-  ease, ticker, tween, wait, sequence, stagger, poses, samplePoses, straightAhead,
+  ease, ticker, createTicker, tween, wait, sequence, stagger, poses, samplePoses, straightAhead,
   arc, path, tangent, squash, impact, withSquash, Spring, Chain, wave, noise,
   exaggerate, quantize, createStage, shade, drawSolid, groundShadow, breathe, blink,
   clamp, lerp, mix,

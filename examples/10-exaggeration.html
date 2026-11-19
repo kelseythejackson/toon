@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../src/toon.css">
 <link rel="stylesheet" href="demo.css">
 <style>
-  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 340px; cursor: pointer; }
   .row { display: flex; gap: 2.5rem; align-items: flex-end; justify-content: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; min-height: 230px; }
   .cell { display: flex; flex-direction: column; align-items: center; }
@@ -33,7 +33,9 @@
 <script src="demo-theme.js"></script>
 <script src="cast-shapes.js"></script>
 <script src="cast.js"></script>
+<script src="demo-runtime.js"></script>
 <script>
+ToonDemos.register('10-exaggeration', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
   const { createStage, ticker, poses, ease, exaggerate, withSquash, groundShadow } = Toon;
   const stage = createStage(document.getElementById('c'));
@@ -71,6 +73,7 @@
       Cast.draw(c, 'loop', { x: 0, y: 0, h: H, fill: T.secondary, ink: T.ink, bg: T.surface, mood, noWink: true,
         eyeScale: Math.max(0.6, Math.min(2.2, mood === 'surprised' ? eye / 1.25 : 1)) }), { x: 0, y: H / 2 + 4 });
   });
+});
 </script>
 </body>
 </html>

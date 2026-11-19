@@ -4,6 +4,24 @@
 
 Everything since 1.1.0, newest first.
 
+### Demos embedded without iframes, each with its own clock
+- **Core:** `Toon.createTicker()` makes an independent clock. `tween`, `wait`, `stagger`, `poses`, `straightAhead` and `createStage` accept `{ ticker }`, and `stage.ticker` exposes the clock a stage uses. The core is 519 of 520 lines.
+- **`examples/demo-runtime.js`:** every example's script is wrapped in `ToonDemos.register(name, (document, Toon, DemoTheme) => …)`. Each demo gets its own clock, its own reduced-motion banner with Play/Pause, and its own `DemoTheme.setSpeed`. Pages still open straight from disk.
+- **Docs:** `Demo.astro` renders each example into a `<toon-demo>` with a declarative shadow root instead of an iframe. Tokens (`examples/demo-tokens.css`, split from `demo.css`) and fonts inherit from the docs page. The height measuring, CSS injection, font copying and theme passing are gone. A time-scale slider or Play button now affects only its own demo.
+- **Fixed on the way:**
+  - 11 · Solid drawing no longer overflows a 320px screen (the iframe used to hide this).
+  - The reduced-motion banner is added after a demo's script runs, so `querySelector('button')` still finds the demo's own button.
+  - `npm run check:site` checks that every `<toon-demo>` starts and that all its files load.
+
+### Design tokens shared with Figma
+- **Role tokens in every style:** `--accent`, `--highlight`, `--on-highlight`, `--button`, `--on-button`, `--button-shadow-color` and `--lift-shadow-color`, plus `--radius-card`, `--radius-button`, `--radius-nav-current`, `--radius-code-frame`, `--border-card`, `--shadow-lift-*`, `--shadow-button-*` and `--display-weight`. The style rules now use them instead of literals, and Crayon now defines `--line` and `--card`. Rendering is unchanged (screenshot diff of 48 pages × modes).
+- **Shared scale:** `--space-2xs…2xl` (4–48px), `--radius-pill`, `--tap-target` and `--font-weight-strong`, in both `base.css` and `demo.css`. Demos add `--demo-control-radius`, `--demo-max-width`, `--demo-panel-border-width` and `--demo-panel-shadow-x/-y/-spread/-color`, with `--demo-panel-shadow` built from them.
+- **New states:**
+  - Demo buttons have a hover state: a print shadow in `--demo-btn-shadow` on `.demo-btn`, and a tinted fill on `.demo-btn-quiet` and `.demo-act`.
+  - They also have a disabled state (`:disabled` or `aria-disabled="true"`, at `--demo-disabled-opacity`).
+  - The docs site has a visible focus ring in every style (2px `--link` outline).
+- **Fixed drift:** Graph dark `--line` now equals `--ink`. Cut & Paste dark `--demo-hair` now matches the site's `--hair`.
+
 ### Audit fixes (bugs, copy, accessibility, live-demo risks)
 - **Core (514/520 lines; budget raised from 500 to fit these fixes):**
   - A tween whose `onUpdate` or easing throws now settles with `null`, so `sequence` and `busy` flags no longer hang. The handle gains `catch` and `finally`.

@@ -158,7 +158,7 @@ site/                          Astro Starlight docs site
 ├── astro.config.mjs           sidebar, theme; reads SITE_URL / BASE_PATH (shell or root .env)
 ├── scripts/sync.mjs           copies ../src and ../examples into public/toon/ before dev/build
 └── src/
-    ├── components/Demo.astro  embeds an example page, auto-sized, heading hidden
+    ├── components/Demo.astro  embeds an example page as <toon-demo> (shadow root, own clock), heading hidden
     └── content/docs/          the docs pages (Markdown/MDX)
 scripts/setup.mjs              npm run setup: Node check, npm ci, browser for the checks
 scripts/check.mjs              size budget (≤520 lines), smoke test of every example, error-handling tests
@@ -184,8 +184,18 @@ To add a style:
 2. Add it to `customCss` in `astro.config.mjs`.
 3. Add its id to `STYLES` in `motion.js` and to the list in `ThemeSelect.astro`.
 
+**How a demo is built**
+Each page in `examples/` is a standalone HTML file that also opens from disk. Its script is wrapped in
+`ToonDemos.register('<path>', (document, Toon, DemoTheme) => { … })` (`examples/demo-runtime.js`), which gives the demo its own clock
+(`Toon.createTicker()`), its own reduced-motion banner and per-demo `DemoTheme.setSpeed`. In the docs, `Demo.astro` renders the page's markup and
+styles into a `<toon-demo>` element's shadow root at build time and runs the same script there, with `document` scoped to that shadow root.
+So several demos share a page without sharing CSS, element ids, top-level variables or a clock. A new demo must:
+- load `demo-runtime.js` after `toon.js` and `demo-theme.js`, and wrap its script in `ToonDemos.register(...)`;
+- find its elements through `document` (`getElementById`, `querySelector`), never through `window` globals;
+- use the `Toon` and `DemoTheme` it is given, not the globals, so its tweens and stage run on its own clock.
+
 **Theming the demos**
-The animated objects in `examples/` draw with tokens from `examples/demo.css` (`--demo-primary`, `--demo-surface`, `--demo-ground`, …), defined for every style × light/dark.
+The animated objects in `examples/` draw with tokens from `examples/demo-tokens.css` (`--demo-primary`, `--demo-surface`, `--demo-ground`, …), defined for every style × light/dark. The docs load that file site-wide so the tokens inherit into every demo; `examples/demo.css` imports it for standalone pages and holds the shared page chrome.
 Canvas code reads them through `DemoTheme` (`examples/demo-theme.js`), so a new demo should use `T.primary` and similar tokens, never hex values.
 After changing a palette, run `npm run check:contrast`.
 

@@ -19,7 +19,9 @@
 </div>
 <script src="../../src/toon.js"></script>
 <script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
 <script>
+ToonDemos.register('start/first-canvas', (document, Toon, DemoTheme) => {
 // @recipe
 const { createStage, tween, arc, ease, squash, withSquash, drawSolid } = Toon;
 const stage = createStage(document.getElementById('c'));
@@ -42,6 +44,7 @@ stage.loop((dt) => {     // like ticker.add, but pauses while off screen
   withSquash(stage.ctx, p.x, p.y, s, (c) => drawSolid(c, { r: 20 }));
 });
 // @end
+});
 </script>
 </body>
 </html>

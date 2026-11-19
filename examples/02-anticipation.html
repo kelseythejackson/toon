@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../src/toon.css">
 <link rel="stylesheet" href="demo.css">
 <style>
-  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 320px; cursor: pointer; }
   .row { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
   .btn { font: 600 16px system-ui; padding: .8em 1.6em; border: 0; border-radius: 999px; background: var(--demo-btn); color: var(--demo-on-btn); cursor: pointer; }
@@ -37,7 +37,9 @@
 <script src="demo-theme.js"></script>
 <script src="cast-shapes.js"></script>
 <script src="cast.js"></script>
+<script src="demo-runtime.js"></script>
 <script>
+ToonDemos.register('02-anticipation', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
   const { createStage, ticker, tween, sequence, ease, withSquash, groundShadow } = Toon;
   const stage = createStage(document.getElementById('c'));
@@ -81,6 +83,7 @@
     arrow.classList.remove('toon-launch'); void arrow.offsetWidth; arrow.classList.add('toon-launch');
   };
   document.getElementById('act').addEventListener('click', jump);
+});
 </script>
 </body>
 </html>

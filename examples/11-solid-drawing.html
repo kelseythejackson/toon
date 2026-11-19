@@ -7,11 +7,12 @@
 <link rel="stylesheet" href="../src/toon.css">
 <link rel="stylesheet" href="demo.css">
 <style>
-  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 340px; }
-  .row { display: flex; gap: 3rem; justify-content: center; align-items: flex-end; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 150px 2rem 2rem; }
+  /* Sizes shrink on narrow screens so the three balls fit a 320px phone (90px balls from about 500px up). */
+  .row { --ball: clamp(56px, 18vw, 90px); display: flex; gap: clamp(1rem, 6vw, 3rem); justify-content: center; align-items: flex-end; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 150px clamp(1rem, 5vw, 2rem) 2rem; }
   .cell { display: flex; flex-direction: column; align-items: center; gap: .3rem; }
-  .ball { width: 90px; height: 90px; } .shadow { width: 100px; height: 20px; margin-top: -10px; }
+  .ball { width: var(--ball); height: var(--ball); } .shadow { width: calc(var(--ball) * 1.1); height: 20px; margin-top: -10px; }
   .flat { border-radius: 50%; background: var(--toon-color, #ff6b4a); }
 </style>
 </head>
@@ -31,7 +32,9 @@
 
 <script src="../src/toon.js"></script>
 <script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
 <script>
+ToonDemos.register('11-solid-drawing', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
   const { createStage, ticker, drawSolid, groundShadow, withSquash, impact, clamp } = Toon;
   const stage = createStage(document.getElementById('c'));
@@ -82,6 +85,7 @@
     const a = lightDir.value * Math.PI / 180;
     light = { x: Math.cos(a) * 0.6, y: Math.sin(a) * 0.6 };
   });
+});
 </script>
 </body>
 </html>

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../src/toon.css">
 <link rel="stylesheet" href="demo.css">
 <style>
-  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 320px; cursor: pointer; }
   .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
   .cards > button { aspect-ratio: 3 / 4; border-radius: 12px; display: grid; place-items: center; font: inherit; font-size: 34px; cursor: pointer; border: 0; padding: 0; color: inherit; background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
@@ -32,7 +32,9 @@
 <script src="demo-theme.js"></script>
 <script src="cast-shapes.js"></script>
 <script src="cast.js"></script>
+<script src="demo-runtime.js"></script>
 <script>
+ToonDemos.register('03-staging', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
   const { createStage, ticker, noise, Spring, groundShadow } = Toon;
   const stage = createStage(document.getElementById('c'));
@@ -78,6 +80,7 @@
     if (!was) { card.classList.add('is-featured'); card.setAttribute('aria-pressed', 'true'); }
   });
   document.getElementById('act').addEventListener('click', () => { hero = (hero + 1) % actors.length; });
+});
 </script>
 </body>
 </html>

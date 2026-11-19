@@ -22,6 +22,7 @@ import { tween, arc } from './toon.mjs';     // or as an ES module
 | `ticker.add(fn(dt, time))` | `unsubscribe()` | Shared rAF clock. Return `false` from `fn` to stop |
 | `ticker.timeScale` | number (default `1`) | **Higher is faster.** 0.25 is slow motion, 2 is double speed, 0 freezes everything. (CSS `--toon-tempo` runs the other way.) |
 | `ticker.time` | number | Elapsed (scaled) seconds |
+| `createTicker()` | ticker | An independent clock with its own `timeScale` and `time`. Pass it as `{ ticker }` to `tween`, `wait`, `stagger`, `poses`, `straightAhead` or `createStage` so one widget can slow down or pause without affecting the rest of the page |
 | `tween(options)` | handle | See options below |
 | `wait(ms)` | handle | Resolves after `ms` |
 | `sequence(...steps)` | `Promise` | Steps are functions returning thenables; an array step runs in parallel |
@@ -105,6 +106,7 @@ If a callback throws, toon logs the error and stops only that animation; everyth
 | `createStage(canvas, { width?, height?, background? })` | stage | HiDPI-aware. Resizes with the window when no width is given |
 | `stage.loop(fn(dt, time))` | `stop()` | Like `ticker.add`, but runs only while the canvas is on screen (IntersectionObserver) |
 | `stage.destroy()` | — | Stops every `stage.loop` and removes the window resize listener and IntersectionObserver. Call it when the canvas is removed (a component unmounting) |
+| `stage.ticker` | ticker | The clock the stage's loops run on (`Toon.ticker` unless you passed `{ ticker }`) |
 | `stage.visible` | boolean | Whether the canvas is currently on screen |
 | `stage.clear(fill?)` | — | Clears, optionally filling with a color |
 | `stage.spotlight(x, y, r, { dim = 0.65, feather = 2 })` | — | Darkens everything outside a soft circle |

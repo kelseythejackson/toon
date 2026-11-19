@@ -29,7 +29,7 @@
       if (!onUpdate && !opts.onComplete) warn('tween', 'no onUpdate or onComplete, so nothing will see the animated value');
       return o.tween(opts);
     };
-    T.wait = ms => (isNum(ms) && ms >= 0 ? o.wait(ms) : fail('wait', `expects milliseconds >= 0, got ${show(ms)}`));
+    T.wait = (ms, opts) => (isNum(ms) && ms >= 0 ? o.wait(ms, opts) : fail('wait', `expects milliseconds >= 0, got ${show(ms)}`));
     T.sequence = (...steps) => {
       steps.forEach((s, i) => {
         if (s && typeof s.then === 'function' && typeof s !== 'function')

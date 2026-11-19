@@ -3,7 +3,15 @@
   --font-body: 'Bricolage Grotesque Variable', system-ui, sans-serif; --font-mono: 'Space Mono', ui-monospace, monospace;
   --display: 'Rubik Mono One', sans-serif; --hand: 'Caveat Variable', cursive;
   --cobalt: #2f4bff; --tangerine: #ff6b1a; --sticker-ink: #1a1a1a; --tape: #e9d3a8cc;
-  --fx-tilt: 1deg; --fx-tilt-odd: -1.2deg; --fx-lift-y: -4px; --fx-lift-shadow: 5px 5px 0 var(--shadow);   /* stuck-on cards straighten on hover */
+  --fx-tilt: 1deg; --fx-tilt-odd: -1.2deg; --fx-lift-y: -4px;   /* stuck-on cards straighten on hover */
+  /* Role tokens (same names in every style; Figma: Theme collection) */
+  --accent: var(--cobalt); --highlight: var(--tangerine); --on-highlight: var(--sticker-ink);
+  --button: var(--cobalt); --on-button: #ffffff; --button-shadow-color: var(--shadow);
+  --lift-shadow-color: var(--shadow);
+  --radius-card: 4px; --radius-button: 999px; --radius-nav-current: 999px; --radius-code-frame: 6px; --border-card: 2px;
+  --shadow-lift-x: 5px; --shadow-lift-y: 5px; --shadow-lift-blur: 0px;
+  --shadow-button-x: 3px; --shadow-button-y: 3px; --shadow-button-spread: 0px;
+  --display-weight: 400;
 }
 :root[data-style='collage'][data-theme='light'] {
   --paper: #fff4e0; --wash: #fbecd2; --hair: #f0e3c9; --hair-strong: #d8ccb6; --faint: #6f6a61;
@@ -17,7 +25,7 @@
   --line: #fff4e0; --shadow: #2f4bff; --card: #2a241e; --card-a: #1f2e28; --card-b: #33251c;
   --swatch: #2b5e4e; --title: #fff4e0; --title-ring: #1a1a1a;
 }
-[data-style='collage'] :is(h1#_top, .hero h1, .sl-markdown-content :is(h2, h3)) { font-weight: 400; letter-spacing: -0.02em; }
+[data-style='collage'] :is(h1#_top, .hero h1, .sl-markdown-content :is(h2, h3)) { font-weight: var(--display-weight); letter-spacing: -0.02em; }
 [data-style='collage'] .hero::before { content: ''; position: absolute; z-index: -1; left: -30px; top: 10px; width: 52%; height: 78%; rotate: -2deg;
   background: var(--swatch);
   clip-path: polygon(0 4%, 6% 0, 14% 3%, 22% 0, 31% 4%, 40% 1%, 52% 3%, 63% 0, 75% 4%, 86% 1%, 100% 3%, 98% 52%, 100% 97%, 88% 100%, 76% 96%, 63% 100%, 49% 97%, 37% 100%, 24% 96%, 12% 100%, 2% 97%, 0 50%); }
@@ -28,12 +36,13 @@
   text-shadow: 3px 3px 0 var(--title-ring), -3px 3px 0 var(--title-ring), 3px -3px 0 var(--title-ring), -3px -3px 0 var(--title-ring), 7px 7px 0 var(--cobalt); }
 [data-style='collage'] .hero .tagline { color: var(--text); }
 [data-style='collage'] .hero .sl-link-button { font-weight: 700; }
-[data-style='collage'] .hero .sl-link-button.primary { border-radius: 999px; border: 2px solid var(--line); box-shadow: 3px 3px 0 var(--shadow); background: var(--cobalt); color: #fff; }
+[data-style='collage'] .hero .sl-link-button.primary { border-radius: var(--radius-button); border: var(--border-card) solid var(--line);
+  box-shadow: var(--shadow-button-x) var(--shadow-button-y) 0 var(--shadow-button-spread) var(--button-shadow-color); background: var(--button); color: var(--on-button); }
 [data-style='collage'] .hero .sl-link-button:not(.primary) { background: var(--card); color: var(--ink); border: 2px solid var(--line); border-radius: 999px; padding: .6rem 1.25rem; rotate: -2deg; }
-[data-style='collage'] :is(.card, .sl-link-card) { border: 2px solid var(--line) !important; border-radius: 4px !important; background: var(--card) !important;
-  box-shadow: 5px 5px 0 var(--shadow); position: relative; overflow: visible !important; }
+[data-style='collage'] :is(.card, .sl-link-card) { border: var(--border-card) solid var(--line) !important; border-radius: var(--radius-card) !important; background: var(--card) !important;
+  box-shadow: var(--shadow-lift-x) var(--shadow-lift-y) var(--shadow-lift-blur) var(--lift-shadow-color); position: relative; overflow: visible !important; }
 [data-style='collage'] .card-grid > :nth-child(3n) { background: var(--card-a) !important; }
 [data-style='collage'] .card-grid > :nth-child(4n) { background: var(--card-b) !important; }
 [data-style='collage'] :is(.sl-link-card, .card)::before { content: ''; position: absolute; top: -12px; left: 50%; width: 84px; height: 24px; translate: -50% 0; rotate: -4deg; background: var(--tape); }
-[data-style='collage'] .sidebar-content a[aria-current='page'] { background: var(--tangerine) !important; color: var(--sticker-ink) !important; border-radius: 999px; font-weight: 700; rotate: -1deg; }
-[data-style='collage'] .expressive-code .frame { border: 2px solid var(--line); box-shadow: 5px 5px 0 var(--cobalt); border-radius: 6px; }
+[data-style='collage'] .sidebar-content a[aria-current='page'] { background: var(--highlight) !important; color: var(--on-highlight) !important; border-radius: var(--radius-nav-current); font-weight: 700; rotate: -1deg; }
+[data-style='collage'] .expressive-code .frame { border: var(--border-card) solid var(--line); box-shadow: 5px 5px 0 var(--cobalt); border-radius: var(--radius-code-frame); }

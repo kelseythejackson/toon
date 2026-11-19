@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../src/toon.css">
 <link rel="stylesheet" href="demo.css">
 <style>
-  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 360px; }
   .lanes { display: grid; gap: .8rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.2rem 1.5rem; }
   .lane { position: relative; height: 22px; border-bottom: 1px dashed var(--demo-faint); }
@@ -35,7 +35,9 @@
 
 <script src="../src/toon.js"></script>
 <script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
 <script>
+ToonDemos.register('06-slow-in-slow-out', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
   const { createStage, ticker, tween, ease } = Toon;
   const stage = createStage(document.getElementById('c'));
@@ -66,6 +68,7 @@
       ctx.beginPath(); ctx.arc(Toon.lerp(x0, x1, fn(p)), y, 9, 0, 7); ctx.fill();
     });
   });
+});
 </script>
 </body>
 </html>

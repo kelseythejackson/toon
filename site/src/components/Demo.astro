@@ -1,88 +1,109 @@
 ---
-/** Embeds one of the standalone example pages, sized to its content and dressed in the active style. */
+/**
+ * Embeds one of the standalone example pages as a <toon-demo>: its markup and styles go into a declarative
+ * shadow root (so its CSS can't leak in or out), and its script runs with its own clock (demo-runtime.js),
+ * so a time-scale slider or reduced-motion pause in one demo never affects another on the same page.
+ * Theme tokens (examples/demo-tokens.css, loaded site-wide) and fonts inherit from the docs page, so the demo
+ * follows the reader's sketchbook style and light/dark mode with no extra wiring.
+ */
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, posix } from 'node:path';
 import { Code } from '@astrojs/starlight/components';
 
 interface Props { file: string; title?: string; source?: boolean; linkText?: string }
 const { file, title = 'Live demo', source = true } = Astro.props;
 // Link text names the demo, so a page with several links (or a screen reader's link list) tells them apart.
 const linkText = Astro.props.linkText ?? `Open the ${title} on its own page`;
+const html = readFileSync(resolve(process.cwd(), '../examples', file), 'utf8');
 // The demo's full page source, shown collapsed under it, so fragments on the page always have a runnable reference.
-const code = source ? readFileSync(resolve(process.cwd(), '../examples', file), 'utf8').trim() : '';
+const code = source ? html.trim() : '';
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const src = `${base}toon/examples/${file}`;
+const dir = posix.dirname(`${base}toon/examples/${file}`);
+const url = (href: string) => posix.normalize(posix.join(dir, href));
+
+// Split the standalone page into what the shadow root needs.
+const head = html.slice(0, html.indexOf('<body>'));
+let body = html.slice(html.indexOf('<body>') + 6, html.lastIndexOf('</body>'));
+const links = [...head.matchAll(/<link rel="stylesheet" href="([^"]+)">/g)].map((m) => url(m[1]));
+const styles = [...head.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1]).join('\n');
+const scripts = [...body.matchAll(/<script src="([^"]+)"><\/script>/g)].map((m) => url(m[1]));
+const inline = [...body.matchAll(/<script>\n?([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n');
+body = body.replace(/<script[\s\S]*?<\/script>\s*/g, '');
+// The docs page has its own heading and prose: drop the example's h1 and intro, but keep an intro marked
+// .demo-hint, which carries instructions ("Press Replay…").
+body = body.replace(/^\s*<h1>[\s\S]*?<\/h1>\s*(?:<p(?![^>]*demo-hint)[^>]*>[\s\S]*?<\/p>\s*)?/, '');
+const motionControl = head.match(/<html[^>]*data-motion-control="([^"]+)"/)?.[1];
+const name = file.replace(/\.html$/, '');
+if (inline.includes('</script')) throw new Error(`${file}: inline script can't contain </script`);
+const shadow = links.map((h) => `<link rel="stylesheet" href="${h}">`).join('')
+  + `<style>${styles}\np.demo-hint:first-of-type{margin-top:0}</style>` + body;
 ---
 <figure class="toon-demo not-content">
-  <iframe src={src} title={title} loading="lazy" data-autosize></iframe>
+  <toon-demo name={name} data-scripts={JSON.stringify(scripts)} data-motion-control={motionControl} role="group" aria-label={title}>
+    <template shadowrootmode="open" set:html={shadow} />
+    {inline && <Fragment set:html={`<script type="text/plain" data-demo-script>${inline}</script>`} />}
+  </toon-demo>
   <figcaption><a href={src} target="_blank" rel="noopener">{linkText}<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true">&nbsp;↗</span></a></figcaption>
 </figure>
 {source && (
   <details class="toon-demo-source">
     <summary>Show the demo's source</summary>
-    <p>The complete page: it loads <code>toon.css</code> and <code>toon.js</code>, plus <code>demo-theme.js</code> (theme colors for the docs) and, for the characters, <code>cast.js</code>.</p>
+    <p>The complete page: it loads <code>toon.css</code> and <code>toon.js</code>, plus <code>demo-theme.js</code> (theme colors), <code>demo-runtime.js</code> (gives the demo its own clock) and, for the characters, <code>cast.js</code>.</p>
     <Code code={code} lang="html" />
   </details>
 )}
 
 <script>
-  // Same-origin iframes: hide the example's own heading (the docs page has one), hand the demo the reader's
-  // sketchbook style and light/dark mode (examples/demo.css + demo-theme.js do the rest), share the site's
-  // fonts, and fit the frame to its content (again whenever that content changes size: window resize, zoom, a projector).
-  // An intro paragraph marked .demo-hint carries instructions ("Press Replay…"), so it stays visible.
-  const frames = [...document.querySelectorAll<HTMLIFrameElement>('iframe[data-autosize]')];
+  // One definition per page (Astro includes this script once). Each <toon-demo> starts when it nears the
+  // viewport: load the shared scripts once, in order, run the demo's register() once, then mount it per instance.
+  type Runtime = { whenRegistered(name: string): Promise<unknown>; mount(root: ShadowRoot, fn: unknown): unknown };
+  const loaded = new Map<string, Promise<void>>();
+  const load = (src: string) => {
+    if (!loaded.has(src)) loaded.set(src, new Promise((res, rej) => {
+      const s = document.createElement('script'); s.src = src; s.onload = () => res(); s.onerror = () => rej(new Error(`toon-demo: failed to load ${src}`));
+      document.head.append(s);
+    }));
+    return loaded.get(src)!;
+  };
+  const registered = new Set<string>();
 
-  const EMBED_CSS = 'body>h1:first-of-type,body>h1:first-of-type+p:not(.demo-hint){display:none}body>h1:first-of-type+p.demo-hint{margin-top:0}body{margin-top:1rem!important}';
-  const watched = new WeakSet<Document>();   // one ResizeObserver per loaded document
-  function fit(frame: HTMLIFrameElement) {
-    try {
-      const body = frame.contentDocument?.body;
-      if (!body) return;
-      const h = Math.ceil(body.getBoundingClientRect().bottom + parseFloat(getComputedStyle(body).marginBottom || '0'));
-      if (h > 0) frame.style.height = h + 'px';
-    } catch { /* cross-origin: keep the default height */ }
-  }
-  function dress(frame: HTMLIFrameElement) {
-    try {
-      const doc = frame.contentDocument;
-      if (!doc?.head || frame.contentWindow?.location.href === 'about:blank') return;
-      const own = document.documentElement, theirs = doc.documentElement;
-      theirs.dataset.embedded = '1';                       // stop following prefers-color-scheme
-      if (own.dataset.style) theirs.dataset.style = own.dataset.style;
-      if (own.dataset.theme) theirs.dataset.theme = own.dataset.theme;
-      if (!doc.getElementById('toon-embed')) {
-        const tag = doc.createElement('style'); tag.id = 'toon-embed'; tag.textContent = EMBED_CSS; doc.head.append(tag);
+  class ToonDemo extends HTMLElement {
+    #started = false;
+    connectedCallback() {
+      if (this.#started) return;
+      this.#started = true;
+      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { io.disconnect(); this.start(); } }, { rootMargin: '400px 0px' });
+      io.observe(this);
+      addEventListener('beforeprint', () => this.start(), { once: true });
+    }
+    async start() {
+      if (this.dataset.state) return;
+      this.dataset.state = 'loading';
+      (window as unknown as { TOON_DEMO_EMBEDDED: boolean }).TOON_DEMO_EMBEDDED = true;   // demo-theme/runtime: don't touch the docs page
+      const root = this.shadowRoot ?? this.attachShadow({ mode: 'open' });
+      for (const s of JSON.parse(this.dataset.scripts || '[]') as string[]) await load(s);   // in order: toon.js before demo-theme.js…
+      const runtime = (window as unknown as { ToonDemos: Runtime }).ToonDemos;
+      const name = this.getAttribute('name')!, code = this.querySelector('script[data-demo-script]')?.textContent;
+      let fn = null;
+      if (code) {
+        if (!registered.has(name)) { registered.add(name); const s = document.createElement('script'); s.textContent = code; document.head.append(s); }
+        fn = await runtime.whenRegistered(name);
       }
-      // fonts come from the parent page's bundle: copy its @font-face rules once
-      if (!doc.getElementById('toon-fonts')) {
-        // resolve each font URL against its own stylesheet, so it works under any base path
-        const faces = [...document.styleSheets].flatMap((s) => {
-          try { return [...s.cssRules].filter((r) => r instanceof CSSFontFaceRule).map((r) => [r, s.href || location.href]); } catch { return []; }
-        }).map(([r, href]) => (r as CSSRule).cssText.replace(/url\("?([^")]+)"?\)/g, (_m, u) => `url("${new URL(u, href as string).href}")`));
-        const f = doc.createElement('style'); f.id = 'toon-fonts'; f.textContent = faces.join('\n'); doc.head.append(f);
-      }
-      fit(frame);
-      const RO = (frame.contentWindow as (Window & typeof globalThis) | null)?.ResizeObserver;
-      if (RO && !watched.has(doc)) { watched.add(doc); new RO(() => fit(frame)).observe(doc.body); }
-    } catch { /* cross-origin: keep the default look and height */ }
+      runtime.mount(root, fn);
+      this.dataset.state = 'ready';
+    }
   }
-  for (const frame of frames) {
-    frame.addEventListener('load', () => { dress(frame); setTimeout(() => dress(frame), 400); });
-    dress(frame);
-  }
-  // Re-dress when the reader switches style or light/dark.
-  new MutationObserver(() => frames.forEach(dress))
-    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-style', 'data-theme'] });
+  if (!customElements.get('toon-demo')) customElements.define('toon-demo', ToonDemo);
 </script>
 
 <style>
-  .toon-demo { margin: 1.5rem 0 .5rem; }
-  .toon-demo-source { margin: 0 0 1.5rem; }
-  .toon-demo-source summary { cursor: pointer; font-size: var(--sl-text-sm); font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+  .toon-demo { margin: var(--space-lg) 0 var(--space-xs); }
+  .toon-demo-source { margin: 0 0 var(--space-lg); }
+  .toon-demo-source summary { cursor: pointer; font-size: var(--sl-text-sm); font-weight: var(--font-weight-strong); min-height: var(--tap-target); display: flex; align-items: center; }
   .toon-demo-source p { font-size: var(--sl-text-sm); }
-  .toon-demo iframe { display: block; width: 100%; height: 640px; border: 0; border-radius: 12px; background: transparent; }
   .toon-demo figcaption { margin-top: .4rem; font-size: var(--sl-text-sm); }
   /* 24px+ tap target (WCAG 2.5.8): this link is the only way to a demo's standalone page. */
-  .toon-demo figcaption a { display: inline-flex; align-items: center; min-height: 32px; padding-inline: .1rem; }
+  .toon-demo figcaption a { display: inline-flex; align-items: center; min-height: var(--tap-target); padding-inline: .1rem; }
   .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 </style>

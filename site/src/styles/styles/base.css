@@ -23,6 +23,15 @@
   --sl-color-hairline: var(--hair); --sl-color-hairline-light: var(--hair); --sl-color-hairline-shade: var(--hair);
   --sl-font: var(--font-body); --sl-font-mono: var(--font-mono);
 }
+/* Shared scale tokens (same in every style; Figma: Layout collection). The demos repeat them in examples/demo.css. */
+:root {
+  --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 32px; --space-2xl: 48px;
+  --radius-none: 0px; --radius-pill: 999px; --tap-target: 32px; --font-weight-strong: 600;
+}
+/* Hover print shadow, composed from each style's --shadow-lift-* tokens (Crayon overrides it with a soft shadow). */
+:root[data-style] { --fx-lift-shadow: var(--shadow-lift-x) var(--shadow-lift-y) var(--shadow-lift-blur) var(--lift-shadow-color); }
+/* One visible keyboard focus ring in every style: 2px of the link color, 2px away (Figma: focus/ring-site). */
+:root[data-style] :focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 :root[data-style] :is(h1#_top, .hero h1, .sl-markdown-content :is(h2, h3)) { font-family: var(--display); }
 .hero { position: relative; isolation: isolate; }
 

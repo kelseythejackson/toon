@@ -27,6 +27,8 @@ export default defineConfig({
       // toon.css is bundled straight from the library source, so the docs always match it.
       customCss: [
         '../src/toon.css', './src/styles/custom.css',
+        // Demo tokens page-wide, so they inherit into each <toon-demo> shadow root (components/Demo.astro)
+        '../examples/demo-tokens.css',
         // Sketchbook styles — the reader picks one in the header (see components/ThemeSelect.astro)
         './src/styles/styles/base.css', './src/styles/styles/graph.css', './src/styles/styles/riso.css',
         './src/styles/styles/collage.css', './src/styles/styles/crayon.css',

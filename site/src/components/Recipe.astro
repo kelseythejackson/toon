@@ -42,7 +42,7 @@ const pageTitle = title ?? source.match(/<h1>([^<]*)<\/h1>/)?.[1] ?? 'Live examp
 )}
 
 <style>
-  .recipe-result { margin-top: 1rem; }
-  .recipe-label { margin: 0 0 -.75rem; font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: .08em;
+  .recipe-result { margin-top: var(--space-md); }
+  .recipe-label { margin: 0 0 calc(var(--space-sm) * -1); font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: .08em;
     text-transform: uppercase; color: var(--sl-color-gray-3); }
 </style>

@@ -1,8 +1,8 @@
-// WCAG contrast check for examples/demo.css: every style × mode, text ≥ 4.5:1, graphics ≥ 3:1.
+// WCAG contrast check for examples/demo-tokens.css: every style × mode, text ≥ 4.5:1, graphics ≥ 3:1.
 // Usage: npm run check:contrast   (exits 1 on any failure). Port of the former check-demo-contrast.py.
 import { readFileSync } from 'node:fs';
 
-const css = readFileSync(new URL('../examples/demo.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../examples/demo-tokens.css', import.meta.url), 'utf8');
 const rgb = (h) => [0, 2, 4].map((i) => parseInt(h.replace('#', '').slice(i, i + 2), 16));
 const lum = (h) => {
   const [r, g, b] = rgb(h).map((x) => x / 255).map((x) => (x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4));

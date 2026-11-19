@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../src/toon.css">
 <link rel="stylesheet" href="demo.css">
 <style>
-  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 320px; }
   .row { display: flex; gap: 2rem; justify-content: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1rem; }
   .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 220px; }
@@ -34,7 +34,9 @@
 <script src="demo-theme.js"></script>
 <script src="cast-shapes.js"></script>
 <script src="cast.js"></script>
+<script src="demo-runtime.js"></script>
 <script>
+ToonDemos.register('01-squash-and-stretch', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
   const { createStage, ticker, squash, impact, withSquash, groundShadow } = Toon;
   const stage = createStage(document.getElementById('c'));
@@ -75,6 +77,7 @@
     withSquash(ctx, x, y, s, c => Cast.draw(c, 'dot', { x: 0, y: 0, h: R * 2, fill: T.primary, ink: T.ink, mood, look }),
       contact > 0 ? { x: 0, y: R } : undefined);
   });
+});
 </script>
 </body>
 </html>

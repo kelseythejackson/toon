@@ -20,7 +20,9 @@
 </div>
 <script src="../../src/toon.js"></script>
 <script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
 <script>
+ToonDemos.register('recipes/throw-along-path', (document, Toon, DemoTheme) => {
 // @recipe
 const stage = Toon.createStage(document.querySelector('canvas'));
 let fly, t = 0, left = true;
@@ -55,6 +57,7 @@ stage.loop(() => {
 document.querySelector('button').onclick = throwIt;
 throwIt();
 // @end
+});
 </script>
 </body>
 </html>

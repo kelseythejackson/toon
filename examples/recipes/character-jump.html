@@ -20,7 +20,9 @@
 </div>
 <script src="../../src/toon.js"></script>
 <script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
 <script>
+ToonDemos.register('recipes/character-jump', (document, Toon, DemoTheme) => {
 // @recipe
 const { createStage, tween, sequence, ease,
         withSquash, drawSolid, groundShadow } = Toon;
@@ -58,6 +60,7 @@ stage.loop(() => {
 document.querySelector('button').onclick = jump;
 jump();
 // @end
+});
 </script>
 </body>
 </html>

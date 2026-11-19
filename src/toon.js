@@ -53,30 +53,35 @@
     inBack: anticipate(), outBack: overshoot(), outElastic: elastic(), outBounce: bounce,
     anticipate, overshoot, elastic, steps, cubicBezier,
   };
-  /* ── [TIMING] One shared clock. All motion advances from a single rAF loop. ── */
-  const subs = new Set();
-  const ticker = {
-    timeScale: 1,   // higher = faster: 0.25 = slow motion, 2 = double speed (opposite of CSS --toon-tempo)
-    time: 0,        // seconds of (scaled) animation time elapsed
-    raf: 0, last: 0,
-    /** Subscribe fn(dt, time) (seconds). Return false from fn to unsubscribe. → unsubscribe() */
-    add(fn) {
-      subs.add(fn);
-      if (!ticker.raf) { ticker.last = performance.now(); ticker.raf = requestAnimationFrame(tick); }
-      return () => subs.delete(fn);
-    },
-  };
-  function tick(now) {
-    const dt = min((now - ticker.last) / 1000, 1 / 20) * ticker.timeScale; // clamp: no jump after tab switch
-    ticker.last = now; ticker.time += dt;
-    for (const fn of subs) try { if (fn(dt, ticker.time) === false) subs.delete(fn); } // no per-frame copy
-      catch (e) { subs.delete(fn); console.error('toon: an animation callback threw, so it was stopped (others keep running):', e); }
-    ticker.raf = subs.size ? requestAnimationFrame(tick) : 0;
+  /* ── [TIMING] A clock: all motion advances from its rAF loop. Toon.ticker is the shared one; createTicker()
+   *  makes an independent clock (its own timeScale) for one widget — pass it as { ticker } to tween, stage… ── */
+  function createTicker() {
+    const subs = new Set();
+    const tk = {
+      timeScale: 1,   // higher = faster: 0.25 = slow motion, 2 = double speed (opposite of CSS --toon-tempo)
+      time: 0,        // seconds of (scaled) animation time elapsed
+      raf: 0, last: 0,
+      /** Subscribe fn(dt, time) (seconds). Return false from fn to unsubscribe. → unsubscribe() */
+      add(fn) {
+        subs.add(fn);
+        if (!tk.raf) { tk.last = performance.now(); tk.raf = requestAnimationFrame(tick); }
+        return () => subs.delete(fn);
+      },
+    };
+    function tick(now) {
+      const dt = min((now - tk.last) / 1000, 1 / 20) * tk.timeScale; // clamp: no jump after tab switch
+      tk.last = now; tk.time += dt;
+      for (const fn of subs) try { if (fn(dt, tk.time) === false) subs.delete(fn); } // no per-frame copy
+        catch (e) { subs.delete(fn); console.error('toon: an animation callback threw, so it was stopped (others keep running):', e); }
+      tk.raf = subs.size ? requestAnimationFrame(tick) : 0;
+    }
+    return tk;
   }
+  const ticker = createTicker();
   /** [TIMING][SLOW-IN-OUT] Animate `from`→`to` over `duration` ms. Returns a thenable handle.
    *  Object/array values are one reused object, updated in place each frame — copy it to keep a snapshot. */
   function tween({ from = 0, to = 1, duration = 500, delay = 0, ease: fn = ease.inOutCubic,
-                   repeat = 0, yoyo = false, onUpdate, onComplete } = {}) {
+                   repeat = 0, yoyo = false, onUpdate, onComplete, ticker: tk = ticker } = {}) {
     let t = -delay, loops = 0, paused = false, done = false, resolve, out;
     if (typeof fn !== 'function') {                   // by name; a factory's name means its default curve
       const f = ease[{ anticipate: 'inBack', overshoot: 'outBack', elastic: 'outElastic' }[fn] ?? fn], ok = f && f !== steps && f !== cubicBezier;
@@ -85,7 +90,7 @@
     }
     if (duration > 0 && duration < 20) console.warn(`toon.tween: duration is in ms; ${duration}ms is very short. Did you mean ${duration * 1000}?`);
     const promise = new Promise(r => (resolve = r)), finish = v => { if (!done) { done = true; resolve(v); } };
-    const off = ticker.add(dt => {
+    const off = tk.add(dt => {
       if (paused || (t += dt * 1000) < 0) return;
       const p = duration > 0 ? min(t / duration, 1) : 1;
       try { out = mix(from, to, fn(yoyo && loops % 2 ? 1 - p : p), out); onUpdate?.(out, p); }
@@ -101,15 +106,15 @@
       cancel() { off(); finish(null); },
     };
   }
-  const wait = ms => tween({ duration: ms, ease: ease.linear });
+  const wait = (ms, { ticker: tk } = {}) => tween({ duration: ms, ease: ease.linear, ticker: tk });
   /** Run steps in order. A step is a function returning a thenable; an array = run in parallel. */
   async function sequence(...steps) {
     const run = s => (Array.isArray(s) ? Promise.all(s.map(run)) : typeof s === 'function' ? s() : s);
     for (const s of steps) await run(s);
   }
   /** [FOLLOW-THROUGH] Overlapping action: start fn(item, i) for each item, `each` ms apart. */
-  const stagger = (items, fn, { each = 80 } = {}) =>
-    Promise.all([...items].map((it, i) => wait(i * each).then(() => fn(it, i))));
+  const stagger = (items, fn, { each = 80, ticker: tk } = {}) =>
+    Promise.all([...items].map((it, i) => wait(i * each, { ticker: tk }).then(() => fn(it, i))));
   /* ── [POSE-TO-POSE] Key poses; the library draws the in-betweens. ──
    * keys: [{ at: 0..1, pose: {…numbers}, ease? }] — `ease` shapes the move INTO that key. */
   function samplePoses(keys, p, out) {               // always copies into `out`, never returns a key's own pose
@@ -123,9 +128,9 @@
       onUpdate: p => opts.onUpdate?.((out = samplePoses(keys, p, out)), p) });
   }
   /** [STRAIGHT-AHEAD] Frame-by-frame: each frame is computed from the previous one at a fixed fps. */
-  function straightAhead(step, { fps = 60 } = {}) {
+  function straightAhead(step, { fps = 60, ticker: tk = ticker } = {}) {
     const h = 1 / fps; let acc = 0, frame = 0;
-    const off = ticker.add(dt => {
+    const off = tk.add(dt => {
       acc += dt;
       while (acc >= h) { acc -= h; if (step(h, frame++) === false) return false; }
     });
@@ -222,14 +227,14 @@
   /** [TIMING] Hold time on a lower frame rate (12 = "on twos" at 24fps). */
   const quantize = (t, fps = 12) => floor(t * fps) / fps;
   /* ── [STAGING] Canvas setup, HiDPI, and a spotlight to direct the eye ── */
-  function createStage(canvas, { width, height, background = null } = {}) {
+  function createStage(canvas, { width, height, background = null, ticker: tk = ticker } = {}) {
     if (!(canvas = typeof canvas === 'string' ? document.querySelector(canvas) : canvas)?.getContext) throw new TypeError(`toon.createStage: expected a <canvas> element or selector, got ${canvas}`);
     const ctx = canvas.getContext('2d'), loops = new Map();  // fn → unsubscribe (null while off-screen)
     const stage = {
-      canvas, ctx, width: 0, height: 0, visible: true,
+      canvas, ctx, width: 0, height: 0, visible: true, ticker: tk,
       /** Run fn(dt, time) on the ticker only while the canvas is on screen. → stop() */
       loop(fn) {
-        loops.set(fn, stage.visible ? ticker.add(fn) : null);
+        loops.set(fn, stage.visible ? tk.add(fn) : null);
         return () => { loops.get(fn)?.(); loops.delete(fn); };
       },
       resize() {
@@ -259,7 +264,7 @@
     const io = root.IntersectionObserver && new IntersectionObserver(([e]) => {   // pause loops when scrolled away
       stage.visible = e.isIntersecting;
       for (const [fn, off] of loops) {
-        if (stage.visible && !off) loops.set(fn, ticker.add(fn));
+        if (stage.visible && !off) loops.set(fn, tk.add(fn));
         else if (!stage.visible && off) { off(); loops.set(fn, null); }
       }
     }); io?.observe(canvas);
@@ -312,7 +317,7 @@
     return local > 0 && local < duration ? sin((local / duration) * PI) : 0;
   }
   const Toon = {
-    ease, ticker, tween, wait, sequence, stagger, poses, samplePoses, straightAhead,
+    ease, ticker, createTicker, tween, wait, sequence, stagger, poses, samplePoses, straightAhead,
     arc, path, tangent, squash, impact, withSquash, Spring, Chain, wave, noise,
     exaggerate, quantize, createStage, shade, drawSolid, groundShadow, breathe, blink,
     clamp, lerp, mix,

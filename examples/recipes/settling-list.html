@@ -20,7 +20,9 @@
 <button id="replay">Replay</button>
 </div>
 <script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
 <script>
+ToonDemos.register('recipes/settling-list', (document, Toon, DemoTheme) => {
 // @recipe
 const list = document.querySelector('.toon-follow');
 const replay = document.querySelector('#replay');
@@ -30,6 +32,7 @@ replay.addEventListener('click', () => {
   list.classList.add('toon-follow');   // …so it plays again
 });
 // @end
+});
 </script>
 </body>
 </html>

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../src/toon.css">
 <link rel="stylesheet" href="demo.css">
 <style>
-  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 340px; }
   .list { display: grid; gap: .6rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
   .list > div { padding: .9rem 1.2rem; border-radius: 10px; background: color-mix(in srgb, var(--demo-tertiary) 16%, var(--demo-surface)); }
@@ -34,7 +34,9 @@
 <script src="demo-theme.js"></script>
 <script src="cast-shapes.js"></script>
 <script src="cast.js"></script>
+<script src="demo-runtime.js"></script>
 <script>
+ToonDemos.register('05-follow-through', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
   const { createStage, ticker, Spring, Chain } = Toon;
   const stage = createStage(document.getElementById('c'));
@@ -77,6 +79,7 @@
 
   const list = document.getElementById('list');
   document.getElementById('replay').onclick = () => { list.classList.remove('toon-follow'); void list.offsetWidth; list.classList.add('toon-follow'); };
+});
 </script>
 </body>
 </html>

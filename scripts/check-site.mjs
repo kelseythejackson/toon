@@ -1,6 +1,6 @@
 // Site quality gate: builds the docs under a sub-path (like GitHub Pages), serves the build locally, and crawls it.
 // Fails on: pages wider than a phone screen (390px and 320px), search pushed off-screen on phones, broken internal links,
-// missing #anchors, broken demo frames, and script errors (including inside embedded demos).
+// missing #anchors, broken demo files, demos that never start, and script errors (including the embedded demos').
 // Usage: npm run check:site          (add --no-build to reuse the last check build; browser choice: see scripts/browser.mjs)
 import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
@@ -71,20 +71,31 @@ while (queue.length) {
   pages.add(url);
   const res = await desktop.goto(url);
   if (!res || res.status() !== 200) { problems.push(`${url} → ${res?.status()}`); continue; }
-  const refs = await desktop.$$eval('a[href], iframe[src]', els => els.map(e => [e.tagName, e.getAttribute('href') ?? e.getAttribute('src')]));
+  // Links, plus every file a <toon-demo> loads: its scripts, and the stylesheets in its shadow root
+  const refs = await desktop.evaluate(() => [
+    ...[...document.querySelectorAll('a[href]')].map(e => ['A', e.getAttribute('href')]),
+    ...[...document.querySelectorAll('toon-demo')].flatMap(d => [
+      ...JSON.parse(d.dataset.scripts || '[]').map(s => ['DEMO', s]),
+      ...[...(d.shadowRoot?.querySelectorAll('link[href]') ?? [])].map(l => ['DEMO', l.getAttribute('href')])]),
+  ]);
   for (const [tag, ref] of refs) {
     const target = new URL(ref, url);
     if (target.origin !== origin) continue;
     const hash = target.hash.slice(1); target.hash = '';
     const plain = target.href;
-    if (await status(plain) !== 200) { problems.push(`broken ${tag === 'IFRAME' ? 'demo frame' : 'link'} on ${url}: ${ref}`); continue; }
+    if (await status(plain) !== 200) { problems.push(`broken ${tag === 'DEMO' ? 'demo file' : 'link'} on ${url}: ${ref}`); continue; }
     if (hash) anchors.push([url, plain, decodeURIComponent(hash)]);
     if (tag === 'A' && plain.endsWith('/') && !pages.has(plain)) queue.push(plain);
   }
-  // Let lazy demo frames load so their script errors are caught too
-  await desktop.evaluate(async () => {
-    for (const f of document.querySelectorAll('iframe')) { f.scrollIntoView(); await new Promise(r => setTimeout(r, 150)); }
+  // Start every lazy demo, so its script errors are caught too, and check each one actually mounted
+  const stuck = await desktop.evaluate(async () => {
+    const demos = [...document.querySelectorAll('toon-demo')];
+    for (const d of demos) { d.scrollIntoView(); await new Promise(r => setTimeout(r, 150)); }
+    const t0 = performance.now();
+    while (demos.some(d => d.dataset.state !== 'ready') && performance.now() - t0 < 5000) await new Promise(r => setTimeout(r, 100));
+    return demos.filter(d => d.dataset.state !== 'ready').map(d => d.getAttribute('name'));
   });
+  for (const n of stuck) problems.push(`demo ${n} on ${url} never finished starting`);
   await desktop.waitForTimeout(400);
 }
 const byPage = Map.groupBy(anchors, ([, page]) => page);     // one visit per target page
@@ -116,6 +127,6 @@ await browser.close();
 server.close();
 
 const unique = [...new Set(problems)];
-console.log(`${unique.length ? '✗' : '✓'} site: ${pages.size} pages, ${checked.size} links and frames, ${anchors.length} anchors, phones at ${PHONES.join(' and ')}px`);
+console.log(`${unique.length ? '✗' : '✓'} site: ${pages.size} pages, ${checked.size} links and demo files, ${anchors.length} anchors, phones at ${PHONES.join(' and ')}px`);
 for (const p of unique) console.log('  - ' + p);
 process.exit(unique.length ? 1 : 0);

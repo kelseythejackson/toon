@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="../src/toon.css">
 <link rel="stylesheet" href="demo.css">
 <style>
-  body { font-size: 15px; line-height: 1.5; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 360px; cursor: crosshair; }
   .row { display: grid; gap: 1rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
   .track { height: 170px; position: relative; border-bottom: 2px solid var(--demo-ground-line); }
@@ -36,7 +36,9 @@
 <script src="demo-theme.js"></script>
 <script src="cast-shapes.js"></script>
 <script src="cast.js"></script>
+<script src="demo-runtime.js"></script>
 <script>
+ToonDemos.register('07-arcs', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
   const { createStage, ticker, tween, ease, arc, path, squash, withSquash, lerp } = Toon;
   const stage = createStage(document.getElementById('c'));
@@ -90,6 +92,7 @@
       mood: ft < 1 ? 'happy' : 'neutral' }));
   });
   document.getElementById('act').addEventListener('click', () => throwTo({ x: stage.width * 0.75, y: stage.height * 0.55 }));
+});
 </script>
 </body>
 </html>
