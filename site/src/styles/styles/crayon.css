@@ -36,7 +36,8 @@
 [data-style='crayon'] .hero .sl-link-button { border-radius: var(--radius-button); font-weight: 800; }
 [data-style='crayon'] .hero .sl-link-button.primary { background: var(--button); color: var(--on-button); border-color: var(--line);
   box-shadow: var(--shadow-button-x) var(--shadow-button-y) 0 var(--shadow-button-spread) var(--button-shadow-color); }
-[data-style='crayon'] .hero .sl-link-button:not(.primary) { color: var(--ink); }
+/* Second hero action: a soft crayon pill (the highlight pair), round like the primary but without its weight or shadow. */
+[data-style='crayon'] .hero .sl-link-button:not(.primary) { color: var(--pill-ink); background: var(--pill); border-color: transparent; padding-inline: 1.25rem; }
 [data-style='crayon'] :is(.card, .sl-link-card) { border: var(--border-card) !important; border-radius: var(--radius-card) !important; background: var(--card) !important; }
 [data-style='crayon'] .card-grid > :nth-child(4n+1) { background: var(--tint-1) !important; }
 [data-style='crayon'] .card-grid > :nth-child(4n+2) { background: var(--tint-2) !important; }

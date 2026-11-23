@@ -1,7 +1,7 @@
 ---
 title: Follow-through & overlapping action
 description: "Parts keep moving after the body stops: staggered lists, trailing tails."
-sidebar: { order: 5, label: '5 · Follow-through & overlap' }
+sidebar: { order: 5, label: 'Follow-through & overlap' }
 ---
 import Demo from '../../../components/Demo.astro';
 
@@ -47,4 +47,4 @@ Toon.ticker.add(dt => {
 - **The settle should be short.** Two or three decreasing swings is plenty, because a long wobble looks like jelly.
 - **Keep stagger delays small.** 40–90 ms between items reads as one fluid motion. More than that reads as separate events.
 
-**API:** [`Spring` / `Chain`](../../api/canvas/#physics), [`stagger`](../../api/canvas/#timing-and-sequencing), [`.toon-follow` / `.toon-settle`](../../api/css/#classes)
+**API:** [`Spring` and `Chain`](../../api/canvas/#physics), [`stagger`](../../api/canvas/#timing-and-sequencing), [`.toon-follow` and `.toon-settle`](../../api/css/#classes)

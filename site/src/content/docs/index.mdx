@@ -15,21 +15,48 @@ hero:
     - text: Get started
       link: getting-started/
       icon: right-arrow
-    - text: Browse the principles
-      link: principles/
+    - text: Find an effect
+      link: find-an-effect/
       variant: minimal
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 import PrincipleCards from '../../components/PrincipleCards.astro';
 
-<LinkCard title="Find an effect" href="find-an-effect/" description="Know what you want to build, like a pressable button, a list entrance or a loading indicator? Look it up here." />
-
-<CardGrid>
-  <LinkCard title="CSS module reference" href="api/css/" description="toon.css: presets you add as classes (.toon-bounce, .toon-press, .toon-follow…) and tune with custom properties like --toon-squash." />
-  <LinkCard title="Canvas module reference" href="api/canvas/" description="toon.js: one shared clock, easing, tweens, key poses, arcs, squash and stretch, and spring and rope physics, all under window.Toon." />
-</CardGrid>
-
 ## The 12 principles
 
+<p class="section-lede"><span class="if-motion">Each card acts out its principle once as it scrolls into view. Point at a card, or tab to it, to watch it again.</span><span class="if-still">Each card holds the key pose of its principle. Open one to play its full demo.</span></p>
+
 <PrincipleCards />
+
+## Build with toon
+
+<CardGrid>
+  <LinkCard title="Find an effect" href="find-an-effect/" description="Start from what you want to build, like a pressable button, a list entrance or a loading indicator, and find the class or function for it." />
+  <LinkCard title="Recipes" href="recipes/" description="Complete, runnable effects that combine several principles: a physical button, a settling list, a character jump." />
+</CardGrid>
+
+## Add it to a page
+
+<div class="try-it">
+  <button class="toon-press try-button" type="button">Press me</button>
+  <p>Hold it down. <code>.toon-press</code> squashes the button while you hold it and lets it overshoot a little when you let go.</p>
+</div>
+
+Copy [`toon.css`](toon/src/toon.css) and [`toon.js`](toon/src/toon.js) into your project and include them. There's no package to install and no build step. toon isn't published to npm.
+
+```html
+<link rel="stylesheet" href="toon.css">
+<script src="toon.js"></script>
+<button class="toon-press">Press me</button>
+```
+
+<p class="next-links"><a href="getting-started/">Getting started</a> covers the Canvas half and using toon with frameworks. The source is on <a href="https://github.com/kelseythejackson/toon">GitHub</a>.</p>
+
+## Reference
+
+<ul class="ref-links">
+  <li><a href="api/css/">CSS API</a><span>Every preset class in toon.css and the custom properties that tune it.</span></li>
+  <li><a href="api/canvas/">Canvas API</a><span>The clock, tweens, easing, arcs and physics in toon.js.</span></li>
+  <li><a href="glossary/">Glossary</a><span>Animation terms in plain words.</span></li>
+</ul>

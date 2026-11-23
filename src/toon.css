@@ -172,7 +172,7 @@
     color-mix(in oklab, var(--toon-color), white 60%) 0 6%, var(--toon-color) 38%,
     color-mix(in oklab, var(--toon-color), black 50%) 90%, color-mix(in oklab, var(--toon-color), black 30%));
 }
-.toon-shadow { border-radius: 50%; background: radial-gradient(closest-side, rgb(0 0 0 / .45), transparent); }
+.toon-shadow { border-radius: 50%; background: radial-gradient(closest-side, var(--toon-shadow-color, rgb(0 0 0 / .45)), transparent); }
 
 /* ── [APPEAL] Life at rest and confident entrances ── */
 .toon-breathe { transform-origin: 50% 100%;

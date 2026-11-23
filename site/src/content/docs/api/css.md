@@ -14,25 +14,30 @@ The reference for the CSS module, `toon.css`. Each section ends with links to th
 
 Set these on `:root` to change everything, or on any element (or container) to change it locally.
 
+<div class="ref-table" style="--l2:'Default'; --l3:'Principle'; --l4:'Effect'">
+
 | Property | Default | Principle | Effect |
 |---|---|---|---|
 | `--toon-duration` | `800ms` | Timing | Length of one action |
 | `--toon-tempo` | `1` | Timing | **Higher is slower.** Multiplies duration: 2 is half speed, 0.5 is double speed. (JS `ticker.timeScale` runs the other way.) |
 | `--toon-overlap` | `70ms` | Follow-through | Delay between `.toon-follow` children |
-| `--toon-squash` | `.22` | Squash & stretch | Deformation amount (0 = rigid) |
+| `--toon-squash` | `.22` | Squash & stretch | Deformation amount (0 is rigid) |
 | `--toon-exaggeration` | `1` | Exaggeration | Scales squash, heights, swings and wind-ups |
-| `--toon-height` | `140px` | Arcs / timing | Bounce and arc apex height |
-| `--toon-distance` | `240px` | Arcs / anticipation | Travel for arcs, launches and entrances |
+| `--toon-height` | `140px` | Arcs, timing | Bounce and arc apex height |
+| `--toon-distance` | `240px` | Arcs, anticipation | Travel for arcs, launches and entrances |
 | `--toon-color` | `#ff6b4a` | Solid drawing | Base color for `.toon-solid` |
-| `--toon-ease-in` / `-out` / `-in-out` | cubic-béziers | Slow in & slow out | General easing |
-| `--toon-ease-rise` / `-fall` | exact quadratics | Slow in & slow out, arcs | Gravity: thrown up / falling |
+| `--toon-shadow-color` | `rgb(0 0 0 / .45)` | Solid drawing | Color at the center of `.toon-shadow`. Lighten it on dark backgrounds, where black barely shows |
+| `--toon-ease-in`, `--toon-ease-out`, `--toon-ease-in-out` | cubic-béziers | Slow in & slow out | General easing |
+| `--toon-ease-rise`, `--toon-ease-fall` | exact quadratics | Slow in & slow out, arcs | Gravity: rising after a throw, then falling |
 | `--toon-ease-anticipate` | back curve | Anticipation | Dips backwards before moving |
 | `--toon-ease-overshoot` | back curve | Exaggeration | Flies past the target, then settles |
 | `--toon-ease-elastic` | `linear()` spring | Follow-through | Wobbles to rest |
 
+</div>
+
 Each element also computes internal values (`--_d`, `--_s`, `--_h`, `--_e`) from these properties. Don't set those directly.
 
-**See it in:** [your first CSS animation](../../getting-started/#your-first-css-animation) (tuning a bounce) · [Timing](../../principles/timing/) (`--toon-tempo`) · [Exaggeration](../../principles/exaggeration/) (`--toon-exaggeration`)
+**See it in:** [your first CSS animation](../../getting-started/#your-first-css-animation) for tuning a bounce, [Timing](../../principles/timing/) for `--toon-tempo`, and [Exaggeration](../../principles/exaggeration/) for `--toon-exaggeration`.
 
 ## Classes
 
@@ -40,12 +45,14 @@ toon's classes come in four kinds. **Effects** move on their own. **Shapes** are
 
 ### Effects
 
+<div class="ref-table" style="--l2:'Principle'; --l3:'Behavior'">
+
 | Class | Principle | Behavior |
 |---|---|---|
 | `.toon-bounce` | Squash & stretch, timing, slow in & slow out | Infinite bounce; squashes on contact, stretches at speed |
 | `.toon-bounce-shadow` | Solid drawing | Contact shadow in sync with `.toon-bounce`. Put it on a `.toon-shadow` under the ball |
 | `.toon-press` | Anticipation | Dips while `:active`, overshoots on release |
-| `.toon-anticipate` | Anticipation | Crouch → spring on `:hover` / `:focus-visible` |
+| `.toon-anticipate` | Anticipation | Crouches, then springs up, on `:hover` or `:focus-visible` |
 | `.toon-launch` | Anticipation, exaggeration | One-shot: pull back, shoot `--toon-distance`, overshoot |
 | `.toon-arc` | Arcs | Parabolic hop over `--toon-distance`. Wrapper moves X (linear); its child moves Y (gravity) |
 | `.toon-follow` | Follow-through, overlap | Children enter staggered and swing past the stop. The first 12 are staggered automatically; set `--toon-i` inline on later ones |
@@ -58,15 +65,23 @@ toon's classes come in four kinds. **Effects** move on their own. **Shapes** are
 | `.toon-stage` | Staging | On a container: the featured, hovered or focused child pops and its siblings recede |
 | `.toon-sprite` | Straight ahead | Flipbook; set `--toon-frames`, `--toon-fps`, `--toon-frame-w` |
 
+</div>
+
 ### Shapes
+
+<div class="ref-table" style="--l2:'Principle'; --l3:'What it draws'">
 
 | Class | Principle | What it draws |
 |---|---|---|
 | `.toon-solid` | Solid drawing | Shaded sphere from `--toon-color`. Give it a width and height |
 | `.toon-shadow` | Solid drawing | Soft elliptical ground shadow |
-| `.toon-spotlight` | Staging | Dimming overlay with a lit circle; set `--toon-spot-x`, `--toon-spot-y`, `--toon-spot-r` |
+| `.toon-spotlight` | Staging | Dimming overlay with a lit circle; set `--toon-spot-x`, `--toon-spot-y`, `--toon-spot-r`. Its parent needs `position: relative` |
+
+</div>
 
 ### Modifiers
+
+<div class="ref-table" style="--l2:'Sets'; --l3:'Affects'">
 
 | Class | Sets | Affects |
 |---|---|---|
@@ -76,6 +91,8 @@ toon's classes come in four kinds. **Effects** move on their own. **Shapes** are
 | `.toon-exaggerate` | `--toon-exaggeration: 1.8` | Pushes them further. Good for playful UI and games |
 | `.toon-loop` | `animation-iteration-count: infinite` | Repeats a one-shot effect (`.toon-launch`, `.toon-pop-in`…) |
 | `.toon-yoyo` | `animation-direction: alternate` | Plays every other repeat backwards |
+
+</div>
 
 Modifiers are custom properties, so they also apply to everything inside the element. Put `.toon-heavy` on a container to slow down a whole group.
 

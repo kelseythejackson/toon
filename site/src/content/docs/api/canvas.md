@@ -13,13 +13,15 @@ The reference for the Canvas module, `toon.js`. Every section ends with links to
 import { tween, arc } from './toon.mjs';     // or as an ES module
 ```
 
-**Units:** `tween`, `wait`, `poses` and `stagger` take **milliseconds**. Ticker callbacks and physics use **seconds**. Velocities are in **px/s**.
+**Units:** `tween`, `wait`, `poses` and `stagger` take **milliseconds**. Ticker callbacks and physics use **seconds**. Velocities are in **pixels per second**.
 
 ## Timing and sequencing
 
+<div class="ref-table" style="--l2:'Returns'; --l3:'Notes'">
+
 | Signature | Returns | Notes |
 |---|---|---|
-| `ticker.add(fn(dt, time))` | `unsubscribe()` | Shared rAF clock. Return `false` from `fn` to stop |
+| `ticker.add(fn(dt, time))` | `unsubscribe()` | The shared clock, driven by `requestAnimationFrame`. Return `false` from `fn` to stop |
 | `ticker.timeScale` | number (default `1`) | **Higher is faster.** 0.25 is slow motion, 2 is double speed, 0 freezes everything. (CSS `--toon-tempo` runs the other way.) |
 | `ticker.time` | number | Elapsed (scaled) seconds |
 | `createTicker()` | ticker | An independent clock with its own `timeScale` and `time`. Pass it as `{ ticker }` to `tween`, `wait`, `stagger`, `poses`, `straightAhead` or `createStage` so one widget can slow down or pause without affecting the rest of the page |
@@ -32,19 +34,21 @@ import { tween, arc } from './toon.mjs';     // or as an ES module
 | `straightAhead(step(h, frame), { fps = 60 })` | `{ stop(), frame }` | Fixed-step frame-by-frame updates. Return `false` to stop |
 | `quantize(t, fps = 12)` | number | Holds time on a lower frame rate ("on twos") |
 
+</div>
+
 **Reused values.** For object and array values, `onUpdate` receives the *same* object every frame, updated in place, so animation creates no garbage. Copy it (`{ ...v }`) if you need to keep a snapshot.
 
-**`tween` options:** `from = 0`, `to = 1`, `duration = 500`, `delay = 0`, `ease = ease.inOutCubic` (a function, or a name such as `'outQuad'`; the names `'anticipate'`, `'overshoot'` and `'elastic'` use those curves' defaults, while `steps` and `cubicBezier` need arguments, so pass `ease.steps(4)`), `repeat = 0` (or `Infinity`), `yoyo = false`, `onUpdate(value, progress)`, `onComplete(value)`. `from`/`to` can be numbers, arrays or flat objects of numbers. Keys present on only one side hold still.
+**`tween` options:** `from = 0`, `to = 1`, `duration = 500`, `delay = 0`, `ease = ease.inOutCubic` (a function, or a name such as `'outQuad'`; the names `'anticipate'`, `'overshoot'` and `'elastic'` use those curves' defaults, while `steps` and `cubicBezier` need arguments, so pass `ease.steps(4)`), `repeat = 0` (or `Infinity`), `yoyo = false`, `onUpdate(value, progress)`, `onComplete(value)`. `from` and `to` can be numbers, arrays or flat objects of numbers. Keys present on only one side hold still.
 
 If a callback throws, toon logs the error and stops only that animation; everything else keeps running.
 
 **Handle:** `{ then, catch, finally, pause(), resume(), cancel() }`. It is awaitable and never rejects: `cancel()` resolves it with `null`, and so does an `onUpdate` or easing function that throws, so a `sequence` or a `busy` flag never gets stuck. `poses` takes the same options except `from`, `to` and `ease`; its `onUpdate` receives `(pose, progress)`.
 
-**See it in:** [Anticipation](../../principles/anticipation/) (a jump scripted as beats) · [Timing](../../principles/timing/) · [the character jump recipe](../../recipes/#a-character-jump-scripted)
+**See it in:** [Anticipation](../../principles/anticipation/), where a jump is scripted as beats, [Timing](../../principles/timing/), and [the character jump recipe](../../recipes/#a-character-jump-scripted).
 
 ## Easing
 
-`Toon.ease.*`: each easing maps `t ∈ [0, 1]` to an eased value.
+Each easing on `Toon.ease` takes `t` from 0 to 1 and returns the eased value.
 
 | Easing | Character |
 |---|---|
@@ -65,41 +69,55 @@ If a callback throws, toon logs the error and stops only that animation; everyth
 | `elastic(period = 0.3)` | Elastic-out |
 | `steps(n)` | Held drawings |
 
-**See it in:** [Slow in & slow out](../../principles/slow-in-slow-out/) (every easing side by side) · [Exaggeration](../../principles/exaggeration/) (overshoot and elastic)
+**See it in:** [Slow in & slow out](../../principles/slow-in-slow-out/), with every easing side by side, and [Exaggeration](../../principles/exaggeration/) for overshoot and elastic.
 
 ## Motion paths
 
+<div class="ref-table" style="--l2:'Returns'; --l3:'Notes'">
+
 | Signature | Returns | Notes |
 |---|---|---|
-| `arc(p0, p1, { height = 100, control? })` | `t ↦ {x, y}` | Quadratic curve; apex about `height` above the chord. With linear `t` it follows the path of a real throw |
-| `path(points)` | `t ↦ {x, y}` | A smooth curve through every point (Catmull-Rom) |
+| `arc(p0, p1, { height = 100, control? })` | `(t) => ({ x, y })` | Quadratic curve; apex about `height` above the chord. With linear `t` it follows the path of a real throw |
+| `path(points)` | `(t) => ({ x, y })` | A smooth curve through every point (Catmull-Rom) |
 | `tangent(fn, t, e = 1e-3)` | radians | Direction of travel at `t` |
 
-**See it in:** [Arcs](../../principles/arcs/) · [the throwing recipe](../../recipes/#throwing-something-along-a-path)
+</div>
+
+**See it in:** [Arcs](../../principles/arcs/) and [the throwing recipe](../../recipes/#throwing-something-along-a-path).
 
 ## Squash and stretch
 
+<div class="ref-table" style="--l2:'Returns'; --l3:'Notes'">
+
 | Signature | Returns | Notes |
 |---|---|---|
-| `squash(vx, vy, { amount = 0.0012, limit = 0.6, exaggeration = 1 })` | `{ angle, sx, sy }` | Stretches along the velocity; `sx · sy = 1` |
-| `impact(amount, exaggeration = 1)` | `{ angle, sx, sy }` | Flattens on contact (`amount` 0–1) |
+| `squash(vx, vy, { amount = 0.0012, limit = 0.6, exaggeration = 1 })` | `{ angle, sx, sy }` | Stretches along the velocity. `sx * sy` is always 1, so the area stays the same |
+| `impact(amount, exaggeration = 1)` | `{ angle, sx, sy }` | Flattens on contact (`amount` from 0 to 1) |
 | `withSquash(ctx, x, y, s, draw(ctx), pivot = {x: 0, y: 0})` | — | Draws at (x, y) under `s`. `pivot` stays fixed: `{x: 0, y: r}` pins the bottom |
 
-**See it in:** [Squash & stretch](../../principles/squash-and-stretch/) · [your first Canvas animation](../../getting-started/#your-first-canvas-animation)
+</div>
+
+**See it in:** [Squash & stretch](../../principles/squash-and-stretch/) and [your first Canvas animation](../../getting-started/#your-first-canvas-animation).
 
 ## Physics
+
+<div class="ref-table" style="--l2:'Returns'; --l3:'Notes'">
 
 | Signature | Returns | Notes |
 |---|---|---|
 | `new Spring(value = 0, { stiffness = 170, damping = 26, mass = 1 })` | `Spring` | Set `.target`; `.step(dt)` returns `.value`. Also `.velocity`, `.settled` |
 | `new Chain(count, { x, y, length = 20, damping = 0.92, gravity = 0, stiffness = 0 })` | `Chain` | `.update(head, dt)` returns `.points` `[{x, y}]`. Simple rope physics (Verlet) for tails, hair, antennae |
 | `wave(t, { amp = 1, freq = 1, phase = 0, decay = 0 })` | number | Sine wave, optionally decaying (secondary action) |
-| `noise(t)` | number in [-1, 1] | Smooth value noise (secondary action) |
-| `exaggerate(v, factor = 1.5, rest = 0)` | number | `rest + (v − rest) · factor` |
+| `noise(t)` | number from -1 to 1 | Smooth value noise (secondary action) |
+| `exaggerate(v, factor = 1.5, rest = 0)` | number | `rest + (v - rest) * factor` |
 
-**See it in:** [Follow-through](../../principles/follow-through/) (`Spring` and `Chain`) · [Secondary action](../../principles/secondary-action/) (`noise`, `wave`, `blink`)
+</div>
+
+**See it in:** [Follow-through](../../principles/follow-through/) for `Spring` and `Chain`, and [Secondary action](../../principles/secondary-action/) for `noise`, `wave` and `blink`.
 
 ## Drawing, staging and appeal
+
+<div class="ref-table" style="--l2:'Returns'; --l3:'Notes'">
 
 | Signature | Returns | Notes |
 |---|---|---|
@@ -114,9 +132,11 @@ If a callback throws, toon logs the error and stops only that animation; everyth
 | `groundShadow(ctx, x, groundY, r, height, { maxHeight = 300, alpha = .35 })` | — | Shrinks and fades with height |
 | `shade(color, amt)` | `rgb()` string | `amt` from −1 (black) to 1 (white). Takes `#rgb`, `#rrggbb` or `rgb()` anywhere, and any CSS color (`'tomato'`, `hsl()`…) in a browser. Throws `toon.shade: can't read the color` otherwise |
 | `breathe(t, { rate = 0.3, amount = 0.03 })` | `{ sx, sy }` | Idle breathing |
-| `blink(t, { every = 3.2, duration = 0.15 })` | 0 … 1 | Eyelid closure at a slightly irregular rhythm |
+| `blink(t, { every = 3.2, duration = 0.15 })` | number from 0 to 1 | Eyelid closure at a slightly irregular rhythm |
 
-**See it in:** [Solid drawing](../../principles/solid-drawing/) · [Staging](../../principles/staging/) (the spotlight) · [Appeal](../../principles/appeal/) (`breathe`, `blink`)
+</div>
+
+**See it in:** [Solid drawing](../../principles/solid-drawing/), [Staging](../../principles/staging/) for the spotlight, and [Appeal](../../principles/appeal/) for `breathe` and `blink`.
 
 ## Helpers
 
@@ -144,6 +164,8 @@ import './toon.debug.js';
 import { tween, arc } from './toon.mjs';
 ```
 
+<div class="ref-table" style="--l2:'toon.debug.js says'">
+
 | You wrote | toon.debug.js says |
 |---|---|
 | `arc({ x: 0, y: 0 })` | `toon.arc: end point must be { x, y } numbers, got undefined` |
@@ -153,4 +175,6 @@ import { tween, arc } from './toon.mjs';
 | `drawSolid(null)` | `toon.drawSolid: first argument must be a 2D canvas context (stage.ctx)` |
 | `new Chain(1)` | `toon.Chain: count must be a whole number >= 2` |
 
-It also checks `wait`, `stagger`, `path`, `straightAhead`, `squash`, `withSquash`, `groundShadow`, `ticker.add` and `Spring`. Leave it out in production. It isn't part of the 500-line core.
+</div>
+
+It also checks `wait`, `stagger`, `path`, `straightAhead`, `squash`, `withSquash`, `groundShadow`, `ticker.add` and `Spring`. Leave it out in production. It isn't part of the core's line budget.

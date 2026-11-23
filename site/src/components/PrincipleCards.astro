@@ -1,18 +1,304 @@
 ---
 /**
- * The 12 principle cards, generated from the principle pages themselves: title, number (sidebar.order) and
- * description all come from each page's frontmatter, so they're written in exactly one place.
+ * The 12 principle cards, generated from the principle pages themselves: title, description and order
+ * (sidebar.order) all come from each page's frontmatter, so they're written in exactly one place. The order
+ * sets the sequence only; titles carry no number, since STYLE.md keeps notation like "1 ·" out of prose.
  * Used on the home page and on the principles overview.
+ *
+ * Each card carries a specimen: its principle in miniature, built from toon.css presets wherever one exists,
+ * so the index practices what it lists. A specimen rests on a readable key pose, performs once when its card
+ * first scrolls into view, loops while the card is hovered or focused, and finishes its cycle on leave.
+ * Under reduced motion it holds the key pose (toon.css and the rule at the bottom stop every animation).
+ *
+ * The markup mirrors Starlight's <LinkCard> (same .sl-link-card / .title / .description / .icon classes), so
+ * the sketchbook styles and the fx bindings in scripts/motion.js apply unchanged.
  */
 import { getCollection } from 'astro:content';
-import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { CardGrid, Icon } from '@astrojs/starlight/components';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const pages = (await getCollection('docs', ({ id }) => id.startsWith('principles/') && id !== 'principles' && id !== 'principles/index'))
   .sort((a, b) => (a.data.sidebar.order ?? 0) - (b.data.sidebar.order ?? 0));
+
+// data-reps: how many iterations make one whole cycle for that element, so parts with different
+// durations stop together (Timing's light ball bounces three times per heavy bounce).
+const ball = (cls = '', style = '', reps = '') =>
+  `<i class="ball ${cls}"${style ? ` style="${style}"` : ''}${reps ? ` data-reps="${reps}"` : ''}></i>`;
+const shadow = (cls = '', style = '', reps = '') =>
+  `<i class="shadow toon-shadow toon-bounce-shadow ${cls}"${style ? ` style="${style}"` : ''}${reps ? ` data-reps="${reps}"` : ''}></i>`;
+
+// Every specimen also teaches at rest (and under reduced motion, where rest is all there is): faint
+// ghosts, rings and ticks mark the pose or path the motion would show.
+const specimens: Record<string, string> = {
+  'squash-and-stretch': '<i class="ghost ghost-stretch"></i>' + ball('toon-bounce', '--toon-height:26px; --toon-squash:.3') + shadow(),
+  // Rests crouched (the wind-up), with a ring where the hop peaks; the hop lands back in the crouch.
+  anticipation: '<i class="key key-hop"></i>' + ball('hop') + shadow('', 'animation:none'),
+  staging: ball('st st-1') + ball('st st-2') + ball('st st-3'),
+  'straight-ahead-and-pose-to-pose':
+    ball('lane lane-straight') +
+    '<i class="key key-a"></i><i class="key key-b"></i>' + ball('lane lane-pose'),
+  'follow-through': '<span class="toon-follow follow"><i></i><i></i><i></i></span>',
+  // Spacing ghosts sampled from the ease-in-out curve: bunched at both ends, wide in the middle.
+  'slow-in-slow-out': [21.5, 37, 52.5, 59].map((x) => `<i class="spacing" style="left:${x - 3}px"></i>`).join('') + ball('ease'),
+  arcs:
+    '<svg class="path" viewBox="0 0 72 56"><path d="M15 41.5Q37 -18.5 59 41.5"/></svg>' +
+    `<span class="toon-arc arc" data-reps="2">${ball('', '', '2')}</span>`,   // there and back, so it ends where it rests
+  'secondary-action': '<span class="toon-bob bob" data-reps="4"><i class="antenna toon-sway" data-reps="2"></i>' + ball() + '</span>',
+  timing:
+    ball('toon-bounce toon-heavy', 'left:12px') + shadow('toon-heavy', 'left:13px') +
+    ball('toon-bounce toon-light', 'left:46px', '3') + shadow('toon-light', 'left:43px', '3'),
+  // Apex ticks: how high each ball goes (16px × .5 and × 1.8).
+  exaggeration:
+    '<i class="apex" style="left:16px; bottom:29.5px"></i><i class="apex" style="left:46px; bottom:50px"></i>' +
+    ball('toon-bounce toon-subtle', 'left:14px') + shadow('toon-subtle', 'left:13px') +
+    ball('toon-bounce toon-exaggerate', 'left:44px') + shadow('toon-exaggerate', 'left:43px'),
+  'solid-drawing': ball('solid toon-solid toon-bounce toon-subtle', '--toon-height:16px') + shadow('toon-subtle'),
+  appeal: `<img class="dot toon-breathe" data-reps="2" src="${base}toon/brand/cast/dot-happy.svg" alt="">` + shadow('', 'animation:none'),
+};
+const slug = (id: string) => id.replace('principles/', '');
 ---
+<div class="principle-grid">
 <CardGrid>
   {pages.map((p) => (
-    <LinkCard title={`${p.data.sidebar.order} · ${p.data.title}`} href={`${base}${p.id}/`} description={p.data.description} />
+    <div class="sl-link-card principle-card">
+      <span class="spec" aria-hidden="true" set:html={specimens[slug(p.id)] ?? ''} />
+      <span class="sl-flex stack">
+        <a href={`${base}${p.id}/`}><span class="title">{p.data.title}</span></a>
+        {p.data.description && <span class="description">{p.data.description}</span>}
+      </span>
+      <Icon name="right-arrow" size="1.333em" class="icon rtl:flip" />
+    </div>
   ))}
 </CardGrid>
+</div>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const reps = (a: Animation) => Number((a.effect as KeyframeEffect)?.target?.getAttribute('data-reps')) || 1;
+  const animations = (card: Element) => card.querySelector('.spec')?.getAnimations({ subtree: true }) ?? [];
+
+  // Start (or keep) the specimen playing. loop: until settle(); otherwise one whole cycle.
+  function play(card: Element, loop: boolean) {
+    if (reduce.matches) return;
+    // A finished CSS animation drops out of getAnimations(), so a specimen that has played through
+    // is restarted by re-adding the class.
+    if (card.classList.contains('is-playing') && !animations(card).some((a) => a.playState !== 'finished')) {
+      card.classList.remove('is-playing');
+      void (card as HTMLElement).offsetWidth;
+    }
+    card.classList.add('is-playing');
+    for (const a of animations(card)) {
+      const n = reps(a);
+      if (a.playState === 'finished') { a.effect?.updateTiming({ iterations: loop ? Infinity : n }); a.currentTime = 0; a.play(); continue; }
+      const now = a.effect?.getComputedTiming().currentIteration ?? 0;
+      a.effect?.updateTiming({ iterations: loop ? Infinity : Math.ceil((now + 1) / n) * n });
+    }
+  }
+  // Let every part finish the cycle it's in, so nothing snaps back mid-move.
+  const settle = (card: Element) => play(card, false);
+
+  const cards = [...document.querySelectorAll('.principle-card')];
+  for (const card of cards) {
+    const active = () => card.matches(':hover, :focus-within');
+    card.addEventListener('pointerenter', () => play(card, true));
+    card.addEventListener('focusin', () => play(card, true));
+    card.addEventListener('pointerleave', () => !active() && settle(card));
+    card.addEventListener('focusout', () => queueMicrotask(() => !active() && settle(card)));
+  }
+
+  // First view: each card performs once, after the grid's cascade has landed. Cards that arrive together
+  // take turns, so two side-by-side specimens never start on the same frame.
+  if ('IntersectionObserver' in window) {
+    let nextFree = 0;   // keeps cards from separate observer callbacks off the same frame
+    const seen = new IntersectionObserver((entries) => {
+      const batch = entries.filter((e) => e.isIntersecting);
+      // One wave, bounded: up to 160ms apart, but a whole batch always starts within 540ms.
+      const step = Math.min(160, 540 / Math.max(1, batch.length - 1));
+      const now = performance.now();
+      batch.forEach((e, i) => {
+        seen.unobserve(e.target);
+        const at = Math.max(now + 380 + i * step, nextFree);
+        nextFree = at + 50;
+        setTimeout(() => e.target.matches(':hover, :focus-within') || play(e.target, false), at - now);
+      });
+    }, { threshold: 0.6 });
+    cards.forEach((c) => seen.observe(c));
+  }
+</script>
+
+<style>
+  /* One column whenever the grid itself is narrow (the sidebar squeezes it at 800px, and enlarged text squeezes
+   * it further), so each card keeps room for its stage, title and arrow. Starlight's CardGrid only knows the
+   * viewport width. */
+  .principle-grid { container-type: inline-size; }
+  @container (max-width: 33rem) { .principle-grid :global(div.card-grid) { grid-template-columns: 1fr; } }
+  @layer starlight.components {
+    /* Starlight's LinkCard, reproduced for this markup (its own styles are scoped to its component). */
+    .principle-card {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;   /* minmax: long words wrap instead of widening the grid */
+      align-items: center;
+      gap: 0.5rem 1rem;
+      min-width: 0;
+      border: 1px solid var(--sl-color-gray-5);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: var(--sl-shadow-sm);
+      position: relative;
+    }
+    .principle-card a { text-decoration: none; line-height: var(--sl-line-height-headings); }
+    .principle-card a::before { content: ''; position: absolute; inset: 0; }   /* whole card is the link */
+    .stack { flex-direction: column; gap: 0.5rem; align-self: start; }
+    .title { color: var(--sl-color-white); font-weight: 600; font-size: var(--sl-text-lg); }
+    .description { color: var(--sl-color-gray-3); line-height: 1.5; }
+    .title, .description { overflow-wrap: anywhere; }   /* "Follow-through" at enlarged text sizes */
+    .principle-card :global(.icon) { color: var(--sl-color-gray-3); align-self: start; }
+    .principle-card:hover { background: var(--sl-color-gray-7, var(--sl-color-gray-6)); border-color: var(--sl-color-gray-2); }
+    .principle-card:hover :global(.icon) { color: var(--sl-color-white); }
+  }
+
+  /* ── Specimen stage: 72×56, one ground line, drawn in the active style's demo tokens ── */
+  .spec { position: relative; width: 72px; height: 56px; color: var(--demo-primary); }
+  .spec::after {
+    content: ''; position: absolute; inset: auto 0 6px; height: 1.5px; border-radius: 1px;
+    background: var(--demo-ground-line); opacity: .45;
+  }
+  .spec :global(*) { position: absolute; margin: 0; }   /* margin: Starlight's prose adds 1rem between siblings */
+  .spec :global(.ball) { left: calc(50% - 7px); bottom: 7.5px; width: 14px; height: 14px; border-radius: 50%; }
+  .spec :global(.ball:not(.toon-solid)) { background: currentColor; }
+  /* Contact shadow in the ground-line ink, so it reads on dark styles too; resting at toon-shadow's 0% pose. */
+  .spec :global(.shadow) {
+    left: calc(50% - 8px); bottom: 4.5px; width: 16px; height: 4px; opacity: .5;
+    background: radial-gradient(closest-side, var(--demo-ground-line), transparent);
+  }
+  /* Bounces rest in the contact squash, which is toon-bounce's 0% and 100% pose, so play starts and ends
+     without a pop. */
+  .spec :global(.toon-bounce) { scale: calc(1 + var(--_s)) calc(1 - var(--_s)); }
+
+  /* At rest nothing moves: specimens hold their key pose until play() adds .is-playing. */
+  .principle-card:not(.is-playing) .spec :global(*) { animation: none; }
+
+  /* Rest-pose marks: faint, static, in the specimen's color. */
+  .spec :global(:is(.ghost, .spacing, .apex)) { background: currentColor; opacity: .28; }
+  .spec :global(.ghost-stretch) { left: calc(50% - 6px); bottom: 24px; width: 12px; height: 17px; border-radius: 50%; }
+  .spec :global(.spacing) { bottom: 11.5px; width: 6px; height: 6px; border-radius: 50%; }
+  .spec :global(.apex) { width: 10px; height: 1.5px; border-radius: 1px; }
+  /* Staging: one in focus, the others recede; the spotlight moves middle, right, left. */
+  .spec :global(.st) { width: 11px; height: 11px; transform-origin: 50% 100%; }
+  .spec :global(.st-1) { left: 9px; }  .spec :global(.st-2) { left: 30.5px; }  .spec :global(.st-3) { left: 52px; }
+  .spec :global(:is(.st-1, .st-3)) { opacity: .35; scale: .85; }
+  .spec :global(.st-2) { scale: 1.4; }
+  .is-playing .spec :global(.st) { animation: 2400ms var(--toon-ease-out) infinite; }
+  .is-playing .spec :global(.st-2) { animation-name: spec-stage-mid; }
+  .is-playing .spec :global(.st-3) { animation-name: spec-stage-right; }
+  .is-playing .spec :global(.st-1) { animation-name: spec-stage-left; }
+
+  /* Straight ahead (top): drawn frame by frame, so it jumps. Pose to pose (bottom): two key poses
+     (the hollow rings), the in-betweens filled smoothly. */
+  .spec :global(.lane) { width: 10px; height: 10px; left: 9px; }
+  .spec :global(.lane-straight) { bottom: 34px; }
+  .spec :global(.key) {
+    bottom: 7.5px; width: 10px; height: 10px; border-radius: 50%;
+    border: 1.5px solid currentColor; opacity: .4; box-sizing: border-box;
+  }
+  .spec :global(.key-a) { left: 9px; }  .spec :global(.key-b) { left: 53px; }
+  .spec :global(.key-hop) { left: calc(50% - 7px); bottom: 34px; width: 14px; height: 14px; border-style: dashed; }   /* where the hop peaks */
+
+  /* Anticipation: crouch, crouch deeper (the wind-up), spring up stretched, land squashed, settle back into
+     the crouch. 0% and 100% are the resting crouch, so a replay never jumps. */
+  .spec :global(.hop) { transform-origin: 50% 100%; scale: 1.2 .8; }
+  .is-playing .spec :global(.hop) { animation: spec-hop 1200ms infinite; }
+  .is-playing .spec :global(.lane) { animation: spec-travel 2000ms infinite; }
+  .is-playing .spec :global(.lane-straight) { animation-timing-function: steps(4, jump-none); }
+  .is-playing .spec :global(.lane-pose) { animation-timing-function: var(--toon-ease-in-out); }
+
+  /* Follow-through: three bars, staggered, dragging past the stop (toon.css .toon-follow). */
+  .spec :global(.follow) {
+    left: 16px; top: 10px; display: flex; flex-direction: column; gap: 5px;
+    --toon-distance: 40px; --toon-overlap: 90ms;
+  }
+  .spec :global(.follow > i) { position: relative; display: block; width: 40px; height: 5px; border-radius: 3px; background: currentColor; }
+  /* Trailing parts: shorter, with drag marks behind them, so the rest pose reads as overlap, not a menu icon. */
+  .spec :global(.follow > i:nth-child(2)) { width: 32px; margin-left: 4px; }
+  .spec :global(.follow > i:nth-child(3)) { width: 24px; margin-left: 8px; }
+  .spec :global(.follow > i:not(:first-child))::before {
+    content: ''; position: absolute; right: calc(100% + 3px); top: 0; height: 100%; width: 6px;
+    border-radius: 3px; background: currentColor; opacity: .3;
+  }
+
+  /* Slow in & slow out: speeds up, then slows into the stop. */
+  .spec :global(.ease) { left: 8px; }
+  .is-playing .spec :global(.ease) { animation: spec-travel 1600ms var(--toon-ease-in-out) infinite; }
+
+  /* Arcs: the dashed path is the rest-pose hint; the ball rides it (toon.css .toon-arc). */
+  .spec :global(.path) { inset: 0; width: 72px; height: 56px; overflow: visible; }
+  .spec :global(.path path) { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; opacity: .4; }
+  .spec :global(.arc) { left: 8px; bottom: 7.5px; width: 14px; height: 14px; --toon-distance: 44px; --toon-height: 30px; }
+  .spec :global(.arc .ball) { left: 0; bottom: 0; }
+  .is-playing .spec :global(.arc) { animation-direction: alternate; }   /* the child inherits it (toon.css) */
+
+  /* Secondary action: the body bobs (main action), the antenna sways along with it. */
+  .spec :global(.bob) { left: calc(50% - 7px); bottom: 7.5px; width: 14px; height: 14px; }
+  .spec :global(.bob .ball) { left: 0; bottom: 0; }
+  .spec :global(.antenna) {
+    left: 6px; bottom: 12px; width: 2px; height: 14px; border-radius: 1px; background: var(--demo-secondary);
+    transform-origin: 50% 100%; --toon-duration: 320ms;
+    rotate: calc(-4deg * var(--_e));   /* toon-sway's first pose, so the swing starts where it rests */
+  }
+  .spec :global(.antenna)::after {
+    content: ''; position: absolute; top: -3px; left: -2px; width: 6px; height: 6px; border-radius: 50%; background: var(--demo-secondary);
+  }
+
+  /* Timing: heavy and light, same bounce. Tempos chosen so three light bounces fit one heavy one. */
+  .spec :global(.toon-heavy) { --toon-tempo: 1.5; --toon-height: 22px; }
+  .spec :global(.toon-light) { --toon-tempo: .5;  --toon-height: 22px; }
+  .spec :global(.ball.toon-heavy) { width: 18px; height: 18px; }   /* the heavy one reads heavy at rest too */
+  .spec :global(.ball.toon-light) { width: 10px; height: 10px; }
+  .spec :global(.toon-subtle) { --toon-height: 16px; }
+  .spec :global(.toon-exaggerate) { --toon-height: 16px; }
+
+  /* Solid drawing: a shaded ball and its contact shadow (toon.css .toon-solid). */
+  .spec :global(.solid) { --toon-color: var(--demo-primary); width: 18px; height: 18px; left: calc(50% - 9px); }
+
+  /* Appeal: Dot, breathing at rest. */
+  .spec :global(.dot) { left: calc(50% - 21px); bottom: 3px; width: 42px; height: 42px; }   /* the SVG's box has room around Dot */
+
+  @keyframes spec-travel { 0%, 100% { translate: 0 0; } 50% { translate: 44px 0; } }
+  @keyframes spec-hop {
+    0%, 12% { translate: 0 0; scale: 1.2 .8; animation-timing-function: var(--toon-ease-in-out); }
+    30%  { translate: 0 0; scale: 1.34 .64; animation-timing-function: var(--toon-ease-out); }     /* wind-up */
+    42%  { translate: 0 -14px; scale: .82 1.24; animation-timing-function: var(--toon-ease-rise); } /* stretch */
+    55%  { translate: 0 -26px; scale: 1 1; animation-timing-function: var(--toon-ease-fall); }      /* apex */
+    70%  { translate: 0 0; scale: 1.32 .68; animation-timing-function: var(--toon-ease-out); }      /* land */
+    100% { translate: 0 0; scale: 1.2 .8; }
+  }
+  @keyframes spec-stage-mid {
+    0%, 28%, 100% { opacity: 1; scale: 1.4; }
+    36%, 92%      { opacity: .35; scale: .85; }
+  }
+  @keyframes spec-stage-right {
+    0%, 28%, 64%, 100% { opacity: .35; scale: .85; }
+    36%, 58%           { opacity: 1; scale: 1.4; }
+  }
+  @keyframes spec-stage-left {
+    0%, 58%, 100% { opacity: .35; scale: .85; }
+    66%, 92%      { opacity: 1; scale: 1.4; }
+  }
+
+  /* Phones: the stage sits beside the title, and the description runs the card's full width underneath,
+     so twelve cards stay a scannable list instead of a 3,000px scroll. */
+  @media (max-width: 30rem) {
+    .principle-card { grid-template-columns: auto 1fr auto; row-gap: .25rem; }
+    .stack { display: contents; }
+    .spec { grid-row: 1; grid-column: 1; }
+    .principle-card a { grid-row: 1; grid-column: 2; align-self: center; }
+    .principle-card :global(.icon) { grid-row: 1; grid-column: 3; align-self: center; }
+    .description { grid-row: 2; grid-column: 1 / -1; }
+  }
+  /* The narrowest phones: a smaller stage gives the title back ~18px. */
+  @media (max-width: 22rem) { .spec { zoom: .75; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spec :global(*) { animation: none !important; }
+  }
+</style>

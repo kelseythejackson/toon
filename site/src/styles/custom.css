@@ -15,3 +15,86 @@
 
 /* The splash hero must never be wider than the screen (it pushed the header's search off-screen on phones). */
 .hero { overflow-x: clip; }
+
+/* Home page sections (content/docs/index.mdx), in falling weight: the animated principle cards lead, two
+ * "build" cards follow, "Add it to a page" installs toon, and the reference closes as a quiet row of plain links. Separation comes from the
+ * generous space Starlight already puts above each heading, not from more boxes. */
+.sl-markdown-content > .section-lede { margin-top: .5rem; max-width: 60ch; color: var(--sl-color-gray-3); }
+.sl-markdown-content > .section-lede + .card-grid { margin-top: 1.5rem; }
+
+.sl-markdown-content .ref-links {
+  list-style: none; padding: 0; margin-top: 1rem;
+  display: grid; gap: 1.25rem 2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+.sl-markdown-content .ref-links li { margin: 0; display: flex; flex-direction: column; gap: .25rem; }
+.sl-markdown-content .ref-links a { font-weight: 600; font-size: var(--sl-text-lg); text-underline-offset: .2em; inline-size: fit-content; }
+.sl-markdown-content .ref-links span { color: var(--sl-color-gray-3); line-height: 1.5; }
+
+/* "Add it to a page" (index.mdx): a real .toon-press button, drawn with each style's own button tokens,
+ * so the reader feels the preset before reading the three lines that make it. toon.css owns the motion. */
+.sl-markdown-content .try-it { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; margin-top: 1rem; }
+.sl-markdown-content .try-it p { margin: 0; flex: 1 1 18rem; color: var(--sl-color-gray-3); }
+/* Code keeps full text color: muted gray on the code background falls under 4.5:1 in dark modes. */
+.sl-markdown-content .try-it p code { color: var(--sl-color-text); }
+.try-button {
+  font: inherit; font-weight: 700; cursor: pointer; padding: .75rem 1.5rem;
+  border-radius: var(--radius-button, 999rem); border: var(--border-card, 1px) solid var(--line, transparent);
+  background: var(--button, var(--sl-color-text-accent)); color: var(--on-button, var(--sl-color-black));
+  box-shadow: var(--shadow-button-x, 0) var(--shadow-button-y, 0) 0 var(--shadow-button-spread, 0) var(--button-shadow-color, transparent);
+}
+.try-button:focus-visible { outline: 2px solid var(--sl-color-text-accent); outline-offset: 3px; }
+.sl-markdown-content > .next-links { color: var(--sl-color-gray-3); }
+
+/* Hero actions on phones: Starlight's small button size is about 35px tall. Keep both actions at least 44px so they're easy to tap. */
+@media (max-width: 49.99rem) { .hero .sl-link-button { min-height: 2.75rem; } }
+
+/* Copy that depends on motion: .if-motion shows normally, .if-still replaces it when the reader has asked for
+ * reduced motion (where the principle cards hold still). */
+.if-still { display: none; }
+@media (prefers-reduced-motion: reduce) { .if-motion { display: none; } .if-still { display: inline; } }
+
+/* Prose: let the browser balance a paragraph's last lines, so one word isn't left alone on the final line
+ * (progressive: browsers without text-wrap: pretty wrap as before). */
+.sl-markdown-content :is(p, li) { text-wrap: pretty; }
+
+/* Headings that wrap split evenly ("Squash & stretch: / tuning tips", not one word alone on line 2). */
+.sl-markdown-content :is(h1, h2, h3, h4), h1#_top { text-wrap: balance; }
+
+/* Reading measure: prose paragraphs and lists stop at about 75 characters a line (Inter runs narrower than its ch unit), while code blocks, tables and
+ * demos keep the full content width (code and drawings need the room; long lines of prose don't). */
+.sl-markdown-content > :is(p, ul, ol):not(.ref-links, .section-lede) { max-width: 60ch; }
+
+/* Reference tables: wrap a wide Markdown table in <div class="ref-table" style="--l2:'Default'; --l3:'…'">,
+ * naming columns 2 onwards (repeat the header text). When the table itself is narrow, each row becomes a small
+ * card: the first cell on top, then every other cell with its column name as a run-in label, so nothing hides
+ * behind a sideways scroll. The switch follows the table's own width (a container query), because the sidebar
+ * makes it narrowest at 800px, not only on phones. The real column headers stay for screen readers. */
+.ref-table { container-type: inline-size; }
+@container (max-width: 36rem) {
+  .sl-markdown-content .ref-table table { display: block; border: 0; overflow: visible; }
+  .ref-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .ref-table tbody, .ref-table tr, .ref-table td { display: block; }
+  .ref-table tr { padding: .75rem 0; border-bottom: 1px solid var(--sl-color-gray-5); }
+  .sl-markdown-content .ref-table td { padding: .15rem 0; border: 0; background: none; }
+  .sl-markdown-content .ref-table td + td { margin-top: 0; }
+  .ref-table td:first-child { margin-bottom: .3rem; }
+  .ref-table td:nth-child(2)::before { content: var(--l2, '') ' '; }   /* the space lets long code drop to its own line */
+  .ref-table td:nth-child(3)::before { content: var(--l3, '') ' '; }
+  .ref-table td:nth-child(4)::before { content: var(--l4, '') ' '; }
+  .ref-table td:nth-child(n+2)::before { margin-inline-end: .35rem;
+    font-size: var(--sl-text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--sl-color-gray-3); }
+}
+
+/* Find an effect (find-an-effect.md): a code token never breaks mid-name (".toon-" / "exaggerate" reads like a
+ * typo), and in the full table the task names get the widest column. */
+.effect-index td code { white-space: nowrap; }
+.effect-index th:first-child { width: 36%; }
+
+/* Glossary (glossary.md): each term reads as an entry in a list, not a section. Smaller term headings, sitting
+ * close to their definition, with a quiet gap between entries. They stay real h3s, so anchors and the page's
+ * table of contents still work. */
+.sl-markdown-content .glossary .sl-heading-wrapper { margin-top: 1.75rem; }
+.sl-markdown-content .glossary .sl-heading-wrapper:first-child { margin-top: 1rem; }
+.sl-markdown-content .glossary h3 { font-size: var(--sl-text-xl); }
+.sl-markdown-content .glossary .sl-heading-wrapper + p { margin-top: .35rem; }
+.sl-markdown-content .glossary > p { max-width: 60ch; }   /* the same reading measure as other prose */

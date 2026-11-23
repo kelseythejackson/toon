@@ -7,14 +7,22 @@ Animation has its own vocabulary. Here is each term in plain words, with a link 
 
 ## Animation terms
 
+<div class="glossary">
+
 ### Anticipation
 A small move in the opposite direction before the main action, like a crouch before a jump. See [Anticipation](../principles/anticipation/).
+
+### Appeal
+The quality that makes a character or interface pleasant to watch. In toon that mostly means idle life: breathing, blinking and small reactions. See [Appeal](../principles/appeal/).
 
 ### Arc
 The curved path that living things and thrown objects follow. toon's `arc()` makes the curve of a throw. See [Arcs](../principles/arcs/).
 
 ### Easing
 How speed changes during a move. *Ease out* starts fast and slows down; *ease in* starts slow and speeds up. Animators call this slow in and slow out. See [Slow in & slow out](../principles/slow-in-slow-out/).
+
+### Exaggeration
+Pushing a motion further than real life so it reads at a glance. `.toon-exaggerate` and `--toon-exaggeration` turn it up; `.toon-subtle` turns it down. See [Exaggeration](../principles/exaggeration/).
 
 ### Follow-through
 Parts that keep moving after the main body stops, like a tail swinging past and settling. See [Follow-through](../principles/follow-through/).
@@ -40,8 +48,11 @@ Building a movement by planning the key poses first and filling in the frames be
 ### Secondary action
 Small supporting motions, such as glances, arm swings or blinks, that add life without stealing attention. See [Secondary action](../principles/secondary-action/).
 
+### Solid drawing
+Making a flat shape feel like a solid object, with shading, volume and a contact shadow. `.toon-solid` and `drawSolid()` draw a shaded sphere. See [Solid drawing](../principles/solid-drawing/).
+
 ### Spacing
-How a movement is spread across its frames. Dots close together mean slow; far apart mean fast. See [Timing](../principles/timing/).
+How a movement is spread across its frames. Animators draw it as a row of dots, one per frame: dots close together mean slow, far apart mean fast. See [Timing](../principles/timing/).
 
 ### Squash and stretch
 Flattening something on impact and stretching it when it moves fast, while keeping its volume the same. See [Squash & stretch](../principles/squash-and-stretch/).
@@ -58,7 +69,11 @@ A cartoon reaction: a squint or squash, then a big surprised stretch, then settl
 ### Timing
 How long a movement takes. Fast reads as light, slow reads as heavy. See [Timing](../principles/timing/).
 
+</div>
+
 ## toon terms
+
+<div class="glossary">
 
 ### Catmull-Rom curve
 A smooth curve that passes through every point you give it. `path()` uses one. See the [Canvas API](../api/canvas/#motion-paths).
@@ -79,13 +94,18 @@ The point that stays fixed while a shape squashes, for example the bottom of a b
 A CSS class that animates on its own, such as `.toon-bounce` or `.toon-press`. See the [CSS API](../api/css/#effects).
 
 ### Rope physics (Verlet)
-How `Chain` simulates tails, hair and cables: a row of points that drag behind whatever they're attached to. See [Follow-through](../principles/follow-through/).
+How `Chain` simulates tails, hair and cables: a row of points that drag behind whatever they're attached to. Verlet is the simple, stable method it uses to move the points each frame. See [Follow-through](../principles/follow-through/).
 
 ### Stage
 What `createStage()` returns: a canvas set up for sharp drawing on any screen, with `loop()` that pauses while the canvas is off screen. See the [Canvas API](../api/canvas/#drawing-staging-and-appeal).
+
+### Tempo
+The speed setting for toon's CSS presets. `--toon-tempo` multiplies every duration, so **2 is half speed** and 0.5 is double speed. Set it on a container to retime a whole section. See [Timing](../principles/timing/).
 
 ### Ticker
 toon's one shared clock. Every Canvas animation runs on it, so `ticker.timeScale` speeds up or slows down everything at once. See the [Canvas API](../api/canvas/#timing-and-sequencing).
 
 ### Tween
 A move from one value to another over a set time, with easing. `tween()` returns a handle you can `await`. See the [Canvas API](../api/canvas/#timing-and-sequencing).
+
+</div>

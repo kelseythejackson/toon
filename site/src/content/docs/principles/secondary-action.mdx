@@ -1,7 +1,7 @@
 ---
 title: Secondary action
 description: "Small supporting motions (glances, swings, blinks) that add life."
-sidebar: { order: 8, label: '8 · Secondary action' }
+sidebar: { order: 8, label: 'Secondary action' }
 ---
 import Demo from '../../../components/Demo.astro';
 
@@ -40,4 +40,4 @@ Toon.ticker.add((dt, t) => {
 - **Drive it from the primary motion.** Arms that swing from the walk phase stay in step for free, while an independent loop can feel disconnected.
 - **Turn it off and compare.** The demo's checkbox shows how lifeless the walk is without it.
 
-**API:** [`Chain`](../../api/canvas/#physics), [`wave` / `noise`](../../api/canvas/#physics), [`.toon-sway` / `.toon-bob` / `.toon-blink`](../../api/css/#classes)
+**API:** [`Chain`](../../api/canvas/#physics), [`wave` and `noise`](../../api/canvas/#physics), [`.toon-sway`, `.toon-bob` and `.toon-blink`](../../api/css/#classes)

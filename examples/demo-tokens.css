@@ -135,3 +135,6 @@
   --demo-shadow-alpha: .6;
 }
 
+/* Contact shadows (.toon-shadow): toon.css draws them in translucent black, which all but vanishes on a dark
+ * surface. In dark themes they use the ground-line ink instead, so the ball still visibly meets the ground. */
+:root[data-theme='dark'] { --toon-shadow-color: var(--demo-ground-line); }

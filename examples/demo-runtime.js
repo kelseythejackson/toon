@@ -9,8 +9,11 @@
  *   document  — on its own page, the real document; in the docs, the demo's shadow root, plus `body` and
  *               `documentElement` (the host element) and `createElement` (the real document)
  *   DemoTheme — the shared design tokens (demo-theme.js) with a per-demo paused/speed/setSpeed
- * and, under prefers-reduced-motion, its own paused banner with Play/Pause (unless the page opts out with
- * data-motion-control="page" on <html>, or on <toon-demo> in the docs).
+ * and its own motion control (unless the page opts out with data-motion-control="page" on <html>, or on
+ * <toon-demo> in the docs):
+ *   - with motion allowed, any demo that moves on its own (a canvas, or a looping CSS preset) gets a Pause
+ *     button, so nobody has to sit through motion they can't stop (WCAG 2.2.2)
+ *   - under prefers-reduced-motion, a banner explains that the demo is paused, with Play for canvas demos
  */
 (function () {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -40,8 +43,47 @@
     };
   }
 
-  function banner(root, ownerEl, theme, ticker, hasCanvas) {
-    if (!reduce.matches || ownerEl.dataset.motionControl === 'page') return;
+  /** Play/Pause: pauses the demo's own clock and freezes its CSS animations (.demo-paused, in demo.css). */
+  function toggle(ownerEl, theme, ticker, onChange) {
+    const btn = document.createElement('button');
+    btn.className = 'demo-btn-quiet'; btn.type = 'button';
+    // The label says what pressing does (Play / Pause), so the button carries no aria-pressed: both together
+    // read as "Pause, pressed".
+    const show = () => { btn.textContent = theme.paused ? 'Play' : 'Pause'; if (btn.dataset.of) btn.setAttribute('aria-label', `${btn.textContent} ${btn.dataset.of}`); };
+    btn.onclick = () => {
+      theme.paused = !theme.paused;
+      if (ticker) ticker.timeScale = theme.paused ? 0 : theme.speed;
+      ownerEl.classList.toggle('demo-paused', theme.paused);
+      show(); onChange?.();
+    };
+    show();
+    return btn;
+  }
+
+  function place(root, el) {
+    const anchor = root.querySelector('.demo-hint') || root.querySelector('h1 + p') || root.querySelector('h1');
+    if (anchor) anchor.after(el);
+    else (root.body || root).prepend(el);
+  }
+
+  function controls(root, ownerEl, theme, ticker, hasCanvas) {
+    if (ownerEl.dataset.motionControl === 'page') return;
+    if (!reduce.matches) {
+      // Motion allowed: offer Pause once we can see whether anything moves without being asked to.
+      requestAnimationFrame(() => {
+        const loops = (root.getAnimations?.() ?? []).some((a) => a.effect?.getTiming().iterations === Infinity);
+        if (!hasCanvas && !loops) return;
+        const btn = toggle(ownerEl, theme, ticker);
+        // In the docs, the caption under the demo has a slot reserved for it (Demo.astro), so nothing shifts.
+        const slot = root.host?.closest('figure')?.querySelector('.demo-control-slot');
+        if (slot) { btn.dataset.of = root.host.getAttribute('aria-label') || 'the demo'; btn.setAttribute('aria-label', `${btn.textContent} ${btn.dataset.of}`); slot.append(btn); return; }
+        const bar = document.createElement('div');
+        bar.className = 'demo-motion-bar';
+        bar.append(btn);
+        place(root, bar);
+      });
+      return;
+    }
     const note = document.createElement('div');
     note.className = 'demo-motion-note'; note.setAttribute('role', 'status');
     const text = document.createElement('span');
@@ -52,13 +94,7 @@
     note.append(text);
     if (hasCanvas) {
       theme.paused = true; ticker.timeScale = 0;
-      const btn = document.createElement('button');
-      btn.className = 'demo-btn-quiet'; btn.type = 'button'; btn.textContent = 'Play'; btn.setAttribute('aria-pressed', 'false');
-      btn.onclick = () => {
-        theme.paused = !theme.paused; ticker.timeScale = theme.paused ? 0 : theme.speed;
-        btn.textContent = theme.paused ? 'Play' : 'Pause'; btn.setAttribute('aria-pressed', String(!theme.paused));
-        note.classList.remove('is-nudged');
-      };
+      const btn = toggle(ownerEl, theme, ticker, () => note.classList.remove('is-nudged'));
       note.append(btn);
       // An action button pressed while paused would seem dead: point at Play instead.
       root.addEventListener('click', (e) => {
@@ -68,9 +104,7 @@
         text.textContent = 'Paused for reduced motion, so that action is waiting. Press Play to see it.';
       });
     }
-    const anchor = root.querySelector('.demo-hint') || root.querySelector('h1 + p') || root.querySelector('h1');
-    if (anchor) anchor.after(note);
-    else (root.body || root).prepend(note);
+    place(root, note);
   }
 
   /** Run demo `fn` inside `root` (a document or a shadow root). */
@@ -86,7 +120,7 @@
     const hasCanvas = !!(ticker && root.querySelector('canvas'));
     // The demo runs first, so its own querySelector('button') etc. find its markup, not the banner's Play button.
     if (fn) fn(isShadow ? scopedDocument(root) : document, ticker ? scope(Toon, ticker) : window.Toon, theme);
-    banner(root, ownerEl, theme, ticker, hasCanvas);
+    controls(root, ownerEl, theme, ticker, hasCanvas);
     return { ticker, theme };
   }
 
@@ -105,6 +139,6 @@
         : new Promise((res) => waiting.set(name, res));
     },
   };
-  // CSS-only example pages register nothing; they still get the reduced-motion banner.
+  // CSS-only example pages register nothing; they still get their motion control.
   if (!embedded) addEventListener('DOMContentLoaded', () => { if (!standaloneMounted) mount(document, null); });
 })();

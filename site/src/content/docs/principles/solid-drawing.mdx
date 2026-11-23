@@ -1,7 +1,7 @@
 ---
 title: Solid drawing
 description: "Make flat shapes feel 3-D: shading, volume, contact shadows."
-sidebar: { order: 11, label: '11 · Solid drawing' }
+sidebar: { order: 11, label: 'Solid drawing' }
 ---
 import Demo from '../../../components/Demo.astro';
 
@@ -35,4 +35,4 @@ Toon.groundShadow(ctx, x, groundY, 48, heightAboveGround, { maxHeight: 260 });
 - **Anchor the shadow to the ground.** It should stay on the floor and change size and opacity, not move up with the object.
 - **Keep volume constant.** Solid drawing and [squash and stretch](../squash-and-stretch/) work together: the shape deforms but never loses mass.
 
-**API:** [`drawSolid` / `groundShadow` / `shade`](../../api/canvas/#drawing-staging-and-appeal), [`.toon-solid` / `.toon-shadow`](../../api/css/#classes)
+**API:** [`drawSolid`, `groundShadow` and `shade`](../../api/canvas/#drawing-staging-and-appeal), [`.toon-solid` and `.toon-shadow`](../../api/css/#classes)

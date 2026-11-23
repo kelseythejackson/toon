@@ -1,7 +1,7 @@
 ---
 title: Arcs
 description: "Move along curves, not straight lines: throws, swings, paths."
-sidebar: { order: 7, label: '7 · Arcs' }
+sidebar: { order: 7, label: 'Arcs' }
 ---
 import Demo from '../../../components/Demo.astro';
 
@@ -17,7 +17,7 @@ Almost nothing in nature moves in a straight line. A thrown ball traces a parabo
 </div>
 ```
 
-The wrapper and its child each animate one axis with a **different easing**: the wrapper's `translate` moves along x linearly, and the child's `translate` rises and falls on gravity easing. Together they trace a real parabola. Because both animate only `translate`, the browser runs them on the GPU, with no main-thread work per frame. The child inherits the wrapper's `.toon-loop` / `.toon-yoyo`.
+The wrapper and its child each animate one axis with a **different easing**: the wrapper's `translate` moves along x linearly, and the child's `translate` rises and falls on gravity easing. Together they trace a real parabola. Because both animate only `translate`, the browser runs them on the GPU, with no main-thread work per frame. The child also picks up `.toon-loop` or `.toon-yoyo` from the wrapper.
 
 ## Arcs in Canvas
 
@@ -41,4 +41,4 @@ const p = route(t), angle = Toon.tangent(route, t);
 - **Combine with squash.** Stretch along the tangent while the object moves fast (see [Squash & stretch](../squash-and-stretch/)).
 - **UI paths can arc too.** A slight curve on a card flying to a cart, or a dialog swooping in, feels more natural than a straight slide.
 
-**API:** [`arc` / `path` / `tangent`](../../api/canvas/#motion-paths), [`.toon-arc`](../../api/css/#classes)
+**API:** [`arc`, `path` and `tangent`](../../api/canvas/#motion-paths), [`.toon-arc`](../../api/css/#classes)

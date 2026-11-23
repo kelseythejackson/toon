@@ -12,14 +12,15 @@
   canvas { display: block; width: 100%; height: 300px; }
   .flip { display: flex; gap: 2rem; align-items: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1rem 1.5rem; }
   .sprite { height: 96px; }
+  .pair h2 { font-size: 1.17em; }   /* the two columns' labels: real h2s (no skipped level), sized as subheads */
 </style>
 </head>
 <body>
-<h1>04 · Straight ahead vs pose to pose</h1>
+<h1>Straight ahead vs pose to pose</h1>
 <div class="pair">
-  <div><h3>Straight ahead</h3><canvas id="sa" role="img" aria-label="Smoke drawn straight ahead: each puff grows from the frame before it, so the smoke drifts and curls unpredictably."></canvas>
+  <div><h2>Straight ahead</h2><canvas id="sa" role="img" aria-label="Smoke drawn straight ahead: each puff grows from the frame before it, so the smoke drifts and curls unpredictably."></canvas>
     <p>Smoke drawn frame after frame at 24 fps: each frame grows out of the previous one. Spontaneous, fluid, hard to plan.</p></div>
-  <div><h3>Pose to pose</h3><canvas id="pp" role="img" aria-label="Loop raises an arm through planned key poses, shown as faint ghost frames, with the frames in between filled in."></canvas>
+  <div><h2>Pose to pose</h2><canvas id="pp" role="img" aria-label="Loop raises an arm through planned key poses, shown as faint ghost frames, with the frames in between filled in."></canvas>
     <p>Loop's wave, built from 5 key poses (ghosted). <code>poses()</code> draws every in-between. Planned, precise, easy to retime.</p></div>
 </div>
 

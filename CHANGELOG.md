@@ -4,6 +4,11 @@
 
 Everything since 1.1.0, newest first.
 
+### Themeable contact shadows, and Pause on every looping demo
+- **Core:** `.toon-shadow` reads its color from `--toon-shadow-color` (default `rgb(0 0 0 / .45)`, unchanged), so contact shadows can show on dark backgrounds. No new lines: the core stays at 519 of 520.
+- **`examples/demo-runtime.js`:** any demo that moves on its own (a canvas, or a looping CSS preset) gets a Pause button even with motion allowed (WCAG 2.2.2). Pausing also freezes its CSS animations (`.demo-paused` in `demo.css`). Under reduced motion the banner works as before.
+- **Docs:** dark themes draw contact shadows in the ground-line ink (`examples/demo-tokens.css`).
+
 ### Demos embedded without iframes, each with its own clock
 - **Core:** `Toon.createTicker()` makes an independent clock. `tween`, `wait`, `stagger`, `poses`, `straightAhead` and `createStage` accept `{ ticker }`, and `stage.ticker` exposes the clock a stage uses. The core is 519 of 520 lines.
 - **`examples/demo-runtime.js`:** every example's script is wrapped in `ToonDemos.register(name, (document, Toon, DemoTheme) => …)`. Each demo gets its own clock, its own reduced-motion banner with Play/Pause, and its own `DemoTheme.setSpeed`. Pages still open straight from disk.

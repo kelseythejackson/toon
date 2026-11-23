@@ -1,7 +1,7 @@
 ---
 title: Timing
 description: "Duration sets weight and mood: fast is light, slow is heavy."
-sidebar: { order: 9, label: '9 · Timing' }
+sidebar: { order: 9, label: 'Timing' }
 ---
 import Demo from '../../../components/Demo.astro';
 
@@ -16,14 +16,14 @@ Timing is how long an action takes; [spacing](../../glossary/#spacing) is how th
 <div class="toon-bounce toon-light"></div>   <!-- faster, squashier -->
 ```
 
-Every preset's duration is `--toon-duration × --toon-tempo`, so you can set `--toon-tempo` on a container to retime a whole section.
+Every preset's duration is `--toon-duration` multiplied by `--toon-tempo`, so you can set `--toon-tempo` on a container to retime a whole section.
 
 ## Timing in Canvas
 
 Everything runs from one clock, so you can change the tempo of a whole scene in one place:
 
 ```js
-Toon.ticker.timeScale = 0.25;   // slow motion for everything — great for debugging
+Toon.ticker.timeScale = 0.25;   // slow motion for everything, handy when you're checking timing
 ```
 
 Weight comes from four settings: gravity, bounciness, drag and how much the object squashes. For a hand-drawn look, animate [**on twos**](../../glossary/#on-twos) by holding each drawing for two frames at 24 fps:
@@ -47,4 +47,4 @@ Toon.ticker.add((dt, t) => {
 - **Light objects** react instantly, float, flutter and overshoot.
 - **UI timing:** 150–250 ms for small feedback, 300–500 ms for larger movements across the screen. Anything longer starts to feel slow.
 
-**API:** [`ticker`](../../api/canvas/#timing-and-sequencing), [`quantize`](../../api/canvas/#timing-and-sequencing), [`.toon-heavy` / `.toon-light`](../../api/css/#classes)
+**API:** [`ticker`](../../api/canvas/#timing-and-sequencing), [`quantize`](../../api/canvas/#timing-and-sequencing), [`.toon-heavy` and `.toon-light`](../../api/css/#classes)

@@ -30,9 +30,17 @@
 [data-style='graph'] :is(h1#_top, .hero h1, .sl-markdown-content :is(h2, h3)) { font-weight: var(--display-weight); letter-spacing: -0.035em; }
 [data-style='graph'] .hero h1 { font-size: clamp(3.5rem, 8vw, 6rem); line-height: .95; display: inline;
   background: linear-gradient(transparent 58%, var(--swipe) 58%, var(--swipe) 88%, transparent 88%); }
-[data-style='graph'] .hero::after { content: 'hand-tuned easing,\A no dependencies!'; content: 'hand-tuned easing,\A no dependencies!' / ''; white-space: pre; position: absolute; left: 39%; top: 38px;
-  font: 600 1.6rem/1 var(--hand); color: var(--tomato); rotate: -6deg; padding-left: 46px; pointer-events: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 40'%3E%3Cpath d='M46 8 C30 2 12 10 8 30 M8 30 L3 20 M8 30 L17 25' fill='none' stroke='%23e8442a' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") left center / 42px no-repeat; }
+/* Margin note: a hand-written caption for the cast (Brick heavy, Dot regular, Zip light), arrow pointing down at Brick. It only appears from 50rem, where the cast
+ * is right-aligned at full size (3 × 104px + 2 × 32px), so fixed px offsets track Brick. Brick only rises 40px;
+ * Dot (140px) and Zip bounce through anything above them, and on phones the centered cast leaves no clear spot,
+ * so the note is left out there. */
+[data-style='graph'] .hero::after { content: none; }
+@media (min-width: 50rem) {
+  [data-style='graph'] .hero::after { content: 'same bounce,\A three weights'; content: 'same bounce,\A three weights' / '';
+    white-space: pre; text-align: center; position: absolute; right: 238px; top: 128px; padding-bottom: 38px;
+    font: 600 1.6rem/1 var(--hand); color: var(--tomato); rotate: -4deg; pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cpath d='M30 3 C14 8 10 20 18 35 M18 35 L9 29 M18 35 L21 25' fill='none' stroke='%23e8442a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") 50% 100% / 34px no-repeat; }
+}
 [data-style='graph'] .hero .sl-link-button.primary { border-radius: var(--radius-button); border: var(--border-card) solid var(--line); background: var(--button); color: var(--on-button); }
 [data-style='graph'] .hero .sl-link-button:not(.primary) { font-family: var(--hand); font-size: 1.5rem; color: var(--ink);
   text-decoration: underline wavy var(--tomato) 1.5px; text-underline-offset: 6px; }

@@ -35,6 +35,9 @@ body = body.replace(/<script[\s\S]*?<\/script>\s*/g, '');
 body = body.replace(/^\s*<h1>[\s\S]*?<\/h1>\s*(?:<p(?![^>]*demo-hint)[^>]*>[\s\S]*?<\/p>\s*)?/, '');
 const motionControl = head.match(/<html[^>]*data-motion-control="([^"]+)"/)?.[1];
 const name = file.replace(/\.html$/, '');
+// A demo that may move on its own (a canvas, or a toon- class) gets a slot in its caption, sized in advance,
+// where demo-runtime.js puts its Pause button. Reserving it means the button appears without shifting the page.
+const mayMove = /<canvas|class="[^"]*\btoon-/.test(body);
 if (inline.includes('</script')) throw new Error(`${file}: inline script can't contain </script`);
 const shadow = links.map((h) => `<link rel="stylesheet" href="${h}">`).join('')
   + `<style>${styles}\np.demo-hint:first-of-type{margin-top:0}</style>` + body;
@@ -44,7 +47,7 @@ const shadow = links.map((h) => `<link rel="stylesheet" href="${h}">`).join('')
     <template shadowrootmode="open" set:html={shadow} />
     {inline && <Fragment set:html={`<script type="text/plain" data-demo-script>${inline}</script>`} />}
   </toon-demo>
-  <figcaption><a href={src} target="_blank" rel="noopener">{linkText}<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true">&nbsp;↗</span></a></figcaption>
+  <figcaption><a href={src} target="_blank" rel="noopener">{linkText}<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true">&nbsp;↗</span></a>{mayMove && <span class="demo-control-slot" />}</figcaption>
 </figure>
 {source && (
   <details class="toon-demo-source">
@@ -102,8 +105,18 @@ const shadow = links.map((h) => `<link rel="stylesheet" href="${h}">`).join('')
   .toon-demo-source { margin: 0 0 var(--space-lg); }
   .toon-demo-source summary { cursor: pointer; font-size: var(--sl-text-sm); font-weight: var(--font-weight-strong); min-height: var(--tap-target); display: flex; align-items: center; }
   .toon-demo-source p { font-size: var(--sl-text-sm); }
-  .toon-demo figcaption { margin-top: .4rem; font-size: var(--sl-text-sm); }
+  .toon-demo figcaption { margin-top: .4rem; font-size: var(--sl-text-sm); display: flex; align-items: center; gap: .5rem 1rem; }
+  .toon-demo figcaption a { min-width: 0; }
+  /* Pause/Play (demo-runtime.js fills the slot). The demo's quiet-button look, from the site-wide demo tokens. */
+  .demo-control-slot { flex: none; margin-inline-start: auto; min-width: 5.5rem; min-height: 2.25rem; display: flex; justify-content: flex-end; }
+  .demo-control-slot :global(button) { font: var(--font-weight-strong, 600) 14px var(--demo-font, inherit); padding: .45em 1.1em; cursor: pointer;
+    border-radius: var(--demo-control-radius, 6px); border: 1.5px solid var(--demo-faint); background: var(--demo-surface); color: var(--demo-ink); }
+  .demo-control-slot :global(button:hover) { background: var(--demo-surface-2); border-color: var(--demo-ink); }
+  .demo-control-slot :global(button:focus-visible) { outline: 3px solid var(--demo-primary); outline-offset: 2px; }
   /* 24px+ tap target (WCAG 2.5.8): this link is the only way to a demo's standalone page. */
-  .toon-demo figcaption a { display: inline-flex; align-items: center; min-height: var(--tap-target); padding-inline: .1rem; }
+  /* The figure is .not-content, so Starlight's link color doesn't reach it: use the same accent as prose links. */
+  /* Plain text flow (not inline-flex), so the ↗ stays beside the last word when the link wraps; padding keeps the target 24px+. */
+  .toon-demo figcaption a { display: block; padding: .3rem .1rem; line-height: 1.4;
+    color: var(--sl-color-text-accent); text-underline-offset: .2em; }
   .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 </style>

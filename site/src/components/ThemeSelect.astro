@@ -28,4 +28,9 @@ const styles = [
 
 <style>
   .toon-pickers { display: flex; gap: var(--space-md); align-items: center; }
+  /* Both selects are sized in em, so text enlarged on its own (browser text-size settings) doubles them and pushes
+   * them off the screen. Cap each at a share of the window; a long style name truncates instead. */
+  .toon-pickers :global(select) { text-overflow: ellipsis; }
+  .toon-pickers toon-style-select :global(select) { max-width: max(14vw, 180px); }   /* fits "Graph Notebook" at normal size */
+  .toon-pickers :global(starlight-theme-select select) { max-width: max(9vw, 110px); }
 </style>

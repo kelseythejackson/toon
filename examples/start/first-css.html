@@ -8,9 +8,9 @@
 <link rel="stylesheet" href="../demo.css">
 <link rel="stylesheet" href="../recipes/recipe.css">
 <style>
-  /* Page chrome: two columns, each tall enough for its bounce, shadow at the bottom. */
+  /* Page chrome: two columns, bottoms aligned. Each recipe brings its own headroom for the bounce. */
   .panel { justify-content: space-around; align-items: flex-end; }
-  .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 4px; min-height: 280px; }
+  .cell { display: flex; flex-direction: column; align-items: center; }
   .cell .note { margin-top: .75rem; }
 </style>
 </head>
@@ -20,18 +20,23 @@
 <div class="panel">
   <div class="cell">
 <!-- @recipe -->
-<div class="toon-solid toon-bounce" style="width:48px; height:48px"></div>
-<div class="toon-shadow toon-bounce-shadow" style="width:56px; height:12px"></div>
+<!-- The ball jumps 140px, so its box keeps that much room above it. -->
+<div style="display:grid; justify-items:center; padding-top:150px">
+  <div class="toon-solid toon-bounce" style="width:48px; height:48px"></div>
+  <div class="toon-shadow toon-bounce-shadow" style="width:56px; height:12px"></div>
+</div>
 <!-- @end -->
     <p class="note">defaults</p>
   </div>
   <div class="cell">
 <!-- @recipe -->
-<div class="toon-solid toon-bounce"
-     style="width:48px; height:48px;
-            --toon-squash:.4; --toon-height:200px; --toon-tempo:1.3"></div>
-<div class="toon-shadow toon-bounce-shadow"
-     style="width:56px; height:12px; --toon-tempo:1.3"></div>
+<div style="display:grid; justify-items:center; padding-top:210px">
+  <div class="toon-solid toon-bounce"
+       style="width:48px; height:48px;
+              --toon-squash:.4; --toon-height:200px; --toon-tempo:1.3"></div>
+  <div class="toon-shadow toon-bounce-shadow"
+       style="width:56px; height:12px; --toon-tempo:1.3"></div>
+</div>
 <!-- @end -->
     <p class="note">tuned: more squash, higher, slower</p>
   </div>

@@ -1,11 +1,11 @@
 ---
 title: Anticipation
 description: "A small wind-up before the main move: button presses, jumps, launches."
-sidebar: { order: 2, label: '2 · Anticipation' }
+sidebar: { order: 2, label: 'Anticipation' }
 ---
 import Demo from '../../../components/Demo.astro';
 
-Before jumping, you crouch. Before throwing, you pull your arm back. Anticipation is a small move in the **opposite direction** of the main action. It prepares the viewer's eye, so the action itself is easy to follow even when it's fast.
+Before jumping, you crouch. Before throwing, you pull your arm back. Anticipation is a small move in the **opposite direction** of the main action. It prepares the viewer's eye, so the action itself reads clearly even when it's fast.
 
 <Demo file="02-anticipation.html" title="Anticipation demo" />
 
@@ -41,4 +41,4 @@ For a single tween, `ease.anticipate(s)` (also available as `ease.inBack`) produ
 - **Fast actions need more anticipation.** If the main move is only a few frames, the wind-up is what makes it readable.
 - **In UI, keep it subtle.** About 3–6% of scale or a few pixels is enough for buttons.
 
-**API:** [`sequence`](../../api/canvas/#timing-and-sequencing), [`ease.anticipate`](../../api/canvas/#easing), [`.toon-press` / `.toon-anticipate` / `.toon-launch`](../../api/css/#classes)
+**API:** [`sequence`](../../api/canvas/#timing-and-sequencing), [`ease.anticipate`](../../api/canvas/#easing), [`.toon-press`, `.toon-anticipate` and `.toon-launch`](../../api/css/#classes)

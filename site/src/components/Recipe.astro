@@ -7,14 +7,15 @@
  *   show  which regions to print (0-based indexes, default all)
  *   demo  embed the running page under the code (default true)
  *   dir   folder under examples/ (default 'recipes')
+ *   before  lines to print above the first shown region, in the same block (e.g. the <link> that loads toon.css)
  */
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Code } from '@astrojs/starlight/components';
 import Demo from './Demo.astro';
 
-interface Props { file: string; show?: number[]; demo?: boolean; title?: string; dir?: string }
-const { file, show, demo = true, title, dir = 'recipes' } = Astro.props;
+interface Props { file: string; show?: number[]; demo?: boolean; title?: string; dir?: string; before?: string }
+const { file, show, demo = true, title, dir = 'recipes', before } = Astro.props;
 
 const source = readFileSync(resolve(process.cwd(), '../examples', dir, file), 'utf8');
 const MARKERS: [RegExp, string][] = [
@@ -30,14 +31,14 @@ const dedent = (s: string) => {
 const regions = MARKERS.flatMap(([re, lang]) => [...source.matchAll(re)].map((m) => ({ at: m.index!, lang, code: dedent(m[1]) })))
   .sort((a, b) => a.at - b.at);
 if (!regions.length) throw new Error(`Recipe ${file} has no @recipe regions`);
-const shown = show ? show.map((i) => regions[i]) : regions;
+const shown = (show ? show.map((i) => regions[i]) : regions).map((r, i) => (i === 0 && before ? { ...r, code: `${before}\n${r.code}` } : r));
 const pageTitle = title ?? source.match(/<h1>([^<]*)<\/h1>/)?.[1] ?? 'Live example';
 ---
 {shown.map((r) => <Code code={r.code} lang={r.lang} wrap />)}
 {demo && (
   <div class="recipe-result">
     <p class="recipe-label">Result</p>
-    <Demo file={`${dir}/${file}`} title={pageTitle} source={false} linkText={`Open “${pageTitle.replace(/^Recipe · /, '')}” on its own page`} />
+    <Demo file={`${dir}/${file}`} title={pageTitle} source={false} linkText={`Open “${pageTitle}” on its own page`} />
   </div>
 )}
 

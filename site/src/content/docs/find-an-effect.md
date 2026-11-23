@@ -7,35 +7,43 @@ Look up what you're trying to do, then use the CSS class or Canvas function next
 
 ## Interface motion
 
+<div class="ref-table effect-index" style="--l2:'CSS'; --l3:'Canvas'">
+
 | I want to… | CSS | Canvas |
 |---|---|---|
-| [Make a button feel pressable](../principles/anticipation/)<br/><small>Anticipation · [button recipe](../recipes/#a-button-that-feels-physical)</small> | `.toon-press` | — |
+| [Make a button feel pressable](../principles/anticipation/)<br/><small>Anticipation, with a [button recipe](../recipes/#a-button-that-feels-physical)</small> | `.toon-press` | — |
 | [Give a card or button a wind-up on hover](../principles/anticipation/)<br/><small>Anticipation</small> | `.toon-anticipate` | — |
-| [Animate a list in, item by item (staggered entrance)](../principles/follow-through/)<br/><small>Follow-through · [list recipe](../recipes/#a-list-that-settles-in)</small> | `.toon-follow` on the list | `stagger(items, fn, { each })` |
+| [Animate a list in, item by item (staggered entrance)](../principles/follow-through/)<br/><small>Follow-through, with a [list recipe](../recipes/#a-list-that-settles-in)</small> | `.toon-follow` on the list | `stagger(items, fn, { each })` |
 | [Bring in one element: modal, toast, card](../principles/appeal/)<br/><small>Appeal</small> | `.toon-pop-in` or `.toon-settle` | `tween` with `ease.outBack` |
-| [Highlight one item and dim the rest](../principles/staging/)<br/><small>Staging</small> | `.toon-stage` (+ `.is-featured`), `.toon-spotlight` | `stage.spotlight(x, y, r)` |
-| [Show that something is waiting or alive (loading, idle)](../principles/appeal/)<br/><small>Appeal · [Secondary action](../principles/secondary-action/)</small> | `.toon-bob`, `.toon-breathe`, `.toon-bounce` | `breathe(t)`, `wave(t)` |
-| [Send something flying to a target ("add to cart")](../principles/arcs/)<br/><small>Arcs · [throwing recipe](../recipes/#throwing-something-along-a-path)</small> | `.toon-arc`, `.toon-launch` | `arc(from, to)` + `tween` |
+| [Highlight one item and dim the rest](../principles/staging/)<br/><small>Staging</small> | `.toon-stage` with `.is-featured`, or `.toon-spotlight` | `stage.spotlight(x, y, r)` |
+| [Show that something is waiting or alive (loading, idle)](../principles/appeal/)<br/><small>Appeal and [Secondary action](../principles/secondary-action/)</small> | `.toon-bob`, `.toon-breathe`, `.toon-bounce` | `breathe(t)`, `wave(t)` |
+| [Send something flying to a target ("add to cart")](../principles/arcs/)<br/><small>Arcs, with a [throwing recipe](../recipes/#throwing-something-along-a-path)</small> | `.toon-arc`, `.toon-launch` | `arc(from, to)` with `tween` |
 | [Make transitions smoother](../principles/slow-in-slow-out/)<br/><small>Slow in & slow out</small> | `--toon-ease-out`, `--toon-ease-in-out` in your own `transition` | `ease.*`, `ease.cubicBezier()` |
 | [Tone motion down for a business app, or up for a game](../principles/exaggeration/)<br/><small>Exaggeration</small> | `.toon-subtle`, `.toon-exaggerate`, `--toon-exaggeration` | `exaggerate(value, factor)` |
 | [Make things feel heavier or lighter](../principles/timing/)<br/><small>Timing</small> | `.toon-heavy`, `.toon-light` | gravity, bounce and squash parameters |
-| [Respect reduced motion](../recipes/#respect-reduced-motion-on-canvas) | Automatic | `ticker.timeScale = 0` |
+| [Respect reduced motion](../recipes/#respect-reduced-motion-on-canvas) | Automatic in `toon.css` | `ticker.timeScale = 0` |
+
+</div>
 
 ## Characters and objects
 
+<div class="ref-table effect-index" style="--l2:'CSS'; --l3:'Canvas'">
+
 | I want to… | CSS | Canvas |
 |---|---|---|
-| [Bounce a ball or mascot with squash and stretch](../principles/squash-and-stretch/)<br/><small>Squash & stretch</small> | `.toon-bounce` + `.toon-bounce-shadow` | `squash`, `impact`, `withSquash` |
-| [Script a jump: crouch, leap, land](../recipes/#a-character-jump-scripted) | — (`.toon-anticipate` gives only the crouch) | `sequence` of `tween`s |
+| [Bounce a ball or mascot with squash and stretch](../principles/squash-and-stretch/)<br/><small>Squash & stretch</small> | `.toon-bounce` and `.toon-bounce-shadow` | `squash`, `impact`, `withSquash` |
+| [Script a jump: crouch, leap, land](../recipes/#a-character-jump-scripted) | Only the crouch: `.toon-anticipate` | `sequence` of `tween`s |
 | [Blink, glance, sway (small signs of life)](../principles/secondary-action/)<br/><small>Secondary action</small> | `.toon-blink`, `.toon-sway` | `blink(t)`, `noise(t)` |
 | [Follow the cursor or a target with springy lag](../principles/follow-through/)<br/><small>Follow-through</small> | — | `Spring` |
 | [Draw a tail, rope, hair or cable that trails behind](../principles/follow-through/)<br/><small>Follow-through</small> | — | `Chain` |
 | [Play a sequence of key poses](../principles/straight-ahead-and-pose-to-pose/)<br/><small>Pose to pose</small> | — | `poses(keys)`, `samplePoses` |
-| [Simulate smoke, particles or other procedural motion](../principles/straight-ahead-and-pose-to-pose/)<br/><small>Straight ahead</small> | — | `straightAhead(step, { fps })` + `noise` |
+| [Simulate smoke, particles or other procedural motion](../principles/straight-ahead-and-pose-to-pose/)<br/><small>Straight ahead</small> | — | `straightAhead(step, { fps })` with `noise` |
 | [Play a sprite sheet (flipbook)](../principles/straight-ahead-and-pose-to-pose/)<br/><small>Straight ahead</small> | `.toon-sprite` | — |
-| [Make a flat circle look 3-D, with a contact shadow](../principles/solid-drawing/)<br/><small>Solid drawing</small> | `.toon-solid` + `.toon-shadow` | `drawSolid`, `groundShadow` |
+| [Make a flat circle look 3-D, with a contact shadow](../principles/solid-drawing/)<br/><small>Solid drawing</small> | `.toon-solid` and `.toon-shadow` | `drawSolid`, `groundShadow` |
 | [Hand-drawn "on twos" look](../principles/timing/)<br/><small>Timing</small> | — | `quantize(t, 12)`, `ease.steps(n)` |
 | [Slow everything down to debug timing](../principles/timing/)<br/><small>Timing</small> | `--toon-tempo: 4` (higher is slower) | `ticker.timeScale = 0.25` (higher is faster) |
+
+</div>
 
 ## Not in toon
 

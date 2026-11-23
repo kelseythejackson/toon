@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="recipe.css">
 </head>
 <body>
-<h1>Recipe · Respect reduced motion on canvas</h1>
+<h1>Respect reduced motion on canvas</h1>
 <p class="demo-hint">The clock follows the reader's reduced-motion setting. The checkbox starts at your system setting: tick it to see the frozen clock, untick it to play anyway.</p>
 <div class="panel">
 <!-- @recipe -->
@@ -32,9 +32,9 @@ const pretend = document.querySelector('#pretend');
 const apply = () => {
   const on = pretend.checked;           // starts at the system setting
   Toon.ticker.timeScale = on ? 0 : 1;   // 0 freezes the clock
-  const pref = reduce.matches ? 'reduce' : 'no-preference';
+  const pref = reduce.matches ? 'reduced motion' : 'no preference';
   document.querySelector('#status').textContent =
-    `System setting: ${pref} · clock ` + (on ? 'frozen' : 'running');
+    `Your system setting: ${pref}. The clock is ${on ? 'frozen' : 'running'}.`;
 };
 const follow = () => { pretend.checked = reduce.matches; apply(); };
 follow();

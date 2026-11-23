@@ -51,6 +51,11 @@ canvas, .demo-panel {
 .demo-motion-note { display: flex; gap: var(--space-sm); align-items: center; margin: 0 0 var(--space-md); padding: .6rem .9rem;
   border-radius: var(--demo-control-radius); background: var(--demo-surface-2); color: var(--demo-text); font-size: 14px; }
 .demo-motion-note.is-nudged { outline: 2px solid var(--demo-primary); outline-offset: 2px; }
+/* With motion allowed: a single Pause button above any demo that moves on its own. Pausing freezes the demo's
+ * CSS animations too (the class goes on <html>, or on the <toon-demo> host in the docs). */
+.demo-motion-bar { display: flex; justify-content: flex-end; margin: 0 0 var(--space-sm); }
+.demo-paused * { animation-play-state: paused !important; }
+:host(.demo-paused) * { animation-play-state: paused !important; }
 
 /* "Try it" hint under an interactive canvas. Kept out of the intro paragraph so it stays visible when the docs embed the demo. */
 .demo-try { margin: var(--space-xs) 0 var(--space-md); font-size: 13px; color: var(--demo-muted); }

@@ -1,12 +1,12 @@
 ---
 title: Straight ahead vs pose to pose
 description: "Simulate motion frame by frame, or plan it with keyframes."
-sidebar: { order: 4, label: '4 · Straight ahead vs pose to pose' }
+sidebar: { order: 4, label: 'Straight ahead vs pose to pose' }
 ---
 import Demo from '../../../components/Demo.astro';
 
 **Straight ahead**: draw frame 1, then frame 2 based on frame 1, and so on. The result is spontaneous and fluid (fire, smoke, water, hair), but hard to control.
-**Pose to pose**: draw the key poses first, then fill in the [in-betweens](../../glossary/#in-betweens). The result is planned and easy to retime, which suits acting and UI.
+**Pose to pose**: draw the key poses first, then fill in the [in-betweens](../../glossary/#in-betweens). The result is planned and quick to retime, which suits acting and UI.
 
 <Demo file="04-straight-ahead-vs-pose-to-pose.html" title="Straight ahead vs pose to pose demo" />
 
@@ -51,4 +51,4 @@ Toon.poses([
 - **Mix the two approaches.** Pose the main body, then simulate hair, cloth and tails straight ahead on top (see [Follow-through](../follow-through/)).
 - **Use a lower fps for a hand-made feel.** 12 or 24 fps straight-ahead motion looks more drawn than 60.
 
-**API:** [`straightAhead`](../../api/canvas/#timing-and-sequencing), [`poses` / `samplePoses`](../../api/canvas/#timing-and-sequencing), [`.toon-sprite`](../../api/css/#classes)
+**API:** [`straightAhead`](../../api/canvas/#timing-and-sequencing), [`poses` and `samplePoses`](../../api/canvas/#timing-and-sequencing), [`.toon-sprite`](../../api/css/#classes)

@@ -3,7 +3,8 @@
 body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 var(--space-md); }
 .panel { background: var(--demo-surface); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow);
   border-radius: var(--demo-radius); padding: var(--space-lg); display: flex; flex-wrap: wrap; gap: var(--space-md); align-items: center; }
-.panel canvas { display: block; width: 100%; height: 300px; }
+/* The panel is already the card, so a canvas inside it drops its own frame (no box inside a box). */
+.panel canvas { display: block; width: 100%; height: 300px; border: 0; box-shadow: none; border-radius: 0; background: none; }
 button { font: 600 15px var(--demo-font, system-ui); padding: .75em 1.5em; border: 0; border-radius: var(--radius-pill);
   background: var(--demo-btn); color: var(--demo-on-btn); cursor: pointer; }
 button.ghost { background: transparent; color: var(--demo-text); box-shadow: inset 0 0 0 2px var(--demo-hair); }
