@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Staging in Canvas — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+</head>
+<body>
+<h1>Staging in Canvas</h1>
+<p>One performer in color and in the light, a still gray crowd watching, and a spotlight that glides on a
+  <code>Spring</code> when the stage passes to someone else.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas style="width:100%; height:180px" role="img"
+  aria-label="A row of balls. One is colored, larger and hops
+  in a spotlight while the gray ones stand still and look at
+  it. Every few seconds the stage passes to the next ball and
+  the spotlight glides over"></canvas>
+<!-- @end -->
+</div>
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('03-staging-canvas', (document, Toon, DemoTheme) => {
+// @recipe
+const { createStage, Spring } = Toon;
+const stage = createStage(document.querySelector('canvas'));
+const COUNT = 5, TURN = 2.5;     // performers, seconds each
+const xAt = (i) => stage.width * (i + 0.5) / COUNT;
+// The light follows on a spring, so it glides, not jumps.
+const glide = { stiffness: 60, damping: 13 };
+const spotX = new Spring(xAt(0), glide);
+// @fold
+// Reduced motion: freeze the clock on the first performer.
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  Toon.ticker.timeScale = 0;
+}
+// @end-fold
+
+stage.loop((dt, time) => {
+  const ctx = stage.ctx, floor = stage.height - 24;
+  const hero = Math.floor(time / TURN) % COUNT;
+  // @fold
+  const fill = getComputedStyle(document.documentElement)
+    .getPropertyValue('--toon-color').trim() || '#ff6b4a';
+  const ink = getComputedStyle(document.body).color;
+  // @end-fold
+  stage.clear();
+  ctx.fillStyle = ink; ctx.fillRect(0, floor, stage.width, 2);
+  for (let i = 0; i < COUNT; i++) {
+    const star = i === hero;
+    // Contrast in size, color and motion: only the star hops.
+    const r = star ? 22 : 15;
+    const hop = star ? Math.abs(Math.sin(time * 5)) * 24 : 0;
+    const x = xAt(i), y = floor - r - hop;
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.globalAlpha = star ? 1 : 0.3;      // the crowd is gray
+    ctx.fillStyle = star ? fill : ink; ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 2.5; ctx.strokeStyle = ink; ctx.stroke();
+    // Everyone looks at the star.
+    const look = star ? 0 : Math.sign(xAt(hero) - x) * r * 0.4;
+    ctx.beginPath(); ctx.arc(x + look, y - r * 0.2, 2.5, 0, 7);
+    ctx.fillStyle = ink; ctx.fill();
+  }
+  spotX.target = xAt(hero);
+  spotX.step(dt);
+  // Dim everything outside the light, inside a stage box.
+  ctx.save(); ctx.beginPath();
+  ctx.roundRect(0, 8, stage.width, stage.height - 8, 8);
+  ctx.clip();
+  stage.spotlight(spotX.value, floor - 26, 44, { dim: 0.4 });
+  ctx.restore();
+});
+// @end
+});
+</script>
+</body>
+</html>

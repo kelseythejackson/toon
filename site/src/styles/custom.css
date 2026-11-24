@@ -62,7 +62,8 @@
 
 /* Reading measure: prose paragraphs and lists stop at about 75 characters a line (Inter runs narrower than its ch unit), while code blocks, tables and
  * demos keep the full content width (code and drawings need the room; long lines of prose don't). */
-.sl-markdown-content > :is(p, ul, ol):not(.ref-links, .section-lede) { max-width: 60ch; }
+.sl-markdown-content > :is(p, ul, ol):not(.ref-links, .section-lede),
+.sl-markdown-content > blockquote > :is(p, ul, ol) { max-width: 60ch; }
 
 /* Reference tables: wrap a wide Markdown table in <div class="ref-table" style="--l2:'Default'; --l3:'…'">,
  * naming columns 2 onwards (repeat the header text). When the table itself is narrow, each row becomes a small
@@ -98,3 +99,12 @@
 .sl-markdown-content .glossary h3 { font-size: var(--sl-text-xl); }
 .sl-markdown-content .glossary .sl-heading-wrapper + p { margin-top: .35rem; }
 .sl-markdown-content .glossary > p { max-width: 60ch; }   /* the same reading measure as other prose */
+
+/* Code is read and retyped by learners: show the characters as typed (JetBrains Mono's ligatures turn => into ⇒). */
+code, pre, kbd, .expressive-code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+/* Phones: code blocks scroll sideways instead of wrapping mid-token ('ca / nvas'). Wider screens keep wrapping. */
+@media (max-width: 30rem) {
+  .expressive-code pre.wrap .ec-line .code { white-space: pre; overflow-wrap: normal; }
+  /* A fade at the right edge says the line goes on; motion.js drops it once the block is scrolled to the end. */
+  .expressive-code pre[data-more] { mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent); }
+}

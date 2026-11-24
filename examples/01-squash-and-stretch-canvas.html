@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>01 · Squash &amp; stretch in Canvas — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+</head>
+<body>
+<h1>Squash &amp; stretch in Canvas</h1>
+<p>A ball under gravity that flattens on the floor and stretches in the air, using <code>impact</code>,
+  <code>squash</code> and <code>withSquash</code>.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas style="width:100%; height:180px" role="img"
+  aria-label="A ball bounces in place: it stretches as it
+  rises and falls, and flattens on the floor"></canvas>
+<!-- @end -->
+</div>
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('01-squash-and-stretch-canvas', (document, Toon, DemoTheme) => {
+// @recipe
+const { createStage, squash, impact, withSquash,
+        groundShadow } = Toon;
+const stage = createStage(document.querySelector('canvas'));
+const r = 24, gravity = 2000, launch = 600;  // px, px/s², px/s
+const HOLD = 0.09;               // seconds squashed on the floor
+// y: height above the floor. Start mid-squash, on the floor.
+let y = 0, vy = 0, held = HOLD / 2;
+// @fold
+// Reduced motion: freeze the clock, so the ball holds its squash.
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  Toon.ticker.timeScale = 0;
+}
+// @end-fold
+
+stage.loop((dt) => {
+  if (held > 0) {                // on the floor: hold, then launch
+    held -= dt;
+    if (held <= 0) vy = launch;
+  } else {                       // in the air: gravity
+    vy -= gravity * dt; y += vy * dt;
+    if (y <= 0) { y = 0; vy = 0; held = HOLD; }
+  }
+  // Squash on the floor (eased in and out), stretch in the air.
+  const s = held > 0
+    ? impact(Math.sin((1 - held / HOLD) * Math.PI) * 0.35)
+    : squash(0, vy, { amount: 0.0005 });
+  // While squashing, pin the ball's base to the floor.
+  const pivot = held > 0 ? { x: 0, y: r } : undefined;
+
+  const ctx = stage.ctx, x = stage.width / 2;
+  const floor = stage.height - 24;
+  // @fold
+  // Colors from the page: --toon-color for the ball, text for ink.
+  const fill = getComputedStyle(document.documentElement)
+    .getPropertyValue('--toon-color').trim() || '#ff6b4a';
+  const ink = getComputedStyle(document.body).color;
+  // @end-fold
+  stage.clear();
+  ctx.fillStyle = ink; ctx.fillRect(0, floor, stage.width, 2);
+  groundShadow(ctx, x, floor, r, y);
+  withSquash(ctx, x, floor - r - y, s, (c) => {
+    c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2);
+    c.fillStyle = fill; c.fill();
+    c.lineWidth = 2.5; c.strokeStyle = ink; c.stroke();
+  }, pivot);
+});
+// @end
+});
+</script>
+</body>
+</html>

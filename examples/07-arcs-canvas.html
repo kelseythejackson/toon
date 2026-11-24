@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Arcs in Canvas — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+</head>
+<body>
+<h1>Arcs in Canvas</h1>
+<p>A bean is thrown back and forth along <code>arc()</code> with linear timing (steady speed), and turns to face the way it's going
+  with <code>tangent()</code>.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas style="width:100%; height:180px" role="img"
+  aria-label="A bean-shaped character is thrown back and forth
+  along a dotted curve, tilting up as it rises and nose-down as
+  it falls"></canvas>
+<!-- @end -->
+</div>
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('07-arcs-canvas', (document, Toon, DemoTheme) => {
+// @recipe
+const { createStage, arc, tangent } = Toon;
+const stage = createStage(document.querySelector('canvas'));
+const THROW = 0.9;               // seconds for one throw
+// Start partway into a throw, so a frozen frame shows the curve.
+let time = 0.3 * THROW;
+// @fold
+// Reduced motion: freeze the clock on that frame.
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  Toon.ticker.timeScale = 0;
+}
+// @end-fold
+
+stage.loop((dt) => {
+  // Linear timing: t moves at a steady speed, there and back.
+  time += dt;
+  const k = (time / THROW) % 2, back = k > 1;
+  const t = back ? 2 - k : k;
+  const ctx = stage.ctx, floor = stage.height - 20;
+  // A real throw: steady sideways, rising and falling.
+  const fly = arc({ x: 40, y: floor - 14 },
+                  { x: stage.width - 40, y: floor - 14 },
+                  { height: 100 });   // apex 100px up
+  // @fold
+  // Colors from the page: --toon-color for the bean, text for ink.
+  const fill = getComputedStyle(document.documentElement)
+    .getPropertyValue('--toon-color').trim() || '#ff6b4a';
+  const ink = getComputedStyle(document.body).color;
+  // @end-fold
+  stage.clear();
+  ctx.fillStyle = ink;
+  ctx.fillRect(0, floor, stage.width, 2);
+  for (let i = 0; i <= 24; i++) {   // the path, as dots
+    const p = fly(i / 24);
+    ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3);
+  }
+  const p = fly(t);
+  // Face the direction of travel; flip on the way back.
+  const angle = tangent(fly, t) + (back ? Math.PI : 0);
+  ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, 18, 12, 0, 0, Math.PI * 2);
+  ctx.fillStyle = fill; ctx.fill();
+  ctx.lineWidth = 2.5; ctx.strokeStyle = ink; ctx.stroke();
+  ctx.beginPath(); ctx.arc(9, -3, 2.5, 0, Math.PI * 2);  // eye
+  ctx.fillStyle = ink; ctx.fill();
+  ctx.restore();
+});
+// @end
+});
+</script>
+</body>
+</html>

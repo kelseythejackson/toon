@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Timing in Canvas — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+</head>
+<body>
+<h1>Timing in Canvas</h1>
+<p>Three objects dropped from the same height. Gravity, bounciness and drag give each its own timing, and
+  <code>quantize</code> holds each drawing for two frames when "On twos" is on.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas style="width:100%; height:180px" role="img"
+  aria-label="A bowling ball, a rubber ball and a balloon
+  drop side by side. The bowling ball lands hard and barely
+  bounces, the rubber ball rebounds high, and the balloon
+  drifts down slowly"></canvas>
+<label><input id="twos" type="checkbox"> On twos
+  (12 drawings per second)</label>
+<!-- @end -->
+</div>
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('09-timing-canvas', (document, Toon, DemoTheme) => {
+// @recipe
+const { createStage, quantize, impact, squash,
+        withSquash } = Toon;
+const stage = createStage(document.querySelector('canvas'));
+const twos = document.getElementById('twos');
+// Weight is gravity (px/s²), bounce (0 to 1) and drag (per s).
+const things = [
+  { name: 'bowling', r: 20, g: 2600, bounce: 0.2,
+    drag: 0, squash: 0.06 },
+  { name: 'rubber', r: 16, g: 1800, bounce: 0.75,
+    drag: 0, squash: 0.4 },
+  { name: 'balloon', r: 20, g: 300, bounce: 0.4,
+    drag: 1.6, squash: 0.2 },
+];
+const HOLD = 0.07;          // seconds squashed on the floor
+let since = 0, drawn = -1;
+const drop = () => things.forEach((o) =>
+  Object.assign(o, { y: o.r + 10, vy: 0, hold: 0 }));
+drop();
+
+function update(dt) {
+  if ((since += dt) > 4) { since = 0; drop(); }  // every 4 s
+  for (const o of things) {
+    const floor = stage.height - 30 - o.r;
+    if (o.hold > 0) {         // on the floor: hold, then rebound
+      if ((o.hold -= dt) <= 0) o.vy = -o.out;
+      continue;
+    }
+    o.vy += o.g * dt; o.vy *= 1 - o.drag * dt; o.y += o.vy * dt;
+    if (o.y >= floor) {
+      o.y = floor; o.out = o.vy * o.bounce; o.vy = 0;
+      o.hold = o.out > 40 ? HOLD : 0;
+    }
+  }
+}
+// @fold
+// Reduced motion: run 0.45 s ahead, then freeze the clock.
+// The bowling ball has landed; the balloon is still high.
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  for (let i = 0; i < 27; i++) update(1 / 60);
+  Toon.ticker.timeScale = 0;
+}
+// @end-fold
+
+stage.loop((dt, time) => {
+  update(dt);
+  if (twos.checked) {        // hold each drawing for 2 frames
+    const q = quantize(time, 12);
+    if (q === drawn) return;
+    drawn = q;
+  }
+  const ctx = stage.ctx, ground = stage.height - 30;
+  // @fold
+  const fill = getComputedStyle(document.documentElement)
+    .getPropertyValue('--toon-color').trim() || '#ff6b4a';
+  const ink = getComputedStyle(document.body).color;
+  // @end-fold
+  stage.clear();
+  ctx.fillStyle = ink; ctx.fillRect(0, ground, stage.width, 2);
+  ctx.font = '12px system-ui'; ctx.textAlign = 'center';
+  things.forEach((o, i) => {
+    const x = stage.width * (i + 1) / 4;
+    const k = Math.sin((1 - o.hold / HOLD) * Math.PI);
+    const s = o.hold > 0 ? impact(k * o.squash)
+      : squash(0, o.vy, { amount: o.squash * 0.0015 });
+    const pivot = o.hold > 0 ? { x: 0, y: o.r } : undefined;
+    withSquash(ctx, x, o.y, s, (c) => {
+      c.beginPath(); c.arc(0, 0, o.r, 0, Math.PI * 2);
+      c.globalAlpha = o.name === 'balloon' ? 0.45 : 1;
+      c.fillStyle = o.name === 'bowling' ? ink : fill;
+      c.fill(); c.globalAlpha = 1;
+      c.lineWidth = 2.5; c.strokeStyle = ink; c.stroke();
+    }, pivot);
+    ctx.fillStyle = ink; ctx.fillText(o.name, x, ground + 20);
+  });
+});
+// @end
+});
+</script>
+</body>
+</html>

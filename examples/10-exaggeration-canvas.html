@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · Exaggeration in Canvas — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+<style>
+  output { min-width: 3ch; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<h1>Exaggeration in Canvas</h1>
+<p>A cartoon take (a surprised double take): squint, jump with wide eyes, settle. Every pose goes through
+  <code>exaggerate</code>, so one slider sets how far it goes.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas style="width:100%; height:180px" role="img"
+  aria-label="A round character does a surprised take: it
+  squints, then stretches upward with wide eyes and raised
+  brows, then settles. The slider sets how far each pose
+  goes"></canvas>
+<label>Exaggeration <input id="ex" type="range" min="0"
+  max="2" step="0.1" value="1" aria-valuetext="1 times">
+  <output id="out">×1</output></label>
+<button id="take" type="button">Do the take</button>
+<!-- @end -->
+</div>
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('10-exaggeration-canvas', (document, Toon, DemoTheme) => {
+// @recipe
+const { createStage, samplePoses, exaggerate, ease,
+        withSquash, clamp } = Toon;
+const stage = createStage(document.querySelector('canvas'));
+const ex = document.getElementById('ex');
+ex.oninput = () => {
+  document.getElementById('out').textContent = `×${ex.value}`;
+  ex.setAttribute('aria-valuetext', `${ex.value} times`);
+};
+// The take, as key poses. sy: height scale, eye: eye scale,
+// y: lift in px, brow: brow lift in px. At rest: 1, 1, 0, 0.
+const REST = { sy: 1, eye: 1, y: 0, brow: 0 };
+const take = [
+  { at: 0, pose: REST },
+  { at: 0.2, pose: { sy: 0.85, eye: 0.4, y: 0, brow: -3 } },
+  { at: 0.32, pose: { sy: 1.25, eye: 1.6, y: 24, brow: 6 },
+    ease: ease.outBack },
+  { at: 0.7, pose: { sy: 1.2, eye: 1.5, y: 20, brow: 5 } },
+  { at: 1, pose: REST, ease: ease.outElastic },
+];
+const LENGTH = 1.6;           // seconds for the whole take
+const still = matchMedia('(prefers-reduced-motion: reduce)')
+  .matches;
+// Reduced motion: hold the wide-eyed pose until the button.
+let start = still ? null : 0, now = 0;
+document.getElementById('take').onclick = () => (start = now);
+
+stage.loop((dt, time) => {
+  now = time;
+  if (!still && now - start > LENGTH + 1) start = now;  // again
+  const p = start === null ? 0.5 : clamp((now - start) / LENGTH);
+  const pose = samplePoses(take, p);
+  // Push every channel away from its rest value by k.
+  const k = +ex.value;
+  const sy = Math.max(0.3, exaggerate(pose.sy, k, 1));
+  const eye = Math.max(0.15, exaggerate(pose.eye, k, 1));
+  const lift = Math.max(0, pose.y * k);
+  const brow = pose.brow * k;
+
+  const ctx = stage.ctx, x = stage.width / 2, r = 30;
+  const floor = stage.height - 20;
+  // @fold
+  const fill = getComputedStyle(document.documentElement)
+    .getPropertyValue('--toon-color').trim() || '#ff6b4a';
+  const ink = getComputedStyle(document.body).color;
+  // @end-fold
+  stage.clear();
+  ctx.fillStyle = ink; ctx.fillRect(0, floor, stage.width, 2);
+  // Squash the body around its base, then lift it.
+  const s = { sx: 1 / sy, sy };
+  withSquash(ctx, x, floor - r - lift, s, (c) => {
+    c.beginPath(); c.arc(0, 0, r, 0, Math.PI * 2);
+    c.fillStyle = fill; c.fill();
+    c.lineWidth = 2.5; c.strokeStyle = ink; c.stroke();
+    c.fillStyle = ink; c.lineCap = 'round';
+    for (const side of [-1, 1]) {
+      c.beginPath();           // eye
+      c.ellipse(side * 10, -4, 3.5 * Math.min(eye, 1.6),
+        6 * eye, 0, 0, Math.PI * 2);
+      c.fill();
+      c.beginPath();           // brow
+      c.moveTo(side * 5, -16 - brow);
+      c.lineTo(side * 15, -16 - brow);
+      c.stroke();
+    }
+    c.beginPath();             // mouth: a gasp when surprised
+    if (eye > 1.3) c.ellipse(0, 12, 4, 5, 0, 0, Math.PI * 2);
+    else c.arc(0, 8, 6, 0.2 * Math.PI, 0.8 * Math.PI);
+    c.stroke();
+  }, { x: 0, y: r });
+});
+// @end
+});
+</script>
+</body>
+</html>

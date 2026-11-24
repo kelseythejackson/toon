@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>04 · Straight ahead vs pose to pose in Canvas — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+</head>
+<body>
+<h1>Straight ahead vs pose to pose in Canvas</h1>
+<p>Smoke simulated one frame at a time with <code>straightAhead</code>, next to an arm that moves through key
+  poses with <code>poses</code>. The key poses are drawn faintly behind it.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas style="width:100%; height:180px" role="img"
+  aria-label="Left: smoke rises and curls, each frame grown
+  from the one before. Right: a ball raises its arm, waves and
+  lowers it, through key poses drawn faintly behind it"></canvas>
+<!-- @end -->
+</div>
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('04-straight-ahead-vs-pose-to-pose-canvas', (document, Toon, DemoTheme) => {
+// @recipe
+const { createStage, straightAhead, poses, ease, noise } = Toon;
+const stage = createStage(document.querySelector('canvas'));
+const ctx = stage.ctx;
+
+// Straight ahead: each frame updates what the last one left.
+const puffs = [];
+let seed = 0;
+function step(h) {               // h: seconds per frame
+  puffs.push({ x: stage.width / 4, y: stage.height - 30,
+               vx: 0, r: 5, life: 0, seed: (seed += 7.3) });
+  for (const p of puffs) {
+    p.vx += noise(p.seed + p.life * 1.5) * 80 * h;   // drift
+    p.x += p.vx * h; p.y -= 45 * h;                  // rise
+    p.r += 10 * h; p.life += h;                      // spread
+  }
+  while (puffs.length && puffs[0].life > 2.4) puffs.shift();
+}
+for (let i = 0; i < 48; i++) step(1 / 24);  // start mid-plume
+straightAhead(step, { fps: 24 });
+
+// Pose to pose: shoulder angle a and elbow bend b, in degrees
+// (0 hangs down). Each key's ease shapes the move into it.
+const up = { a: 150, b: 30 }, wave = { a: 155, b: -30 };
+const rest = { a: 40, b: 20 }, windUp = { a: 30, b: 45 };
+const keys = [
+  { at: 0, pose: up }, { at: 0.15, pose: wave },
+  { at: 0.3, pose: up }, { at: 0.55, pose: rest },
+  { at: 0.7, pose: windUp },     // anticipation
+  { at: 1, pose: up, ease: ease.outBack },   // overshoot
+];
+let arm = { ...up };
+poses(keys, { duration: 3000, repeat: Infinity,
+              onUpdate: (pose) => (arm = pose) });
+// @fold
+// Reduced motion: freeze the clock with the arm up.
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  Toon.ticker.timeScale = 0;
+}
+// @end-fold
+
+function drawArm(sx, sy, { a, b }, width) {
+  const rad = Math.PI / 180;
+  const ex = sx - Math.sin(a * rad) * 26;
+  const ey = sy + Math.cos(a * rad) * 26;
+  ctx.lineWidth = width; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(ex, ey);
+  ctx.lineTo(ex - Math.sin((a + b) * rad) * 22,
+             ey + Math.cos((a + b) * rad) * 22);
+  ctx.stroke();
+}
+
+stage.loop(() => {
+  const w = stage.width, floor = stage.height - 24;
+  // @fold
+  const fill = getComputedStyle(document.documentElement)
+    .getPropertyValue('--toon-color').trim() || '#ff6b4a';
+  const ink = getComputedStyle(document.body).color;
+  // @end-fold
+  stage.clear();
+  ctx.fillStyle = ink; ctx.fillRect(0, floor, w, 2);
+  ctx.fillRect(w / 2 - 1, 16, 2, floor - 16);     // divider
+
+  ctx.save();                    // smoke stays in the left half
+  ctx.beginPath(); ctx.rect(0, 8, w / 2 - 6, floor - 8);
+  ctx.clip();
+  ctx.fillStyle = ink;
+  for (const p of puffs) {
+    ctx.globalAlpha = 0.25 * (1 - p.life / 2.4);
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  const cx = w * 0.78, r = 30, sx = cx - r, sy = floor - r - 6;
+  ctx.strokeStyle = ink; ctx.globalAlpha = 0.2;   // key poses
+  for (const k of [up, wave, rest, windUp]) drawArm(sx, sy, k, 3);
+  ctx.globalAlpha = 1;
+  ctx.beginPath(); ctx.arc(cx, floor - r, r, 0, Math.PI * 2);
+  ctx.fillStyle = fill; ctx.fill();
+  ctx.lineWidth = 2.5; ctx.stroke();
+  drawArm(sx, sy, arm, 9);               // the in-between
+  ctx.strokeStyle = fill; drawArm(sx, sy, arm, 4);
+});
+// @end
+});
+</script>
+</body>
+</html>

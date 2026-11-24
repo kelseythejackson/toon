@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>08 · Secondary action in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+<style>
+  /* Demo only: the panel lays the card and button out in a column. */
+  .panel { flex-direction: column; align-items: flex-start; }
+</style>
+</head>
+<body>
+<h1>Secondary action in CSS</h1>
+<p>A card slides in and settles: that's the primary action. The flower sways, its eyes blink and the badge bobs,
+  quietly, so the card stays the thing you read.</p>
+<div class="panel">
+<!-- @recipe -->
+<!-- Primary: the card settles in. Secondary: sway, blink, bob -->
+<div id="card" class="toon-settle" style="display:flex;
+  align-items:center; gap:16px; max-width:300px;
+  padding:16px; border:2px solid; border-radius:16px">
+  <span class="toon-sway" style="display:grid;
+    justify-items:center; flex:none">
+    <span style="display:grid; place-items:center;
+      width:34px; height:34px; border-radius:50%;
+      border:2.5px solid; background:var(--toon-color)">
+      <span class="toon-blink" style="display:flex;
+        gap:6px"><b style="width:4px; height:7px;
+        border-radius:2px; background:currentColor"></b><b
+        style="width:4px; height:7px; border-radius:2px;
+        background:currentColor"></b></span>
+    </span>
+    <span style="width:3px; height:26px;
+      background:currentColor"></span>
+  </span>
+  <p style="margin:0">Your garden is growing
+    <span class="toon-bob" style="display:inline-block;
+      padding:0 8px; border:2px solid; border-radius:99px;
+      font-weight:600">3 new</span></p>
+</div>
+<button id="replay" type="button">Replay</button>
+<!-- @end -->
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('08-secondary-action-css', (document) => {
+// @recipe
+// Replay a one-shot preset: remove it, force a reflow, add it.
+document.getElementById('replay').onclick = () => {
+  const card = document.getElementById('card');
+  card.classList.remove('toon-settle');
+  void card.offsetWidth;
+  card.classList.add('toon-settle');
+};
+// @end
+});
+</script>
+</body>
+</html>

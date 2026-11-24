@@ -8,12 +8,7 @@
 <link rel="stylesheet" href="demo.css">
 <style>
   body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
-  canvas { display: block; width: 100%; height: 340px; }
-  /* Sizes shrink on narrow screens so the three balls fit a 320px phone (90px balls from about 500px up). */
-  .row { --ball: clamp(56px, 18vw, 90px); display: flex; gap: clamp(1rem, 6vw, 3rem); justify-content: center; align-items: flex-end; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 150px clamp(1rem, 5vw, 2rem) 2rem; }
-  .cell { display: flex; flex-direction: column; align-items: center; gap: .3rem; }
-  .ball { width: var(--ball); height: var(--ball); } .shadow { width: calc(var(--ball) * 1.1); height: 20px; margin-top: -10px; }
-  .flat { border-radius: 50%; background: var(--toon-color, #ff6b4a); }
+  canvas { display: block; width: 100%; height: 340px; margin-bottom: var(--space-sm); }
 </style>
 </head>
 <body>
@@ -22,13 +17,6 @@
   shading, a spinning surface, and a contact shadow.</p>
 <canvas id="c" style="cursor:crosshair" role="img" aria-label="Two balls bounce side by side: on the left a flat disc, on the right a shaded, spinning globe with a contact shadow. The light direction can be changed."></canvas>
 <p class="demo-try"><label class="demo-act-range">Light direction <input id="lightDir" type="range" min="0" max="360" step="5" value="225"></label> <b>Try it</b> Move your pointer over the canvas, or use the <i>Light direction</i> slider, to move the light.</p>
-
-<h2>CSS: <code>.toon-solid</code> + <code>.toon-shadow</code></h2>
-<div class="row">
-  <div class="cell"><div class="ball flat"></div><small>flat</small></div>
-  <div class="cell"><div class="ball toon-solid"></div><div class="shadow toon-shadow"></div><small>.toon-solid</small></div>
-  <div class="cell"><div class="ball toon-solid toon-bounce" style="--toon-color:var(--demo-secondary); --toon-height:110px"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>…in motion</small></div>
-</div>
 
 <script src="../src/toon.js"></script>
 <script src="demo-theme.js"></script>

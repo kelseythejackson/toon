@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 · Appeal in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
+  /* Two columns at every width: the same face, still and alive. */
+  .row { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; align-items: start;
+    background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border);
+    box-shadow: var(--demo-panel-shadow); padding: 1.5rem .75rem 1.25rem; color: var(--demo-ink); }
+  .cell { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; }
+  .cell small { margin-top: .75rem; color: var(--demo-text); }
+</style>
+</head>
+<body>
+<h1>Appeal in CSS</h1>
+<p>The same face twice. On the left it has no presets. On the right it pops in, breathes and blinks.</p>
+<div class="row" role="img" aria-label="Two copies of a round face. The left one is still. The right one pops in with an elastic bounce, then breathes gently and blinks every few seconds.">
+  <div class="cell">
+    <div style="width:120px">
+      <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true" style="display:block; overflow:visible">
+        <circle cx="60" cy="62" r="54" style="fill:var(--toon-color)"/>
+        <circle cx="57" cy="59" r="54" fill="none" stroke="currentColor" stroke-width="2.4"/>
+        <g fill="none" stroke-width="2.6" stroke-linecap="round" style="stroke:var(--face, #1a1a1a)">
+          <path d="M32 40 Q40 33 50 37 M70 37 Q80 33 88 40"/>
+          <path d="M48 82 Q60 92 72 82"/>
+        </g>
+        <g>
+          <circle cx="44" cy="56" r="9" fill="#fff" stroke-width="1.8" style="stroke:var(--face, #1a1a1a)"/>
+          <circle cx="76" cy="56" r="9" fill="#fff" stroke-width="1.8" style="stroke:var(--face, #1a1a1a)"/>
+          <circle cx="45" cy="57" r="4.5" fill="#1a1a1a"/>
+          <circle cx="77" cy="57" r="4.5" fill="#1a1a1a"/>
+        </g>
+      </svg>
+    </div>
+    <small>no presets<br>&nbsp;</small>
+  </div>
+  <div class="cell">
+<!-- @recipe -->
+<!-- One preset per element: pop in on the wrapper, breathe
+     on the body, blink on the eyes. On a dark body, set
+     --face to white so the brows and mouth stay readable. -->
+<div class="toon-pop-in" style="width:120px">
+  <svg class="toon-breathe" viewBox="0 0 120 120"
+    width="120" height="120" aria-hidden="true"
+    style="display:block; overflow:visible">
+    <circle cx="60" cy="62" r="54"
+      style="fill:var(--toon-color)"/>
+    <circle cx="57" cy="59" r="54" fill="none"
+      stroke="currentColor" stroke-width="2.4"/>
+    <g fill="none" stroke-width="2.6" stroke-linecap="round"
+      style="stroke:var(--face, #1a1a1a)">
+      <path d="M32 40 Q40 33 50 37 M70 37 Q80 33 88 40"/>
+      <path d="M48 82 Q60 92 72 82"/>
+    </g>
+    <!-- fill-box: the eyes squash about their own center -->
+    <g class="toon-blink"
+      style="transform-box:fill-box; transform-origin:center">
+      <circle cx="44" cy="56" r="9" fill="#fff"
+        stroke-width="1.8" style="stroke:var(--face, #1a1a1a)"/>
+      <circle cx="76" cy="56" r="9" fill="#fff"
+        stroke-width="1.8" style="stroke:var(--face, #1a1a1a)"/>
+      <circle cx="45" cy="57" r="4.5" fill="#1a1a1a"/>
+      <circle cx="77" cy="57" r="4.5" fill="#1a1a1a"/>
+    </g>
+  </svg>
+</div>
+<!-- @end -->
+    <small>pop in, breathe<br>and blink</small>
+  </div>
+</div>
+<p class="demo-try"><button type="button" class="demo-act" id="replay">Replay entrance</button> <b>Try it</b> Press <i>Replay entrance</i> to see the pop-in again.</p>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="cast-shapes.js"></script>
+<script src="cast.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('12-appeal-css', (document, Toon, DemoTheme) => {
+  const T = DemoTheme;
+  // Brows, eye rims and mouth take near-black or white, whichever reads on the theme's body color.
+  const paint = () => document.documentElement.style.setProperty('--face', Cast.featFor(T.primary));
+  paint(); T.onChange(paint);
+  const pop = document.querySelector('.row .toon-pop-in');
+  const replay = () => { pop.classList.remove('toon-pop-in'); void pop.offsetWidth; pop.classList.add('toon-pop-in'); };
+  document.getElementById('replay').addEventListener('click', replay);
+  replay();   // in the docs the demo starts when it scrolls into view: play the entrance then
+});
+</script>
+</body>
+</html>

@@ -14,7 +14,7 @@
 <p class="demo-hint">The dots show the path. Press Throw to send the ball back.</p>
 <div class="panel">
 <!-- @recipe -->
-<canvas role="img"
+<canvas style="width:100%; height:300px" role="img"
         aria-label="A ball is thrown back and forth along a dotted arc"></canvas>
 <button>Throw</button>
 <!-- @end -->
@@ -28,12 +28,14 @@ ToonDemos.register('recipes/throw-along-path', (document, Toon, DemoTheme) => {
 const stage = Toon.createStage(document.querySelector('canvas'));
 let fly, t = 0, left = true;
 
-function throwIt() {
+function aim() {                   // the arc from this side to the other
   const y = stage.height - 30;
   const a = { x: 40, y }, b = { x: stage.width - 40, y };
   fly = left ? Toon.arc(a, b, { height: 120 })
              : Toon.arc(b, a, { height: 120 });
-  left = !left;
+}
+function throwIt() {
+  aim(); left = !left; t = 0;
   // Linear timing on a quadratic curve = true projectile motion.
   Toon.tween({ duration: 900, ease: Toon.ease.linear,
                onUpdate: (v) => (t = v) });
@@ -56,7 +58,9 @@ stage.loop(() => {
                   (c) => Toon.drawSolid(c, { r: 16 }));
 });
 document.querySelector('button').onclick = throwIt;
-throwIt();
+aim();                             // show the path straight away
+// Throw once on load, unless the reader asked for less motion.
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) throwIt();
 // @end
 });
 </script>

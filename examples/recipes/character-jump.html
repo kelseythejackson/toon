@@ -13,7 +13,7 @@
 <p>Anticipation, squash and stretch, slow in and slow out, and timing, one tween per beat.</p>
 <div class="panel">
 <!-- @recipe -->
-<canvas role="img"
+<canvas style="width:100%; height:300px" role="img"
         aria-label="A ball crouches, jumps and squashes as it lands"></canvas>
 <button>Jump</button>
 <!-- @end -->
@@ -58,7 +58,8 @@ stage.loop(() => {
              (c) => drawSolid(c, { r }), { x: 0, y: r });
 });
 document.querySelector('button').onclick = jump;
-jump();
+// Jump once on load, unless the reader asked for less motion.
+if (!matchMedia('(prefers-reduced-motion: reduce)').matches) jump();
 // @end
 });
 </script>

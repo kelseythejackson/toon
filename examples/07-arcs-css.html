@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 · Arcs in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
+  .row { position: relative; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border);
+    box-shadow: var(--demo-panel-shadow); padding: 1rem 1.25rem 1.25rem; }
+  /* A floor line under the ball, like the canvas demos. */
+  .floor { position: relative; width: 232px; max-width: 100%; margin: 0 auto; border-bottom: 2px solid var(--demo-ground-line); }
+  /* The path the ball follows, drawn behind it: a parabola from the ball's start to its end, 100px high. */
+  .floor svg { position: absolute; left: 0; bottom: 0; overflow: visible; pointer-events: none; }
+  .floor svg path { fill: none; stroke: var(--demo-faint); stroke-width: 2; stroke-dasharray: 4 6; }
+  /* Flat fill with Dot's ink outline, like the cast. */
+  .toon-arc > * { border: 2.5px solid var(--demo-ink); box-sizing: border-box; }
+  /* Reduced motion: hold the ball at the top of its arc, the pose that shows the curve, until you press Play. */
+  @media (prefers-reduced-motion: reduce) {
+    .row .toon-arc:not([data-motion="play"] *) { translate: calc(var(--toon-distance) / 2) 0; }
+    .row .toon-arc > :not([data-motion="play"] *) { translate: 0 calc(var(--toon-height) * -1); }
+  }
+</style>
+</head>
+<body>
+<h1>Arcs in CSS</h1>
+<p>A ball hops back and forth on a parabola. The dashed line is the path; it shows the curve is a real throw, not two
+  straight lines. With reduced motion on, the ball holds at the top of the arc until you press Play.</p>
+<div class="row" role="img" aria-label="A ball hops back and forth along a dashed curved path, rising slowly to the top of the arc and speeding up as it falls.">
+  <div class="floor">
+    <svg width="232" height="1" aria-hidden="true"><path d="M16 -16 Q116 -216 216 -16" /></svg>
+<!-- @recipe -->
+<!-- The ball rises 100px: leave room above it. -->
+<div style="padding-top:110px">
+  <div class="toon-arc toon-loop toon-yoyo" style="width:32px;
+    --toon-distance:200px; --toon-height:100px">
+    <div style="width:32px; height:32px; border-radius:50%;
+      background:var(--toon-color)"></div>
+  </div>
+</div>
+<!-- @end -->
+  </div>
+</div>
+
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+</body>
+</html>

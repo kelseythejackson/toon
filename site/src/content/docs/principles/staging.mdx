@@ -4,39 +4,37 @@ description: "Point attention at one thing: highlight it and quiet everything el
 sidebar: { order: 3, label: 'Staging' }
 ---
 import Demo from '../../../components/Demo.astro';
+import Recipe from '../../../components/Recipe.astro';
 
-Staging means directing attention. In the demo, Loop performs under the spotlight while a crowd of gray Bricks stands still and watches. Use contrast in color, light, motion and size so the viewer looks where you want, and give the important thing a clear silhouette and a moment to itself.
+Staging means directing attention, so the viewer looks at one thing at a time. Use contrast in color, light, motion and size to lead the eye, and give the important thing a clear silhouette and a moment to itself. In the demo, Loop performs under the spotlight while a crowd of gray Bricks stands still and watches.
 
 <Demo file="03-staging.html" title="Staging demo" />
 
 ## Staging in CSS
 
-```html
-<div class="toon-stage">
-  <div>…</div>
-  <div class="is-featured">…</div>   <!-- or just hover/focus a child -->
-  <div>…</div>
-</div>
-```
+To feature one item in a group, add `.toon-stage` to the container. This snippet runs as-is:
 
-When one child is featured, hovered or focused, its siblings fade and shrink slightly. Only `opacity` and `scale` are animated, so the browser can run it on the GPU. Avoid animating `filter: blur()` here; it repaints every sibling on every frame. For a pointed effect, add a `.toon-spotlight` overlay and position it with `--toon-spot-x`, `--toon-spot-y` and `--toon-spot-r`.
+<Recipe dir="" file="03-staging-css.html" join before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />
+
+Below, *Art* starts pinned with `.is-featured`. Hover, tab to or press another card to give it the stage:
+
+<Demo file="03-staging-css.html" title="CSS staging demo" source={false} />
+
+When one child is featured, hovered or focused, its siblings fade to 40% and shrink to 96% in 300 ms. Only `opacity` and `scale` change, so the browser can run it on the GPU; for a pointed light instead, lay a `.toon-spotlight` overlay over the group.
 
 ## Staging in Canvas
 
-```js
-const stage = Toon.createStage(canvas, { background: '#2b2a33' });
-// …draw the scene, then:
-stage.spotlight(hero.x, hero.y, 55, { dim: 0.72 });
-```
+Draw the scene, then call `stage.spotlight()` to darken everything outside a soft circle. The light's position runs through a `Spring`, so it glides to each new performer instead of jumping. The performer also stands out by color, size and motion.
 
-In the demo, the spotlight position runs through two `Spring`s, so when the focus changes the light glides to the new subject instead of jumping.
-
-> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+<Recipe dir="" file="03-staging-canvas.html" join before={'<script src="toon.js"></script>'} title="Canvas staging demo" />
 
 ## Staging: tuning tips
 
 - **Animate one thing at a time.** If everything moves, nothing stands out. Keep the crowd still or on slow idle motion.
-- **Use several kinds of contrast together.** Color, brightness, motion and scale reinforce each other.
-- **Move focus smoothly.** A sudden jump disorients people; a short eased glide doesn't.
+- **Use several kinds of contrast together.** Color, brightness, motion and size reinforce each other. The Canvas snippet uses all four.
+- **Move focus smoothly.** A sudden jump disorients the viewer. A short eased glide (300 ms in CSS, a soft spring in Canvas) keeps their place.
+- **Fade, don't blur.** Animating `filter: blur()` on the background repaints every sibling on every frame. Fading and shrinking reads the same and stays smooth.
 
-**API:** [`createStage`](../../api/canvas/#drawing-staging-and-appeal), [`Spring`](../../api/canvas/#physics), [`.toon-stage` and `.toon-spotlight`](../../api/css/#classes)
+In the demo, the crowd drifts on slow noise, a [secondary action](../secondary-action/) that keeps the scene alive without pulling focus.
+
+For every option, see the [Canvas stage and spotlight](../../api/canvas/#drawing-staging-and-appeal) and the [CSS staging preset](../../api/css/#effects).

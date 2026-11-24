@@ -4,6 +4,56 @@
 
 Everything since 1.1.0, newest first.
 
+### The paste check tests what readers actually copy
+- **`npm run check`** now reads every `<Recipe>` on every docs page and pastes each code block exactly as the page shows it, adding nothing but the toon file a block doesn't load itself. The old check always added `toon.css` and wrapped scripts, so it passed snippets that broke when copied. New failures: a script shown on its own, and a canvas that draws only in grays. `scripts/recipe-regions.mjs` builds the blocks for both the check and `Recipe.astro`.
+- **Fixed, found by it:**
+  - All 12 principle Canvas snippets read `--toon-color`, which only `toon.css` sets. Pasted with `toon.js` alone they drew gray, and Solid drawing and Appeal threw. They now fall back to `#ff6b4a`.
+  - Six CSS snippets (Anticipation, Staging, Straight ahead, Secondary action, Timing, Exaggeration) and the settling-list recipe showed their script as a separate block. They're joined now.
+- **Folds are marked in the example** (`// @fold` … `// @end-fold`) instead of everything before `stage.loop`, which on Anticipation hid the wind-up the section teaches. Each Canvas snippet folds only its reduced-motion freeze and the lines that read colors.
+- **Anticipation:** the hero opens on the crouch under reduced motion. "Hover, focus or tap" and 44px buttons in the CSS demo, with Launch as a plain control. The tip now matches the presets' defaults (about 9%, or 4% with `.toon-subtle`), and `s` in `ease.anticipate(s)` is explained.
+- **`Recipe.astro`:** a demo given a `title` gets the same "Open the … on its own page" link text as other demos.
+- **`site/STYLE.md`:** join any snippet that needs a script, give colors a fallback, and fold plumbing, not the lesson.
+
+### One template for every principle page, and every snippet on them runs
+- **`site/STYLE.md`** has a "Principle pages" section: intro, demo, CSS (a runnable snippet, then its result), Canvas (a runnable snippet as one block, 180px result), tuning tips, then a one-line footer. Snippets are read from `examples/NN-name-css.html` and `examples/NN-name-canvas.html`.
+- **All 12 principle pages** follow it. Each has a CSS example and a Canvas example that run when pasted, sized in the snippet and respecting reduced motion. The old fragments and "Runnable code" notes are gone.
+- **`npm run check`** paste-tests every example page that has `@recipe` regions, not only recipes and start pages.
+- **Hero demos (02–12):** their old CSS sections, scripts and styles are gone, since each page now has its own CSS demo. Secondary action starts mid-stage and Straight ahead starts with smoke already drawn, so a reduced-motion still shows something. Timing labels show names only on phones. Slider rows shrink to fit a 320px screen.
+- **Squash & stretch:** the CSS balls stay side by side on phones, with a floor line. The Canvas snippet draws a flat, outlined ball in the page's colors.
+- **Docs styles:** on phones, a code block that scrolls sideways fades at its right edge until it's scrolled to the end (`motion.js` marks it).
+- **Code blocks:** a joined canvas snippet starts with its setup lines folded (up to the first `stage.loop`), so the part that animates is in view; copying still copies all of it. Uses `@expressive-code/plugin-collapsible-sections`, configured in `site/ec.config.mjs`.
+
+### Every recipe runs when pasted, checked by `npm run check`
+- **`npm run check`** pastes each recipe's copyable regions into a bare page next to `toon.css` and `toon.js`, with motion allowed and with reduced motion. It fails if a canvas is left at the 300×150 default, draws nothing, draws off its top edge, or moves on its own under reduced motion. The region logic is shared with `Recipe.astro` (`scripts/recipe-regions.mjs`), so the check tests exactly what readers copy.
+- **Fixed, found by that check:**
+  - The canvas recipes (character jump, throw, reduced motion, squash ball) relied on page CSS for their height. Each canvas is now sized in its snippet.
+  - The settling-list snippet looked up a Replay button that wasn't in it.
+  - The character jump, the throw and the first-canvas page no longer move on load under reduced motion, and the squash ball holds its squash.
+- **`Recipe.astro`:** `join` shows a recipe as one block (styles, markup, then `<script>`), so one copy is a working page. The canvas recipes and the Getting started canvas use it.
+- **Docs, Squash & stretch page:** back to the CSS, Canvas, tips order every principle page uses. The Dot demo's internals are gone from the page (the full source stays under the demo). The rule is explained in words, and the CSS result is introduced before it appears.
+- **Docs styles:** code shows `=>` and `<=` as typed (no ligatures). On phones, code blocks scroll sideways instead of breaking mid-word.
+- **`examples/demo.css`:** the reduced-motion banner's button stays at the right edge when the message changes.
+
+### Reduced-motion readers can press Play on CSS demos, and Canvas squash gets a runnable recipe
+- **Core:** under `prefers-reduced-motion`, toon.css now skips anything inside `[data-motion="play"]`, so a page can offer a Play button that turns its CSS effects back on. Same rule otherwise. No new lines: the core stays at 519 of 520.
+- **`examples/demo-runtime.js`:** every demo that moves gets Play under reduced motion, CSS-only ones included. Play sets `data-motion="play"` on that demo only.
+- **New recipe:** a squashing ball (now `examples/01-squash-and-stretch-canvas.html`) that uses `impact`, `squash` and `withSquash` and runs as-is.
+- **Docs, Squash & stretch page:** reordered to demo, Canvas, then CSS, so the Canvas code sits under the Canvas demo. Only the first paragraph comes before the demo. The demo's variables are in a table. The page names `--toon-color` and `--toon-height`, and the CSS demo has a description for screen readers.
+- **`examples/demo-theme.js`:** on dark grounds, canvas contact shadows use the ground-line ink instead of black, matching the CSS shadows.
+- **Docs styles:** paragraphs inside block quotes keep the 60ch reading width.
+- **Docs:** the CSS API page and the reduced-motion recipe explain `data-motion="play"`.
+
+### Squash & stretch keeps its volume, and its page runs as written
+- **Core:** the squash and stretch in `.toon-bounce`, `.toon-anticipate` and `.toon-launch` now keeps `sx · sy = 1` (for example `scale: calc(1 + s) calc(1 / (1 + s))` instead of `calc(1 - s)`). Balls look very slightly taller when squashed, most visibly at high `--toon-squash`. The `--toon-squash` comment names the material scale (.06 heavy, .22 tennis ball, .38 rubber). No new lines: the core stays at 519 of 520.
+- **Docs, Squash & stretch page:**
+  - The CSS snippet runs when pasted: it has a size, links `toon.css` and is read from a new example, `examples/01-squash-and-stretch-css.html`, which shows `.toon-heavy`, the default and `.toon-light` side by side, right under the code.
+  - The Canvas snippet is read from the demo (an `@recipe` region), in short lines, and is labelled a fragment.
+  - One squash scale on the whole page. The slider is now **Exaggeration**, with its value shown and announced.
+  - With reduced motion on, the demo opens on three still poses (stretched, squashed, round) instead of a frozen frame, and the CSS balls hold their squash.
+- **`examples/demo-runtime.js`:** the reduced-motion banner follows Play and Pause, so it no longer says "paused" while a demo plays.
+- **`examples/demo.css`:** sliders have a 24px-tall hit area (WCAG 2.5.8).
+- **`Recipe.astro`:** `dir=""` reads from `examples/` itself.
+
 ### Themeable contact shadows, and Pause on every looping demo
 - **Core:** `.toon-shadow` reads its color from `--toon-shadow-color` (default `rgb(0 0 0 / .45)`, unchanged), so contact shadows can show on dark backgrounds. No new lines: the core stays at 519 of 520.
 - **`examples/demo-runtime.js`:** any demo that moves on its own (a canvas, or a looping CSS preset) gets a Pause button even with motion allowed (WCAG 2.2.2). Pausing also freezes its CSS animations (`.demo-paused` in `demo.css`). Under reduced motion the banner works as before.

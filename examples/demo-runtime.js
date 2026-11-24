@@ -13,7 +13,8 @@
  * <toon-demo> in the docs):
  *   - with motion allowed, any demo that moves on its own (a canvas, or a looping CSS preset) gets a Pause
  *     button, so nobody has to sit through motion they can't stop (WCAG 2.2.2)
- *   - under prefers-reduced-motion, a banner explains that the demo is paused, with Play for canvas demos
+ *   - under prefers-reduced-motion, a banner explains that the demo is paused, with Play. Play restarts the
+ *     demo's clock and sets data-motion="play", which toon.css's reduced-motion rule skips, so CSS effects play too
  */
 (function () {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -87,14 +88,19 @@
     const note = document.createElement('div');
     note.className = 'demo-motion-note'; note.setAttribute('role', 'status');
     const text = document.createElement('span');
-    text.textContent = hasCanvas
+    const hasCss = !!root.querySelector('[class^="toon-"], [class*=" toon-"]');
+    const paused = hasCanvas
       ? 'The drawings are paused because your system asks for reduced motion. Press Play to watch them move.'
-        + (root.querySelector('[class^="toon-"], [class*=" toon-"]') ? ' CSS effects stay off and show their end state.' : '')
-      : 'Animations are switched off because your system asks for reduced motion, so each effect shows its end state.';
+      : 'Animations are paused because your system asks for reduced motion, so each effect holds a single pose. Press Play to watch them move.';
+    // The banner is a live region: it follows the button, so it never says "paused" while the demo plays.
+    const say = () => { text.textContent = theme.paused ? paused : 'Playing because you pressed Play. Press Pause to stop it.'; };
+    // Play lifts toon.css's reduced-motion rule for this demo only (it skips anything inside [data-motion="play"]).
+    const motionRoots = root instanceof ShadowRoot ? [...root.children] : [document.documentElement];
+    const allowMotion = (on) => motionRoots.forEach((el) => on ? el.setAttribute('data-motion', 'play') : el.removeAttribute('data-motion'));
     note.append(text);
-    if (hasCanvas) {
-      theme.paused = true; ticker.timeScale = 0;
-      const btn = toggle(ownerEl, theme, ticker, () => note.classList.remove('is-nudged'));
+    if (hasCanvas || hasCss) {
+      theme.paused = true; if (ticker) ticker.timeScale = 0; say();
+      const btn = toggle(ownerEl, theme, ticker, () => { note.classList.remove('is-nudged'); allowMotion(!theme.paused); say(); });
       note.append(btn);
       // An action button pressed while paused would seem dead: point at Play instead.
       root.addEventListener('click', (e) => {
@@ -103,7 +109,7 @@
         note.classList.add('is-nudged');
         text.textContent = 'Paused for reduced motion, so that action is waiting. Press Play to see it.';
       });
-    }
+    } else text.textContent = 'Animations are switched off because your system asks for reduced motion.';
     place(root, note);
   }
 

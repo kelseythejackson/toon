@@ -4,40 +4,35 @@ description: "Small supporting motions (glances, swings, blinks) that add life."
 sidebar: { order: 8, label: 'Secondary action' }
 ---
 import Demo from '../../../components/Demo.astro';
+import Recipe from '../../../components/Recipe.astro';
 
-The primary action is what the character is doing, such as walking. Secondary actions support it: arms swinging against the step, eyes glancing around, an occasional blink. In the demo, Loop's walk is the primary action and the rest is secondary. They make the main action richer, but they must never compete with it.
+The primary action is what a character is doing, such as walking. Secondary actions support it: arms swinging against the step, eyes glancing around, an occasional blink. They make the main action richer, but they never compete with it.
 
 <Demo file="08-secondary-action.html" title="Secondary action demo" />
 
 ## Secondary action in CSS
 
-```html
-<span class="toon-sway">🌻</span>     <!-- gentle rotation from the base -->
-<span class="toon-bob">3 new</span>   <!-- small vertical float -->
-<span class="toon-blink">👀</span>     <!-- occasional squash to a line -->
-```
+Add `.toon-sway`, `.toon-bob` or `.toon-blink` to small parts of something that already has a main action. This snippet runs as-is:
+
+<Recipe dir="" file="08-secondary-action-css.html" join before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />
+
+Below, the card's entrance is the primary action. Press Replay to watch it again while the flower and badge keep moving:
+
+<Demo file="08-secondary-action-css.html" title="CSS secondary action demo" source={false} />
+
+`.toon-sway` tilts 4 degrees each way from the bottom edge, `.toon-bob` floats up 5px and back, and `.toon-blink` squashes to a line about once every 4 seconds. Each runs on a multiple of `--toon-duration`, so they drift in and out of step instead of pulsing together.
 
 ## Secondary action in Canvas
 
-```js
-Toon.ticker.add((dt, t) => {
-  const phase = t * Math.PI * 2 * 1.6;          // primary: the walk cycle
-  const bob = Math.abs(Math.sin(phase)) * 8;
-  const swing = Math.sin(phase) * 28;           // secondary: arms swing against the legs, driven by the walk
-  const glance = Toon.noise(t * 0.6);           // secondary: idle eye movement
-  const shut = Toon.blink(t, { every: 2.8 });   // secondary: the odd blink
-  // draw the body at y − bob, arms at ±swing, eyes offset by glance, lids by shut
-});
-```
+This character runs as-is. The arms swing from the walk's own phase, so they stay in step. `noise()` moves the eyes in smooth, random glances, and `blink()` closes them at a slightly irregular rhythm.
 
-`noise(t)` gives smooth, organic randomness for fidgets and glances. `wave(t, { amp, freq, decay })` gives a regular or decaying oscillation.
-
-> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+<Recipe dir="" file="08-secondary-action-canvas.html" join before={'<script src="toon.js"></script>'} title="Canvas secondary action demo" />
 
 ## Secondary action: tuning tips
 
-- **Keep amplitudes small.** If people notice the secondary action first, it is too big.
-- **Drive it from the primary motion.** Arms that swing from the walk phase stay in step for free, while an independent loop can feel disconnected.
-- **Turn it off and compare.** The demo's checkbox shows how lifeless the walk is without it.
+- **Keep amplitudes small.** If people notice the secondary action first, it's too big. The arms here swing about 80 degrees; the eyes move 6px at most.
+- **Drive it from the primary motion.** Arms that read the walk's phase stay in step for free, while an independent loop can feel disconnected.
+- **Give idle motion its own clock.** Glances and blinks that follow the walk look mechanical. A slow `noise()` and an irregular blink feel like a mind at work.
+- **Turn it off and compare.** Untick *Secondary action* in the demos: the walk still works, but the character looks lifeless.
 
-**API:** [`Chain`](../../api/canvas/#physics), [`wave` and `noise`](../../api/canvas/#physics), [`.toon-sway`, `.toon-bob` and `.toon-blink`](../../api/css/#classes)
+For every option, see the [Canvas secondary action functions](../../api/canvas/#physics) and the [CSS secondary action presets](../../api/css/#effects).

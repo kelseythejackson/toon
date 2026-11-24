@@ -36,8 +36,7 @@ export default defineConfig({
         './src/styles/fx.css',
       ],
       components: { ThemeSelect: './src/components/ThemeSelect.astro' },
-      // Wrap long lines instead of scrolling sideways (readers scan code; hidden ends of lines get missed).
-      expressiveCode: { defaultProps: { wrap: true } },
+      // Code block options (wrapping, collapsible setup lines) are in ec.config.mjs.
       head: [{ tag: 'script', content: motionScript }],
       sidebar: [
         { label: 'Start here', items: ['getting-started', 'find-an-effect', 'recipes', 'glossary'] },

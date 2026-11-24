@@ -112,4 +112,5 @@ Modifiers are custom properties, so they also apply to everything inside the ele
 - Two presets that both set `animation` on one element conflict, so nest them instead.
 - To replay a one-shot class, remove it, read `el.offsetWidth`, then add it back.
 - Everything turns off under `prefers-reduced-motion: reduce`. `.toon-launch` and `.toon-arc` jump straight to their end position, so the layout matches the animated version.
+- To let a reader opt back in (a Play button, for example), set `data-motion="play"` on the element or any ancestor. Everything inside it animates again.
 - Only classes that start with `toon-` are affected, so names like `cartoon-card` are left alone.

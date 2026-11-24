@@ -4,41 +4,37 @@ description: "A small wind-up before the main move: button presses, jumps, launc
 sidebar: { order: 2, label: 'Anticipation' }
 ---
 import Demo from '../../../components/Demo.astro';
+import Recipe from '../../../components/Recipe.astro';
 
-Before jumping, you crouch. Before throwing, you pull your arm back. Anticipation is a small move in the **opposite direction** of the main action. It prepares the viewer's eye, so the action itself reads clearly even when it's fast.
+Before jumping, you crouch. Before throwing, you pull your arm back. Anticipation is a small move in the **opposite direction** of the main action. It prepares the viewer's eye, so the action reads clearly even when it's fast.
 
 <Demo file="02-anticipation.html" title="Anticipation demo" />
 
 ## Anticipation in CSS
 
-```html
-<button class="toon-press">Hold me</button>          <!-- dip on :active, overshoot on release -->
-<div class="toon-anticipate" tabindex="0">Hover</div> <!-- crouch → spring on hover / focus -->
-<div class="toon-launch">➜</div>                      <!-- one-shot: pull back, shoot, overshoot -->
-```
+To make a control wind up before it acts, add one of the three anticipation presets. This snippet runs as-is:
 
-The `--toon-ease-anticipate` easing dips below zero before moving forward, so you can use it on any transition of your own.
+<Recipe dir="" file="02-anticipation-css.html" join before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />
+
+Below, hold the first button, hover, tap or tab to the second, and press *Launch* to replay the ball:
+
+<Demo file="02-anticipation-css.html" title="CSS anticipation demo" source={false} />
+
+`.toon-press` dips while held and springs past its size on release. `.toon-anticipate` crouches before it rises, and `.toon-launch` pulls back before it shoots forward. For a transition of your own, the `--toon-ease-anticipate` easing dips backwards first.
 
 ## Anticipation in Canvas
 
-Write the action as a sequence of beats. The first beat is the wind-up:
+Write the action as beats with `sequence`, and make the first beat the wind-up. Each beat is a `tween` of the ball's height and vertical scale. For a single tween, `ease.anticipate(s)` puts the dip inside the easing curve itself. `s` sets how far it dips: 1.7 by default, 0 for none.
 
-```js
-await Toon.sequence(
-  to({ sy: 0.62 }, 280, ease.outQuad),       // crouch: the anticipation
-  to({ y: 170, sy: 1 }, 320, ease.outQuad),  // the action
-  /* … */
-);
-```
-
-For a single tween, `ease.anticipate(s)` (also available as `ease.inBack`) produces the dip-back inside the easing curve itself.
-
-> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above, or see the [character jump recipe](../../recipes/#a-character-jump-scripted), which runs as-is.
+<Recipe dir="" file="02-anticipation-canvas.html" join before={'<script src="toon.js"></script>'} title="Canvas anticipation demo" />
 
 ## Anticipation: tuning tips
 
-- **Size the wind-up to the action.** A small action needs only a small wind-up. For a big leap, the crouch should be the longest beat before it.
-- **Fast actions need more anticipation.** If the main move is only a few frames, the wind-up is what makes it readable.
-- **In UI, keep it subtle.** About 3–6% of scale or a few pixels is enough for buttons.
+- **Size the wind-up to the action.** A small action needs only a small wind-up. For a big leap, the crouch is the longest beat before it: 280 ms against a 90 ms take-off in the Canvas snippet.
+- **Give fast actions more anticipation.** If the main move lasts only a few frames, the wind-up is what makes it readable.
+- **Move against the action.** A wind-up reads only when it goes the other way: down before up, back before forward.
+- **Keep it subtle in interfaces.** The presets are sized to read in a demo: `.toon-press` dips about 9%. On a business screen, add `.toon-subtle` to halve every wind-up, to about 4%.
 
-**API:** [`sequence`](../../api/canvas/#timing-and-sequencing), [`ease.anticipate`](../../api/canvas/#easing), [`.toon-press`, `.toon-anticipate` and `.toon-launch`](../../api/css/#classes)
+The Dot demo also shows [squash and stretch](../squash-and-stretch/) (Dot stretches on take-off and squashes on landing) and [slow in and slow out](../slow-in-slow-out/) (the rise slows into the top of the jump).
+
+For every option, see the [Canvas timing and sequencing functions](../../api/canvas/#timing-and-sequencing) and the [CSS anticipation presets](../../api/css/#effects).

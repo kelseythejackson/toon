@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10 · Exaggeration in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+<style>
+  /* Demo only: a floor line under the ball, and Dot's ink outline. */
+  .panel { flex-direction: column; align-items: stretch; }
+  #dial > div:first-child { border-bottom: 2px solid var(--demo-ground-line); }
+  #dial .toon-shadow { margin: -7px 0 -6px; }
+  #dial .toon-bounce { border: 2.5px solid var(--demo-ink); box-sizing: border-box; }
+  #dial button { justify-self: center; }
+  output { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<h1>Exaggeration in CSS</h1>
+<p>One custom property scales every squash, height and wind-up inside a container. Drag the slider, then
+  hover or press the button.</p>
+<div class="panel">
+<!-- @recipe -->
+<!-- --toon-exaggeration scales every preset inside. -->
+<div id="dial" style="--toon-exaggeration:1;
+  --toon-height:70px; display:grid; gap:16px">
+  <div style="display:grid; justify-items:center;
+    padding-top:150px">
+    <div class="toon-bounce" style="width:48px;
+      height:48px; border-radius:50%;
+      background:var(--toon-color)"></div>
+    <div class="toon-shadow toon-bounce-shadow"
+      style="width:56px; height:12px"></div>
+  </div>
+  <button class="toon-press toon-anticipate"
+    type="button">Hover and press me</button>
+</div>
+<label>Exaggeration <input id="ex" type="range" min="0"
+  max="2" step="0.1" value="1" aria-valuetext="1 times">
+  <output id="out">×1</output></label>
+<!-- @end -->
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('10-exaggeration-css', (document) => {
+// @recipe
+// 0 is no deformation, 1 the default, 2 twice as far.
+const ex = document.getElementById('ex');
+ex.oninput = () => {
+  document.getElementById('dial').style
+    .setProperty('--toon-exaggeration', ex.value);
+  document.getElementById('out').textContent = `×${ex.value}`;
+  ex.setAttribute('aria-valuetext', `${ex.value} times`);
+};
+// @end
+});
+</script>
+</body>
+</html>

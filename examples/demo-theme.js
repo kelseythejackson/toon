@@ -46,7 +46,14 @@
   // Library defaults follow the theme: shadows strengthen on dark grounds, spheres default to the primary.
   if (window.Toon) {
     const { groundShadow, drawSolid } = Toon;
-    Toon.groundShadow = (ctx, x, gy, r, h, o = {}) => groundShadow(ctx, x, gy, r, h, { alpha: T.shadowAlpha, ...o });
+    Toon.groundShadow = (ctx, x, gy, r, h, o = {}) => {
+      if (root.dataset.theme !== 'dark') return groundShadow(ctx, x, gy, r, h, { alpha: T.shadowAlpha, ...o });
+      // Dark grounds: a black shadow vanishes, so draw the same ellipse in the ground-line ink (as CSS shadows do,
+      // via --toon-shadow-color in demo-tokens.css).
+      const k = Math.min(1, Math.max(0, 1 - h / (o.maxHeight ?? 300))), s = 0.5 + 0.6 * k;
+      ctx.fillStyle = T.alpha(T.groundLine, (o.alpha ?? T.shadowAlpha) * (0.3 + 0.7 * k));
+      ctx.beginPath(); ctx.ellipse(x, gy, r * s, r * 0.18 * s, 0, 0, Math.PI * 2); ctx.fill();
+    };
     Toon.drawSolid = (ctx, o = {}) => drawSolid(ctx, { color: T.primary, ...o });
   }
 

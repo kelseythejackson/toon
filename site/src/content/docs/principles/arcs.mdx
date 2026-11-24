@@ -4,41 +4,37 @@ description: "Move along curves, not straight lines: throws, swings, paths."
 sidebar: { order: 7, label: 'Arcs' }
 ---
 import Demo from '../../../components/Demo.astro';
+import Recipe from '../../../components/Recipe.astro';
 
-Almost nothing in nature moves in a straight line. A thrown ball traces a parabola, a turning head sweeps an arc, and a waving hand follows a curve. Straight-line motion reads as robotic.
+Almost nothing in nature moves in a straight line. A thrown ball traces a curve (a *parabola*), a turning head sweeps an arc, and a waving hand follows a curve. Straight-line motion reads as robotic.
 
 <Demo file="07-arcs.html" title="Arcs demo" />
 
 ## Arcs in CSS
 
-```html
-<div class="toon-arc toon-loop toon-yoyo" style="--toon-distance:240px; --toon-height:140px">
-  <div class="ball"></div>
-</div>
-```
+Wrap an element in `.toon-arc` to make it hop `--toon-distance` along a parabola. This snippet runs as-is:
 
-The wrapper and its child each animate one axis with a **different easing**: the wrapper's `translate` moves along x linearly, and the child's `translate` rises and falls on gravity easing. Together they trace a real parabola. Because both animate only `translate`, the browser runs them on the GPU, with no main-thread work per frame. The child also picks up `.toon-loop` or `.toon-yoyo` from the wrapper.
+<Recipe dir="" file="07-arcs-css.html" before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />
+
+Below, the same hop over a dashed line that traces its path:
+
+<Demo file="07-arcs-css.html" title="CSS arc demo" source={false} />
+
+The wrapper moves sideways at a steady speed while its child rises and falls on gravity easing, and together they trace a real parabola. `.toon-loop` and `.toon-yoyo` on the wrapper make it hop back and forth, and its child follows along.
 
 ## Arcs in Canvas
 
-```js
-const fly = Toon.arc(from, to, { height: 120 });   // apex ~120px above the chord
-Toon.tween({ duration: 900, ease: Toon.ease.linear, onUpdate: t => (pos = fly(t)) });
-```
+This throw runs as-is. `arc()` returns a curve from one point to another, and moving along it at a steady speed (linear timing) gives a real throw. `tangent()` gives the direction of travel, so the bean faces where it's going.
 
-Give `arc()` **linear** timing and you get a real throw: the object moves sideways at a steady speed while its height rises and falls like a thrown ball. To pass through several points, use `path()`, which draws a smooth curve through them (a [Catmull-Rom curve](../../glossary/#catmull-rom-curve)), and use `tangent()` to face the direction of travel:
-
-```js
-const route = Toon.path([{ x: 40, y: 200 }, { x: 160, y: 60 }, { x: 300, y: 160 }, { x: 420, y: 40 }]);
-const p = route(t), angle = Toon.tangent(route, t);
-```
-
-> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above, or see the [throwing recipe](../../recipes/#throwing-something-along-a-path), which runs as-is.
+<Recipe dir="" file="07-arcs-canvas.html" join before={'<script src="toon.js"></script>'} title="Canvas arc demo" />
 
 ## Arcs: tuning tips
 
+- **Keep the timing linear.** Easing the progress along `arc()` makes the throw float or slam. A `tween` with `ease.linear` does the same job as the steady clock in the snippet.
+- **Curve through more points with `path()`.** It draws a smooth curve through every point you give it (a [Catmull-Rom curve](../../glossary/#catmull-rom-curve)), and `tangent()` works on it too.
 - **Check your arcs with ghosts.** Plot past positions, as the demos do. Kinks and flat spots show up immediately.
-- **Combine with squash.** Stretch along the tangent while the object moves fast (see [Squash & stretch](../squash-and-stretch/)).
-- **UI paths can arc too.** A slight curve on a card flying to a cart, or a dialog swooping in, feels more natural than a straight slide.
+- **Curve interface paths too.** A slight curve on a card flying to a cart, or a dialog swooping in, feels more natural than a straight slide.
 
-**API:** [`arc`, `path` and `tangent`](../../api/canvas/#motion-paths), [`.toon-arc`](../../api/css/#classes)
+The arcs demo also shows [squash and stretch](../squash-and-stretch/): Dot stretches along the direction of travel. The [throwing recipe](../../recipes/#throwing-something-along-a-path) adds that to an arc.
+
+For every option, see the [Canvas motion paths](../../api/canvas/#motion-paths) and the [CSS `.toon-arc` preset](../../api/css/#effects).

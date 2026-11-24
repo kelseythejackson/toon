@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>03 · Staging in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
+  .row { background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border);
+    box-shadow: var(--demo-panel-shadow); padding: 1.25rem; }
+  /* The snippet's cards, in the demo's tints with an ink outline. */
+  .toon-stage > button { font: var(--font-weight-strong, 600) 14px var(--demo-font); color: var(--demo-text); cursor: pointer;
+    border: 2px solid var(--demo-ink); border-radius: var(--demo-control-radius);
+    background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
+  .toon-stage > button:nth-child(2) { background: color-mix(in srgb, var(--demo-secondary) 14%, var(--demo-surface)); }
+  .toon-stage > button:nth-child(3) { background: color-mix(in srgb, var(--demo-tertiary) 16%, var(--demo-surface)); }
+  .toon-stage > button:nth-child(4) { background: color-mix(in srgb, var(--demo-soft) 16%, var(--demo-surface)); }
+  .toon-stage > button:focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<h1>Staging in CSS</h1>
+<p>One card takes the stage and the others step back.</p>
+<div class="row">
+<!-- @recipe -->
+<div class="toon-stage" role="group" aria-label="Cards"
+  style="display:flex; flex-wrap:wrap; gap:10px">
+  <button aria-pressed="false" style="width:60px; height:80px">
+    Film</button>
+  <button aria-pressed="true" class="is-featured"
+    style="width:60px; height:80px">Art</button>
+  <button aria-pressed="false" style="width:60px; height:80px">
+    Music</button>
+  <button aria-pressed="false" style="width:60px; height:80px">
+    Dance</button>
+</div>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Hover or tab to a card to give it the stage. Press a card to pin it, and press it again to let go.</p>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('03-staging-css', (document, Toon, DemoTheme) => {
+// @recipe
+// Pressing a card pins it with .is-featured. Press it again
+// to unpin it.
+const cards = document.querySelector('.toon-stage');
+cards.addEventListener('click', (e) => {
+  const card = e.target.closest('button');
+  if (!card) return;
+  const pin = !card.classList.contains('is-featured');
+  for (const c of cards.children) {
+    c.classList.remove('is-featured');
+    c.setAttribute('aria-pressed', 'false');
+  }
+  card.classList.toggle('is-featured', pin);
+  card.setAttribute('aria-pressed', String(pin));
+});
+// @end
+});
+</script>
+</body>
+</html>

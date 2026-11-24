@@ -27,6 +27,8 @@ h1, h2, h3 { font-family: var(--demo-display); color: var(--demo-ink); }
 a { color: var(--demo-primary); }
 small, .note { color: var(--demo-muted); }
 input { accent-color: var(--demo-primary); }
+/* Sliders get a 24px-tall hit area (WCAG 2.5.8); the track stays centred in it. */
+input[type=range] { min-height: 24px; margin-block: 0; }
 code { font-size: .92em; }
 /* Panels: every canvas and demo container uses the site's card treatment. */
 canvas, .demo-panel {
@@ -50,6 +52,8 @@ canvas, .demo-panel {
 /* Reduced motion: paused banner with an opt-in play control (added by demo-theme.js). */
 .demo-motion-note { display: flex; gap: var(--space-sm); align-items: center; margin: 0 0 var(--space-md); padding: .6rem .9rem;
   border-radius: var(--demo-control-radius); background: var(--demo-surface-2); color: var(--demo-text); font-size: 14px; }
+/* The text takes the free space, so Play/Pause stays put at the right edge when the message changes length. */
+.demo-motion-note > span { flex: 1; }
 .demo-motion-note.is-nudged { outline: 2px solid var(--demo-primary); outline-offset: 2px; }
 /* With motion allowed: a single Pause button above any demo that moves on its own. Pausing freezes the demo's
  * CSS animations too (the class goes on <html>, or on the <toon-demo> host in the docs). */
@@ -68,7 +72,9 @@ canvas, .demo-panel {
 .demo-act-range { color: var(--demo-text); margin-right: .6em; }
 /* A slider wrapped in its <label> (implicit association): lay the text, slider and <output> out as flex items so they
  * share one vertical centre. The default vertical-align: baseline puts a range input ~2px above the text in Chrome. */
-label:has(> input[type=range]) { display: inline-flex; align-items: center; gap: .4em; }
+label:has(> input[type=range]) { display: inline-flex; align-items: center; gap: .4em; max-width: 100%; }
+/* …and on a narrow phone the slider gives up width first, so the row never pushes the page sideways. */
+label:has(> input[type=range]) > input[type=range] { flex: 0 1 auto; min-width: 4rem; }
 /* Hover and disabled states (Figma: Button State=Hover / Disabled). Hover is a print shadow, like the docs cards. */
 .demo-btn:not(:disabled, [aria-disabled='true']):hover { box-shadow: 3px 3px 0 var(--demo-btn-shadow); translate: -1px -1px; }
 :is(.demo-btn-quiet, .demo-act):not(:disabled, [aria-disabled='true']):hover { background: var(--demo-surface-2); border-color: var(--demo-ink); }

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 · Slow in &amp; slow out in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+<style>
+  /* Demo-only: a lane and a label under each ball, and the cast's ink outline on the balls. */
+  .panel { display: grid; gap: .25rem; }
+  .lane { border-bottom: 1px dashed var(--demo-faint); padding-bottom: 4px; }
+  .lane small { display: block; font: 12px ui-monospace, monospace; color: var(--demo-muted); margin-bottom: 4px; }
+  .slide { border: 2.5px solid var(--demo-ink); box-sizing: border-box; }
+  .panel button { justify-self: start; margin-top: .75rem; }
+</style>
+</head>
+<body>
+<h1>Slow in &amp; slow out in CSS</h1>
+<p>The same 200px move with three timing functions. The eased balls leave and arrive gently; the linear one starts
+  and stops dead.</p>
+<p class="demo-hint">Press Move to send the balls across and back.</p>
+<div class="panel">
+  <div class="lane">
+    <small>linear</small>
+    <div class="slide" style="width:32px; height:32px; border-radius:50%;
+      background:var(--demo-neutral); transition:translate 800ms linear"></div>
+  </div>
+  <div class="lane">
+    <small>var(--toon-ease-out)</small>
+    <div class="slide" style="width:32px; height:32px; border-radius:50%;
+      background:var(--toon-color); transition:translate 800ms var(--toon-ease-out)"></div>
+  </div>
+  <div class="lane">
+    <small>var(--toon-ease-in-out)</small>
+<!-- @recipe -->
+<div class="slide" style="width:32px; height:32px;
+  border-radius:50%; background:var(--toon-color);
+  transition:translate 800ms var(--toon-ease-in-out)"></div>
+<!-- @end -->
+  </div>
+<!-- @recipe -->
+<button id="move">Move</button>
+<!-- @end -->
+</div>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('06-slow-in-slow-out-css', (document, Toon, DemoTheme) => {
+// @recipe
+const balls = document.querySelectorAll('.slide');
+// Reduced motion: jump to the new spot instead of sliding.
+const still = matchMedia('(prefers-reduced-motion: reduce)');
+let across = false;
+document.querySelector('#move').onclick = () => {
+  across = !across;
+  for (const ball of balls) {
+    ball.style.transitionDuration = still.matches ? '0s' : '';
+    ball.style.translate = across ? '200px 0' : '0 0';
+  }
+};
+// @end
+});
+</script>
+</body>
+</html>

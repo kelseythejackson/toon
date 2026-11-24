@@ -4,43 +4,37 @@ description: "Idle life (breathing, blinking, reacting) that makes things likeab
 sidebar: { order: 12, label: 'Appeal' }
 ---
 import Demo from '../../../components/Demo.astro';
+import Recipe from '../../../components/Recipe.astro';
 
-Appeal is charisma, and it isn't the same as cuteness. A villain can be appealing too. It comes from clear, simple shapes, pleasing proportions and signs of life. A character that breathes, blinks and reacts feels present even when it's doing nothing. In the demo, Dot does all three.
+Appeal is charisma, and it isn't the same as cuteness: a villain can be appealing too. It comes from clear, simple shapes, pleasing proportions and signs of life. A character that breathes, blinks and reacts feels present even when it's doing nothing. In the demo, Dot does all three.
 
 <Demo file="12-appeal.html" title="Appeal demo" />
 
 ## Appeal in CSS
 
-```html
-<div class="toon-pop-in">                 <!-- elastic entrance on the wrapper -->
-  <div class="avatar toon-breathe">       <!-- breathing on the body -->
-    <span class="eye toon-blink"></span>
-    <span class="eye toon-blink"></span>
-  </div>
-</div>
-```
+To give a character life at rest, add `.toon-pop-in` to a wrapper, `.toon-breathe` to the body and `.toon-blink` to the eyes. This snippet runs as-is:
 
-Nest the elements: each preset sets `animation`, so one element per preset.
+<Recipe dir="" file="12-appeal-css.html" before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />
+
+Below, the snippet's face is on the right, next to the same face with no presets:
+
+<Demo file="12-appeal-css.html" title="CSS appeal demo" source={false} />
+
+Each preset sets `animation`, so nest the elements: one element per preset. `.toon-breathe` scales from the bottom edge, so the character stays on the ground.
 
 ## Appeal in Canvas
 
-```js
-Toon.ticker.add((dt, t) => {
-  const b = Toon.breathe(t, { rate: 0.35, amount: 0.025 });  // { sx, sy } idle breathing
-  const shut = Toon.blink(t, { every: 3 });                  // 0 open … 1 shut, slightly irregular
-  look.x.target = (mouse.x - cx) / 25;                       // eyes follow the pointer on a Spring
-  // draw body with withSquash(ctx, cx, cy, b, …), eyes squashed by (1 - shut)
-});
-```
+`breathe()` returns a small scale for `withSquash()`, so the body swells and settles. `blink()` returns how far the lids are closed, from 0 to 1, with uneven gaps between blinks. Two `Spring` objects move the eyes toward the pointer and let them settle softly.
 
-`blink()` varies the gap between blinks deterministically, so it never feels like a metronome.
-
-> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+<Recipe dir="" file="12-appeal-canvas.html" join before={'<script src="toon.js"></script>'} title="Canvas appeal demo" />
 
 ## Appeal: tuning tips
 
 - **Simplify the silhouette.** If you can't recognize the shape filled in black, simplify it.
-- **Vary proportions.** Big and small shapes together are more interesting than all-medium ones.
-- **Idle motion should be very subtle.** 2–4% scale is enough; more makes the character look anxious.
+- **Vary proportions.** Big and small shapes together are more interesting than all-medium ones: big eyes on a round body read at a glance.
+- **Keep idle motion subtle.** A scale change of 2–4% is enough. More makes the character look anxious.
+- **Avoid a metronome.** `blink()` varies the gap between blinks, and a breath of about 3 seconds keeps the two rhythms from lining up.
 
-**API:** [`breathe` and `blink`](../../api/canvas/#drawing-staging-and-appeal), [`Spring`](../../api/canvas/#physics), [`.toon-pop-in` and `.toon-breathe`](../../api/css/#classes)
+The Dot demo also shows [secondary action](../secondary-action/) (blinking while breathing) and [follow-through](../follow-through/) (the eyes settle on springs).
+
+For every option, see the [Canvas appeal functions](../../api/canvas/#drawing-staging-and-appeal) and the [CSS appeal presets](../../api/css/#effects).

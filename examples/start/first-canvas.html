@@ -25,6 +25,8 @@ ToonDemos.register('start/first-canvas', (document, Toon, DemoTheme) => {
 // @recipe
 const { createStage, tween, arc, ease, squash, withSquash, drawSolid } = Toon;
 const stage = createStage(document.getElementById('c'));
+// Reduced motion: freeze the clock, so the ball holds still.
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) Toon.ticker.timeScale = 0;
 // The arc spans the canvas, so build it from the stage's current size (it follows the window).
 const fly = (t) => arc({ x: 40, y: stage.height - 40 },
                        { x: stage.width - 40, y: stage.height - 40 }, { height: 160 })(t);

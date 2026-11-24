@@ -4,40 +4,37 @@ description: "Push a motion past realistic so it's clear at a glance."
 sidebar: { order: 10, label: 'Exaggeration' }
 ---
 import Demo from '../../../components/Demo.astro';
+import Recipe from '../../../components/Recipe.astro';
 
-Realistic motion often looks flat on screen. Exaggeration pushes each pose further from rest (bigger eyes, a deeper crouch, a higher jump) so the emotion or idea is unmistakable. It's a dial, not a switch: a game might want 1.8 and a banking app 0.5.
+Realistic motion often looks flat on screen. Exaggeration pushes each pose further from rest (bigger eyes, a deeper crouch, a higher jump) so the idea is clear at a glance. It's a dial, not a switch: a game might want 1.8 and a banking app 0.5.
 
 <Demo file="10-exaggeration.html" title="Exaggeration demo" />
 
 ## Exaggeration in CSS
 
-A single variable scales every squash, height, swing and wind-up in `toon.css`:
+Set `--toon-exaggeration` on a container to scale every squash, height, swing and wind-up inside it. This snippet runs as-is:
 
-```css
-:root { --toon-exaggeration: 1; }      /* global default */
-.game-ui { --toon-exaggeration: 1.8; } /* or use .toon-exaggerate */
-.settings { --toon-exaggeration: .5; } /* or use .toon-subtle */
-```
+<Recipe dir="" file="10-exaggeration-css.html" join before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />
+
+Drag the slider below, then hover over or press the button. At 0 nothing deforms; at 2 everything goes twice as far:
+
+<Demo file="10-exaggeration-css.html" title="CSS exaggeration demo" source={false} />
+
+Every preset multiplies its squash, height and swing by `--toon-exaggeration`, so one value tunes a whole product. For fixed levels, use the `.toon-subtle` (0.5) and `.toon-exaggerate` (1.8) modifiers instead.
 
 ## Exaggeration in Canvas
 
-`exaggerate(value, factor, rest)` scales a value's distance from its rest value. Apply it to every channel of a pose:
+This take (a cartoon double take of surprise) runs as-is. The key poses go through `samplePoses()`, then `exaggerate()` pushes each value away from its rest value by the slider's amount.
 
-```js
-const k = 1.6;
-const sy  = Toon.exaggerate(pose.sy, k, 1);   // rest scale = 1
-const eye = Toon.exaggerate(pose.eye, k, 1);
-const y   = pose.y * k;                       // rest height = 0
-```
-
-The `ease.overshoot(s)` and `ease.elastic(period)` factories exaggerate in time instead of space, by flying past the target before settling.
-
-> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+<Recipe dir="" file="10-exaggeration-canvas.html" join before={'<script src="toon.js"></script>'} title="Canvas exaggeration demo" />
 
 ## Exaggeration: tuning tips
 
-- **Exaggerate the important beat, not every frame.** In a ["take"](../../glossary/#take), the surprise pose gets the big push and everything else stays readable.
+- **Exaggerate the important beat, not every frame.** In a [take](../../glossary/#take), the surprise pose gets the big push and everything else stays readable.
 - **Stay consistent.** Pick one exaggeration level per product or scene; mixing levels feels accidental.
-- **Clamp the results.** Very high factors can produce negative scales, so clamp them (the demo keeps `sy ≥ 0.3`).
+- **Clamp the results.** High factors can turn a scale negative or push a shape off the canvas. The snippet keeps the height scale at 0.3 or more.
+- **Exaggerate in time, too.** `ease.overshoot()` and `ease.elastic()` fly past the target before settling, which reads as extra energy without bigger poses.
 
-**API:** [`exaggerate`](../../api/canvas/#physics), [`ease.overshoot`](../../api/canvas/#easing), [`--toon-exaggeration`](../../api/css/#custom-properties)
+The demo also shows [anticipation](../anticipation/): the squint before the take makes the jump land harder.
+
+For every option, see the [Canvas `exaggerate` function](../../api/canvas/#physics) and the [CSS custom properties](../../api/css/#custom-properties).

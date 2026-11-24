@@ -4,35 +4,35 @@ description: "Make flat shapes feel 3-D: shading, volume, contact shadows."
 sidebar: { order: 11, label: 'Solid drawing' }
 ---
 import Demo from '../../../components/Demo.astro';
+import Recipe from '../../../components/Recipe.astro';
 
-Even a 2-D animation should feel like it has depth. Shading tells you where the light is and that the shape is round; a contact shadow tells you where the object is in space and how high it is. Surface detail that rotates sells the third dimension.
+Even a 2-D animation should feel like it has depth (*solid drawing*: treating shapes as volumes with weight and light). Shading shows where the light is and that the shape is round. A contact shadow shows where the object sits in space and how high it is.
 
 <Demo file="11-solid-drawing.html" title="Solid drawing demo" />
 
 ## Solid drawing in CSS
 
-```html
-<div class="toon-solid" style="--toon-color:#3fa7d6"></div>
-<div class="toon-shadow"></div>
-```
+To shade a ball, add `.toon-solid` to a sized element and put a `.toon-shadow` under it. This snippet runs as-is:
 
-`.toon-solid` builds the same shading from `--toon-color` using `color-mix()`. Pair `.toon-bounce` with `.toon-bounce-shadow` to keep the shadow in sync with the bounce.
+<Recipe dir="" file="11-solid-drawing-css.html" before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />
+
+Below, the snippet's ball is the one on the right, next to a flat disc and the same ball at rest:
+
+<Demo file="11-solid-drawing-css.html" title="CSS solid drawing demo" source={false} />
+
+`.toon-solid` builds a highlight, a core shadow and a lighter rim from `--toon-color`, lit from the top left. `.toon-bounce-shadow` keeps the shadow in time with `.toon-bounce`, so it shrinks and fades as the ball rises.
 
 ## Solid drawing in Canvas
 
-```js
-Toon.drawSolid(ctx, { x, y, r: 48, color: '#3fa7d6', light: { x: -0.45, y: -0.55 } });
-Toon.groundShadow(ctx, x, groundY, 48, heightAboveGround, { maxHeight: 260 });
-```
+`drawSolid()` paints a shaded sphere from one color and a light direction. `shade()` lightens or darkens a color, so the box's faces can follow the same light. `groundShadow()` shrinks and fades the shadow with height.
 
-`drawSolid` paints a highlight, the color, a core shadow and a lighter rim (reflected light). `groundShadow` shrinks and fades as the object rises. In the demo the light follows your pointer, the shadow moves away from it, and the globe's meridians are projected as half-ellipses to show it spinning.
-
-> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+<Recipe dir="" file="11-solid-drawing-canvas.html" join before={'<script src="toon.js"></script>'} title="Canvas solid drawing demo" />
 
 ## Solid drawing: tuning tips
 
-- **Keep one light source** for the whole scene, and put every highlight and shadow on the same side.
-- **Anchor the shadow to the ground.** It should stay on the floor and change size and opacity, not move up with the object.
-- **Keep volume constant.** Solid drawing and [squash and stretch](../squash-and-stretch/) work together: the shape deforms but never loses mass.
+- **Keep one light source.** Every highlight in the scene sits on the same side, and every shadow on the other. The CSS preset always lights from the top left, so pass the same `light` to `drawSolid()` when you mix the two.
+- **Anchor the shadow to the ground.** The shadow stays on the floor and changes size and opacity. It never rises with the object, or the object seems to float.
+- **Push the shadow away from the light.** Offsetting it a few px to the side opposite the light, as the globe demo does, makes the light direction easier to read.
+- **Keep volume constant.** Solid drawing and [squash and stretch](../squash-and-stretch/) work together: the shape deforms, but it never gains or loses mass.
 
-**API:** [`drawSolid`, `groundShadow` and `shade`](../../api/canvas/#drawing-staging-and-appeal), [`.toon-solid` and `.toon-shadow`](../../api/css/#classes)
+For every option, see the [Canvas drawing functions](../../api/canvas/#drawing-staging-and-appeal) and the [CSS `.toon-solid` shape](../../api/css/#shapes).

@@ -8,11 +8,8 @@
 <link rel="stylesheet" href="demo.css">
 <style>
   body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
-  canvas { display: block; width: 100%; height: 340px; }
-  .controls { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: .6rem; }
-  .row { display: flex; gap: 2rem; justify-content: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1rem; }
-  .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 220px; }
-  .ball { width: 56px; height: 56px; } .shadow { width: 64px; height: 14px; margin-top: -7px; }
+  canvas { display: block; width: 100%; height: 340px; margin: var(--space-sm) 0; }
+  .controls { display: flex; gap: 1.5rem; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -25,13 +22,6 @@
 </div>
 <canvas id="c" role="img" aria-label="Brick, Dot and Zip drop side by side. Brick falls hard and barely bounces, Dot rebounds quickly, and Zip drifts down slowly like a balloon."></canvas>
 <p class="demo-try"><b>Try it</b> Switch on "on twos" (12 drawings/s) or slow motion.</p>
-
-<h2>CSS: <code>.toon-heavy</code> / <code>.toon-light</code></h2>
-<div class="row">
-  <div class="cell"><div class="ball toon-solid toon-bounce toon-heavy" style="--toon-color:var(--demo-neutral); --toon-height:60px"></div><div class="shadow toon-shadow toon-bounce-shadow toon-heavy"></div><small>.toon-heavy</small></div>
-  <div class="cell"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>default</small></div>
-  <div class="cell"><div class="ball toon-solid toon-bounce toon-light" style="--toon-color:var(--demo-tertiary)"></div><div class="shadow toon-shadow toon-bounce-shadow toon-light"></div><small>.toon-light</small></div>
-</div>
 
 <script src="../src/toon.js"></script>
 <script src="demo-theme.js"></script>
@@ -81,7 +71,7 @@ ToonDemos.register('09-timing', (document, Toon, DemoTheme) => {
       const mood = o.who === 'brick' ? 'neutral' : o.hold > 0 || o.who === 'zip' ? 'happy' : 'neutral';   // Brick stays unflappable
       withSquash(ctx, x, o.y, s, c => Cast.draw(c, o.who, { x: 0, y: 0, h: o.r * 2, fill: T[o.color], ink: T.ink, trail: false, mood,
         look: { x: 0, y: Math.max(-1, Math.min(1, o.vy / 800)) } }), o.hold > 0 ? { x: 0, y: o.r } : undefined);
-      ctx.fillStyle = T.muted; ctx.font = '13px system-ui'; ctx.textAlign = 'center'; ctx.fillText(o.name, x, ground + 30);
+      ctx.fillStyle = T.muted; ctx.font = '13px system-ui'; ctx.textAlign = 'center'; ctx.fillText(stage.width < 480 ? o.name.split(' · ')[0] : o.name, x, ground + 30);   // phones: names only, so labels don't collide
     });
   });
 });

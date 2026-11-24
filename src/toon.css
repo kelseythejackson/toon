@@ -25,7 +25,7 @@
     1.091 35%, .99 40%, .935 45%, .926 50%, .948 55%, .98 60%, 1.006 65%, 1.019 70%, 1.02 75%,
     1.013 80%, 1.004 85%, .998 90%, 1);
   /* [SQUASH] [EXAGGERATION] */
-  --toon-squash: .22;       /* 0 = rigid, .5 = very rubbery */
+  --toon-squash: .22;       /* 0 rigid · .06 heavy · .22 tennis ball · .38 rubber · .5 max */
   --toon-exaggeration: 1;   /* scales every deformation, height and swing */
   --toon-height: 140px;     /* jump / bounce height */
   --toon-distance: 240px;   /* travel for arcs, launches, entrances */
@@ -43,7 +43,7 @@
 
 /* ── [SQUASH] [TIMING] [SLOW-IN-OUT] Bouncing ball ─────────────────────────────
  * Two animations on independent properties: translate follows gravity easing (slow at the
- * apex, fast at the ground); scale squashes on contact and stretches at top speed. */
+ * apex, fast at the ground); scale squashes on contact, stretches at top speed, keeps sx·sy = 1. */
 .toon-bounce {
   transform-origin: 50% 100%;
   animation: toon-bounce-y var(--_d) infinite, toon-bounce-scale var(--_d) linear infinite;
@@ -53,8 +53,8 @@
   50%      { translate: 0 calc(var(--_h) * -1); animation-timing-function: var(--toon-ease-fall); }
 }
 @keyframes toon-bounce-scale {
-  0%, 100% { scale: calc(1 + var(--_s)) calc(1 - var(--_s)); }           /* contact: squash */
-  6%, 94%  { scale: calc(1 - var(--_s) * .4) calc(1 + var(--_s) * .5); } /* top speed: stretch */
+  0%, 100% { scale: calc(1 + var(--_s)) calc(1 / (1 + var(--_s))); }      /* contact: squash */
+  6%, 94%  { scale: calc(1 / (1 + var(--_s) * .5)) calc(1 + var(--_s) * .5); } /* top speed: stretch */
   30%, 70% { scale: 1; }                                                   /* slow at apex: round */
 }
 /* [SOLID] Contact shadow kept in sync: smaller and fainter while the ball is high. */
@@ -77,17 +77,17 @@
   animation: toon-anticipate calc(var(--_d) * .7) var(--toon-ease-in-out) both;
 }
 @keyframes toon-anticipate {
-  30%  { translate: 0 calc(4px * var(--_e)); scale: calc(1 + var(--_s) * .3) calc(1 - var(--_s) * .3); }
-  60%  { translate: 0 calc(-8px * var(--_e)); scale: calc(1 - var(--_s) * .15) calc(1 + var(--_s) * .2); }
+  30%  { translate: 0 calc(4px * var(--_e)); scale: calc(1 + var(--_s) * .3) calc(1 / (1 + var(--_s) * .3)); }
+  60%  { translate: 0 calc(-8px * var(--_e)); scale: calc(1 / (1 + var(--_s) * .2)) calc(1 + var(--_s) * .2); }
   100% { translate: 0 -4px; scale: 1; }
 }
 /* Launch (add the class to play): pull back, shoot forward --toon-distance, overshoot, settle. */
 .toon-launch { animation: toon-launch var(--_d) both; }
 @keyframes toon-launch {
   0%   { translate: 0 0; animation-timing-function: var(--toon-ease-out); }
-  30%  { translate: calc(var(--toon-distance) * -.12 * var(--_e)) 0; scale: .9 1.08;
+  30%  { translate: calc(var(--toon-distance) * -.12 * var(--_e)) 0; scale: .926 1.08;
          animation-timing-function: var(--toon-ease-in); }                         /* wind-up */
-  45%  { scale: calc(1 + var(--_s)) calc(1 - var(--_s) * .6); }                  /* stretch */
+  45%  { scale: calc(1 + var(--_s)) calc(1 / (1 + var(--_s))); }                 /* stretch */
   75%  { translate: calc(var(--toon-distance) + 14px * var(--_e)) 0; scale: 1;
          animation-timing-function: var(--toon-ease-in-out); }                     /* overshoot */
   100% { translate: var(--toon-distance) 0; scale: 1; }
@@ -186,7 +186,7 @@
 .toon-yoyo   { animation-direction: alternate; }
 .toon-paused { animation-play-state: paused; }
 
-@media (prefers-reduced-motion: reduce) {
-  :is([class^="toon-"], [class*=" toon-"]), .toon-follow > *, .toon-arc > * { animation: none !important; transition: none !important; }
-  .toon-launch, .toon-arc { translate: var(--toon-distance) 0; }   /* skip straight to where the motion ends */
+@media (prefers-reduced-motion: reduce) {   /* a Play button can opt back in: data-motion="play" on an ancestor */
+  :is([class^="toon-"], [class*=" toon-"], .toon-follow > *, .toon-arc > *):not([data-motion="play"], [data-motion="play"] *) { animation: none !important; transition: none !important; }
+  :is(.toon-launch, .toon-arc):not([data-motion="play"], [data-motion="play"] *) { translate: var(--toon-distance) 0; }   /* skip to the end */
 }

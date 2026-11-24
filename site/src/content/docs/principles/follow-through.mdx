@@ -4,47 +4,35 @@ description: "Parts keep moving after the body stops: staggered lists, trailing 
 sidebar: { order: 5, label: 'Follow-through & overlap' }
 ---
 import Demo from '../../../components/Demo.astro';
+import Recipe from '../../../components/Recipe.astro';
 
-**Follow-through**: when a body stops, its loose parts (a tail, hair, ears, a cape) keep going, then settle back.
-**Overlapping action**: different parts move at different rates and start at different times. Nothing moves in lock-step.
+When a body stops, its loose parts (a tail, hair, ears, a cape) keep going, swing past, then settle back. That's **follow-through**. **Overlapping action** is the companion idea: parts move at different rates and start at different times, so nothing moves in lock-step.
 
 <Demo file="05-follow-through.html" title="Follow-through demo" />
 
 ## Follow-through in CSS
 
-```html
-<ul class="toon-follow" style="--toon-overlap:70ms">
-  <li>…</li><li>…</li><li>…</li>
-</ul>
-```
+Add `.toon-follow` to a list, and its items slide in one after another and swing past the stop. This snippet runs as-is:
 
-Each child starts `--toon-overlap` after the previous one. The rotation origin is at the top, so the bottom swings past the stop and wobbles back. Use `.toon-settle` for the same entrance on a single element. `--toon-ease-elastic` is a `linear()` spring curve you can use on any transition.
+<Recipe dir="" file="05-follow-through-css.html" join before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />
+
+Below, the same list with a fill behind each card:
+
+<Demo file="05-follow-through-css.html" title="CSS follow-through demo" source={false} />
+
+Each item starts `--toon-overlap` (70 ms by default) after the one before it. It turns from its top edge, so its bottom swings past the stop and wobbles back; use `.toon-settle` for the same entrance on one element.
 
 ## Follow-through in Canvas
 
-In the demo, Zip follows its target on slightly under-damped `Spring`s, so the body overshoots a little. Zip's three speed-lines are short `Chain`s ([simple rope physics](../../glossary/#rope-physics-verlet)) hanging off its tail. They drag behind, swing past when Zip stops, then settle. Each has its own length and damping, so they don't move in step:
+This ball runs as-is. The body follows its target on a slightly under-damped `Spring`, so it overshoots a little. Each antenna is a `Chain` ([simple rope physics](../../glossary/#rope-physics-verlet)) with its own length and damping, so the two drag, swing past and settle out of step.
 
-```js
-const body = { x: new Toon.Spring(200, { stiffness: 90, damping: 11 }),
-               y: new Toon.Spring(170, { stiffness: 90, damping: 11 }) };
-const lines = [0.9, 0.93, 0.88].map(damping => new Toon.Chain(4, { length: 7, damping, stiffness: 0.12 }));
-
-Toon.ticker.add(dt => {
-  body.x.target = target.x; body.y.target = target.y;
-  const x = body.x.step(dt), y = body.y.step(dt);
-  lines.forEach((line, i) => line.update({ x: x - 34, y: y - 12 + i * 14 }, dt));   // anchored at the tail
-  // draw the lines, then the body on top…
-});
-```
-
-`stiffness` resists bending, so the lines flick and straighten instead of hanging limp; a negative `gravity` would make a chain stand up. For staggered starts in a scripted sequence, use `Toon.stagger(items, fn, { each: 80 })`.
-
-> **Runnable code.** This snippet leaves out the setup (canvas, stage and drawing). For the complete code, open **Show the demo's source** under the demo above.
+<Recipe dir="" file="05-follow-through-canvas.html" join before={'<script src="toon.js"></script>'} title="Canvas follow-through demo" />
 
 ## Follow-through: tuning tips
 
-- **Lighter parts lag more.** Hair and fabric overlap more than limbs; tune `damping` per chain.
-- **The settle should be short.** Two or three decreasing swings is plenty, because a long wobble looks like jelly.
-- **Keep stagger delays small.** 40–90 ms between items reads as one fluid motion. More than that reads as separate events.
+- **Let lighter parts lag more.** Hair and fabric overlap more than limbs. Give each chain its own `damping`, closer to 1 for the floppiest parts.
+- **Keep the settle short.** Two or three shrinking swings are plenty. A long wobble looks like jelly.
+- **Keep stagger delays small.** 40–90 ms between items reads as one fluid motion. Longer gaps read as separate events.
+- **Stagger scripted sequences too.** In Canvas, `Toon.stagger(items, fn, { each: 80 })` starts each item 80 ms after the last, like `--toon-overlap` does in CSS.
 
-**API:** [`Spring` and `Chain`](../../api/canvas/#physics), [`stagger`](../../api/canvas/#timing-and-sequencing), [`.toon-follow` and `.toon-settle`](../../api/css/#classes)
+For every option, see the [Canvas `Spring` and `Chain`](../../api/canvas/#physics) and the [CSS `.toon-follow` preset](../../api/css/#effects).

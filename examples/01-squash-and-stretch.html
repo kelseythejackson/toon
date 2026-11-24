@@ -8,27 +8,19 @@
 <link rel="stylesheet" href="demo.css">
 <style>
   body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
-  canvas { display: block; width: 100%; height: 320px; }
-  .row { display: flex; gap: 2rem; justify-content: center; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1rem; }
-  .cell { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 220px; }
-  .ball { width: 56px; height: 56px; }
-  .shadow { width: 64px; height: 14px; margin-top: -7px; }
+  canvas { display: block; width: 100%; height: 320px; margin: var(--space-sm) 0; }
+  output { min-width: 3.5ch; font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
 <h1>Squash &amp; stretch</h1>
-<p>Dot flattens on contact and stretches along its velocity, keeping its volume (sx · sy = 1).
-  Also on show: <b>timing</b> (gravity sets the beat), <b>slow in / slow out</b> (the trail dots bunch up at the apex)
-  and <b>arcs</b> (the trail is a parabola).</p>
-<label>Squash amount <input id="amt" type="range" min="0" max="2" step="0.05" value="1"></label>
-<canvas id="c" role="img" aria-label="Dot, a round character, bounces on the floor. It stretches as it falls, flattens on landing, and leaves a trail of dots that bunch together at the top of each bounce."></canvas>
-
-<h2>CSS: <code>.toon-bounce</code></h2>
-<div class="row">
-  <div class="cell" style="--toon-squash:0"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>squash 0 (rigid)</small></div>
-  <div class="cell"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>default .22</small></div>
-  <div class="cell" style="--toon-squash:.45"><div class="ball toon-solid toon-bounce"></div><div class="shadow toon-shadow toon-bounce-shadow"></div><small>squash .45 (rubber)</small></div>
-</div>
+<p>Dot flattens on contact and stretches along its velocity, keeping its volume: as it gets wider it gets shorter.
+  Also on show: <b>timing</b> (gravity sets the beat), <b>slow in and slow out</b> (the trail dots bunch up at the top
+  of each bounce) and <b>arcs</b> (the trail is a curve). The CSS version is in
+  <a href="01-squash-and-stretch-css.html">Squash &amp; stretch in CSS</a>.</p>
+<label>Exaggeration <input id="amt" type="range" min="0" max="2" step="0.05" value="1" aria-valuetext="1 times"> <output id="out" for="amt">×1</output></label>
+<canvas id="c" role="img" aria-label="Dot, a round character, bounces along the floor: stretched on the way down, flattened on landing, leaving a trail of dots that bunch together at the top of each bounce. With reduced motion on, the canvas shows three still poses instead: stretched, squashed and round."></canvas>
+<p class="demo-try"><b>Try it</b> Drag Exaggeration to 0 for a rigid ball, or toward 2 for rubber.</p>
 
 <script src="../src/toon.js"></script>
 <script src="demo-theme.js"></script>
@@ -38,16 +30,38 @@
 <script>
 ToonDemos.register('01-squash-and-stretch', (document, Toon, DemoTheme) => {
   const T = DemoTheme;                                    // design tokens, live (see demo-theme.js)
-  const { createStage, ticker, squash, impact, withSquash, groundShadow } = Toon;
+  const { createStage, squash, impact, withSquash, groundShadow } = Toon;
   const stage = createStage(document.getElementById('c'));
   const { ctx } = stage;
-  const amt = document.getElementById('amt');
-  const R = 26, G = 2000, BOUNCE = 950, CONTACT = 0.09;  // [TIMING] gravity + launch speed = rhythm
-  let x = 0, y = 60, vx = 240, vy = 0, contact = 0;
+  const amt = document.getElementById('amt'), out = document.getElementById('out');
+  amt.addEventListener('input', () => {        // [EXAGGERATION] multiplies every squash and stretch
+    out.textContent = `×${+amt.value}`; amt.setAttribute('aria-valuetext', `${+amt.value} times`);
+  });
+  const R = 26, G = 2000, BOUNCE = 950, CONTACT = 0.09;  // [TIMING] gravity + launch speed = rhythm; 90 ms on the floor
+  let x = 0, y = 60, vx = 240, vy = 0, contact = 0, played = false;
   const trail = [];
+  const dotWith = (mood, look) => (c) => Cast.draw(c, 'dot', { x: 0, y: 0, h: R * 2, fill: T.primary, ink: T.ink, mood, look });
+
+  // Reduced motion, before Play: the three key shapes side by side, so the principle shows without motion.
+  function poses(ground, k) {
+    const W = stage.width, floor = ground - R;
+    [['stretched', W * 0.2, floor - 90, squash(0, 950, { amount: 0.0005, exaggeration: k }), undefined, 'neutral'],
+     ['squashed', W * 0.5, floor, impact(0.4, k), { x: 0, y: R }, 'happy'],
+     ['round', W * 0.8, floor - 170, { sx: 1, sy: 1 }, undefined, 'neutral']].forEach(([label, px, py, s, pivot, mood]) => {
+      groundShadow(ctx, px, ground, R, ground - R - py, { maxHeight: 260 });
+      withSquash(ctx, px, py, s, dotWith(mood, { x: 0.7, y: 0 }), pivot);
+      ctx.fillStyle = T.muted; ctx.font = '13px system-ui'; ctx.textAlign = 'center'; ctx.fillText(label, px, ground + 20);
+    });
+  }
 
   stage.loop(dt => {
     const W = stage.width, ground = stage.height - 30, k = +amt.value;
+    if (dt > 0) played = true;
+    stage.clear();
+    ctx.fillStyle = T.ground; ctx.fillRect(0, ground, W, stage.height - ground);
+    ctx.fillStyle = T.groundLine; ctx.fillRect(0, ground, W, 2);
+    if (!played) return poses(ground, k);
+
     if (contact > 0) {                       // hold a few frames on the ground while squashed
       contact -= dt; y = ground - R;
       if (contact <= 0) vy = -BOUNCE;
@@ -59,23 +73,23 @@ ToonDemos.register('01-squash-and-stretch', (document, Toon, DemoTheme) => {
     if (x > W + R) { x = -R; trail.length = 0; }
     trail.push({ x, y }); if (trail.length > 100) trail.shift();
 
-    // [SQUASH] flatten while in contact, otherwise stretch along velocity
-    const s = contact > 0
-      ? impact(Math.sin((1 - contact / CONTACT) * Math.PI) * 0.4, k)
-      : squash(vx, vy, { amount: 0.0005, exaggeration: k });
-
-    stage.clear();
-    ctx.fillStyle = T.ground; ctx.fillRect(0, ground, W, stage.height - ground);
-    ctx.fillStyle = T.groundLine; ctx.fillRect(0, ground, W, 2);
     trail.forEach((p, i) => {                // [ARCS] + [SLOW-IN-OUT] spacing made visible
-      ctx.fillStyle = T.alpha(T.primary, (i / trail.length) * 0.45);
+      ctx.fillStyle = T.alpha(T.primary, (i / trail.length) * 0.6);
       ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, 7); ctx.fill();
     });
     groundShadow(ctx, x, ground, R, ground - R - y, { maxHeight: 260 });
     const mood = contact > 0 ? 'happy' : 'neutral';                         // a grin on every landing
     const look = { x: Math.sign(vx) * 0.7, y: Math.max(-1, Math.min(1, vy / 900)) };   // eyes lead the motion
-    withSquash(ctx, x, y, s, c => Cast.draw(c, 'dot', { x: 0, y: 0, h: R * 2, fill: T.primary, ink: T.ink, mood, look }),
-      contact > 0 ? { x: 0, y: R } : undefined);
+    const dot = dotWith(mood, look);
+
+    // [SQUASH] On the floor: flatten, eased in and out over the
+    // contact time. In the air: stretch along the velocity.
+    const s = contact > 0
+      ? impact(Math.sin((1 - contact / CONTACT) * Math.PI) * 0.4, k)
+      : squash(vx, vy, { amount: 0.0005, exaggeration: k });
+    // Pin the bottom of the shape to the floor while it squashes.
+    const pivot = contact > 0 ? { x: 0, y: R } : undefined;
+    withSquash(ctx, x, y, s, dot, pivot);
   });
 });
 </script>

@@ -1,8 +1,11 @@
 // Quality gate: core size budget + headless smoke test of every example page.
 // Usage: npm run check        (browser choice: see scripts/browser.mjs)
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, writeFileSync, copyFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { launchBrowser } from './browser.mjs';
+import { recipeBlocks, recipeUsages } from './recipe-regions.mjs';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 let failed = false;
@@ -50,6 +53,80 @@ for (const file of pages) {
   if (errors.length) failed = true;
   page.off('console', onConsole); page.off('pageerror', onError);
 }
+// 2b. Paste test: every <Recipe> on every docs page, each code block pasted into a bare page EXACTLY as the page shows
+// it (the blocks come from scripts/recipe-regions.mjs, shared with Recipe.astro). Nothing is added: a block that loads
+// toon.css / toon.js itself gets only that; a block without its own loading line gets both (a reader who set toon up).
+// Fails on script errors, script shown as text, a canvas left at the 300×150 default, a blank canvas, drawing at the
+// top edge, a drawing with no color (e.g. a fill read from toon.css that the snippet never loads), or a canvas that
+// moves on its own under reduced motion.
+{
+  const tmp = mkdtempSync(join(tmpdir(), 'toon-paste-'));
+  copyFileSync(root + 'src/toon.css', join(tmp, 'toon.css'));
+  copyFileSync(root + 'src/toon.js', join(tmp, 'toon.js'));
+  const docs = root + 'site/src/content/docs/';
+  const mdx = readdirSync(docs, { recursive: true }).filter(f => /\.mdx?$/.test(f));
+  let n = 0;
+  for (const page of mdx) {
+    for (const use of recipeUsages(readFileSync(docs + page, 'utf8'))) {
+      const source = readFileSync(join(root, 'examples', use.dir, use.file), 'utf8');
+      const blocks = recipeBlocks(source, use);
+      blocks.forEach((block, bi) => {
+        const loads = /<(link|script)[^>]+toon\.(css|js)/.test(block.code);
+        const html = '<!doctype html>\n<meta charset="utf-8">\n'
+          + (loads ? '' : '<link rel="stylesheet" href="toon.css">\n<script src="toon.js"></script>\n')
+          + block.code + '\n';
+        writeFileSync(join(tmp, `p${n}-${bi}.html`), html);
+        block.name = `${page.replace(/\.mdx?$/, '')} › ${use.dir ? use.dir + '/' : ''}${use.file}${blocks.length > 1 ? ` block ${bi + 1}` : ''}`;
+        block.path = join(tmp, `p${n}-${bi}.html`);
+      });
+      n++;
+      for (const block of blocks) {
+        for (const reducedMotion of ['no-preference', 'reduce']) {
+          const ctx = await browser.newContext({ viewport: { width: 820, height: 900 }, reducedMotion });
+          const p = await ctx.newPage();
+          const errors = [];
+          p.on('console', m => m.type() === 'error' && errors.push(m.text()));
+          p.on('pageerror', e => errors.push(String(e)));
+          await p.goto(pathToFileURL(block.path).href);
+          // JS outside a <script> renders as page text: a split snippet whose script block can't run when pasted.
+          if (block.lang === 'js') errors.push('script block shown on its own (no <script>): join it with its markup');
+          const canvas = await p.$('canvas');
+          if (canvas) {
+            const size = await canvas.evaluate(c => [c.clientWidth, c.clientHeight]);
+            if (size[0] === 300 && size[1] === 150) errors.push('canvas is unsized (300×150 default): size it in the snippet');
+            let drawn = false, escaped = false, colored = false;
+            const frames = new Set();
+            for (let i = 0; i < 24; i++) {      // ~1.2 s of frames
+              await p.waitForTimeout(50);
+              const [d, e, c, hash] = await canvas.evaluate(c => {
+                const g = c.getContext('2d'), all = g.getImageData(0, 0, c.width, c.height).data;
+                const top = g.getImageData(0, 0, c.width, Math.max(1, Math.round(c.height * 0.02))).data;
+                const any = (px) => { for (let j = 3; j < px.length; j += 4) if (px[j]) return true; return false; };
+                let col = false, h = 0;
+                for (let j = 0; j < all.length; j += 4) {
+                  if (all[j + 3] > 200 && Math.max(all[j], all[j + 1], all[j + 2]) - Math.min(all[j], all[j + 1], all[j + 2]) > 60) col = true;
+                  if (!(j % 16)) h = (h * 31 + all[j]) | 0;
+                }
+                return [any(all), any(top), col, h];
+              });
+              drawn ||= d; escaped ||= e; colored ||= c;
+              if (i > 2) frames.add(hash);     // skip the first frames (setup, fonts)
+            }
+            if (!drawn) errors.push('canvas is blank');
+            else if (!colored) errors.push('canvas has no color (only grays): does it read a color the snippet never loads?');
+            if (escaped) errors.push('drawing reaches the top edge of the canvas');
+            if (reducedMotion === 'reduce' && frames.size > 1) errors.push('moves on its own under reduced motion');
+          }
+          console.log(`${errors.length ? '✗' : '✓'} pasted ${block.name} (${reducedMotion})${errors.length ? ' — ' + [...new Set(errors)].join('; ') : ''}`);
+          if (errors.length) failed = true;
+          await ctx.close();
+        }
+      }
+    }
+  }
+  rmSync(tmp, { recursive: true, force: true });
+}
+
 // 3. Error handling: the clock survives a throwing callback, and misuse produces `toon.<fn>:` messages.
 {
   const page = await browser.newPage();

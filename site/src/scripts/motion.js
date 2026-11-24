@@ -64,4 +64,14 @@
       if (url.pathname.endsWith('/')) { url.pathname += 'index.html'; a.href = url.href; }
     }, true);
   }
+
+  // ── Code blocks that scroll sideways (phones, custom.css): mark them, so a fade at the right edge says the line
+  // goes on, and drop the fade once the reader has scrolled to the end. ──
+  const markCode = () => document.querySelectorAll('.expressive-code pre').forEach((pre) => {
+    const more = pre.scrollWidth - pre.clientWidth - pre.scrollLeft > 2;
+    pre.toggleAttribute('data-more', more);
+  });
+  addEventListener('DOMContentLoaded', markCode);
+  addEventListener('resize', markCode);
+  document.addEventListener('scroll', (e) => { if (e.target.matches?.('.expressive-code pre')) markCode(); }, true);
 })();

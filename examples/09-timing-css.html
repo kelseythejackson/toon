@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>09 · Timing in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+<style>
+  /* Demo only: center the scene and give the ball a floor line and Dot's ink outline. */
+  .panel { flex-direction: column; align-items: stretch; }
+  #scene { border-bottom: 2px solid var(--demo-ground-line); }
+  #scene .toon-shadow { margin: -7px 0 -6px; }
+  #scene .toon-bounce { border: 2.5px solid var(--demo-ink); box-sizing: border-box; }
+  output { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<h1>Timing in CSS</h1>
+<p>One custom property retimes everything inside a container. Drag the slider: the ball and its shadow slow
+  down or speed up together.</p>
+<div class="panel">
+<!-- @recipe -->
+<!-- --toon-tempo on a container retimes everything in it. -->
+<div id="scene" style="--toon-tempo:1; display:grid;
+  justify-items:center; padding-top:110px">
+  <div class="toon-bounce" style="--toon-height:100px;
+    width:48px; height:48px; border-radius:50%;
+    background:var(--toon-color)"></div>
+  <div class="toon-shadow toon-bounce-shadow"
+    style="width:56px; height:12px"></div>
+</div>
+<label>Tempo <input id="tempo" type="range" min="0.5"
+  max="2" step="0.1" value="1"
+  aria-valuetext="1, 800 ms per bounce">
+  <output id="out">800 ms</output></label>
+<!-- @end -->
+</div>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('09-timing-css', (document) => {
+// @recipe
+// Higher tempo is slower: each bounce takes 800 ms × tempo.
+const tempo = document.getElementById('tempo');
+tempo.oninput = () => {
+  const ms = Math.round(800 * tempo.value);
+  document.getElementById('scene').style
+    .setProperty('--toon-tempo', tempo.value);
+  document.getElementById('out').textContent = `${ms} ms`;
+  tempo.setAttribute('aria-valuetext',
+    `${tempo.value}, ${ms} ms per bounce`);
+};
+// @end
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>02 · Anticipation in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
+  .row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+    background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border);
+    box-shadow: var(--demo-panel-shadow); padding: 1.25rem; }
+  /* The snippet's buttons, in the demo's button look. */
+  .row button { font: var(--font-weight-strong, 600) 15px var(--demo-font); border: 0; cursor: pointer;
+    border-radius: var(--demo-control-radius); background: var(--demo-btn); color: var(--demo-on-btn); }
+  .row .toon-anticipate { color: var(--demo-text); background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface));
+    box-shadow: inset 0 0 0 1.5px var(--demo-faint); }
+  .row button:focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 3px; }
+  /* Demo only: 44px touch targets, and Launch looks like a plain control, so the two preset buttons read as the subjects. */
+  .row button { min-height: 44px; }
+  .row #launch { background: var(--demo-surface); color: var(--demo-ink); box-shadow: inset 0 0 0 1.5px var(--demo-faint); }
+  /* Flat fill with an ink outline, like the cast. */
+  #ball { border: 2.5px solid var(--demo-ink); box-sizing: border-box; }
+  .row > div { border-bottom: 2px solid var(--demo-ground-line); }
+</style>
+</head>
+<body>
+<h1>Anticipation in CSS</h1>
+<p>Three presets, each with a small move the other way before the main one.</p>
+<div class="row">
+<!-- @recipe -->
+<button class="toon-press" style="padding:.6em 1.2em">
+  Press and hold</button>
+<button class="toon-anticipate" style="padding:.6em 1.2em">
+  Hover, focus or tap</button>
+<!-- The ball travels 160px: give it room. -->
+<div style="width:100%; max-width:220px; height:40px">
+  <div id="ball" style="--toon-distance:160px; width:40px;
+    height:40px; border-radius:50%;
+    background:var(--toon-color)"></div>
+</div>
+<button id="launch" style="padding:.6em 1.2em">Launch</button>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Press and hold the first button, hover, tap or tab to the second, and press <i>Launch</i>.</p>
+
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('02-anticipation-css', (document, Toon, DemoTheme) => {
+// @recipe
+// Replay the one-shot launch: remove the class, then add it back.
+const ball = document.getElementById('ball');
+document.getElementById('launch').onclick = () => {
+  ball.classList.remove('toon-launch');
+  void ball.offsetWidth;   // let the browser see the change
+  ball.classList.add('toon-launch');
+};
+// @end
+});
+</script>
+</body>
+</html>

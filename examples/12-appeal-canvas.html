@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 · Appeal in Canvas — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="recipes/recipe.css">
+</head>
+<body>
+<h1>Appeal in Canvas</h1>
+<p>A simple round face that breathes, blinks on an irregular rhythm and watches the pointer, using
+  <code>breathe</code>, <code>blink</code> and <code>Spring</code>.</p>
+<div class="panel">
+<!-- @recipe -->
+<canvas style="width:100%; height:180px" role="img"
+  aria-label="A round face sits on the floor. It breathes
+  gently, blinks every few seconds and its eyes follow the
+  pointer"></canvas>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Move your pointer over the canvas and the eyes follow it.</p>
+<script src="../src/toon.js"></script>
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+<script>
+ToonDemos.register('12-appeal-canvas', (document, Toon, DemoTheme) => {
+// @recipe
+const { createStage, breathe, blink, Spring, withSquash,
+        groundShadow, shade, clamp } = Toon;
+const canvas = document.querySelector('canvas');
+const stage = createStage(canvas);
+const R = 50;                          // body radius, px
+const WHITE = '#fff', PUPIL = '#1a1a1a';
+// The eyes follow the pointer on springs, so they settle softly.
+const spring = () =>
+  new Spring(0, { stiffness: 140, damping: 16 });
+const look = { x: spring(), y: spring() };
+canvas.addEventListener('pointermove', (e) => {
+  const box = canvas.getBoundingClientRect();
+  const dx = e.clientX - box.left - stage.width / 2;
+  const dy = e.clientY - box.top - (stage.height - 20 - R);
+  look.x.target = clamp(dx / 120, -1, 1);
+  look.y.target = clamp(dy / 120, -1, 1);
+});
+canvas.addEventListener('pointerleave', () => {
+  look.x.target = look.y.target = 0;
+});
+// @fold
+// Reduced motion: freeze the clock, so the face holds still.
+if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  Toon.ticker.timeScale = 0;
+}
+// @end-fold
+
+// Is a color light? (Relative luminance, as WCAG measures it.)
+function isLight(color) {
+  const [r, g, b] = shade(color, 0).match(/[\d.]+/g)
+    .map((v) => (v / 255) ** 2.2);
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.18;
+}
+
+// Flat fills, an ink outline drawn a little off the fill, brows,
+// eyes and a smile. shut closes the lids; lx, ly move the pupils.
+function face(c, fill, ink, feat, shut, lx, ly) {
+  const full = Math.PI * 2, ry = 9 * (1 - shut * 0.9);
+  c.lineCap = 'round';
+  c.beginPath(); c.arc(0, 0, R, 0, full);
+  c.fillStyle = fill; c.fill();
+  c.beginPath(); c.arc(-3, -3, R, 0, full);
+  c.lineWidth = 2.4; c.strokeStyle = ink; c.stroke();
+  c.beginPath();
+  c.moveTo(-26, -20); c.quadraticCurveTo(-18, -28, -8, -24);
+  c.moveTo(8, -24); c.quadraticCurveTo(18, -28, 26, -20);
+  c.moveTo(-11, 18); c.quadraticCurveTo(0, 27, 11, 18);
+  c.lineWidth = 2.6; c.strokeStyle = feat; c.stroke();
+  for (const ex of [-15, 15]) {
+    c.beginPath(); c.ellipse(ex, -6, 9, ry, 0, 0, full);
+    c.fillStyle = WHITE; c.fill();
+    c.lineWidth = 1.8; c.strokeStyle = feat; c.stroke();
+    c.beginPath();
+    c.ellipse(ex + lx, -6 + ly * ry / 9, 4.5, ry / 2, 0, 0, full);
+    c.fillStyle = PUPIL; c.fill();
+  }
+}
+
+stage.loop((dt, t) => {
+  const ctx = stage.ctx, x = stage.width / 2;
+  const floor = stage.height - 20;
+  // Page colors: --toon-color for the body, text for the ink.
+  // @fold
+  const fill = getComputedStyle(document.documentElement)
+    .getPropertyValue('--toon-color').trim() || '#ff6b4a';
+  const ink = getComputedStyle(document.body).color;
+  // @end-fold
+  // Brows and mouth: near-black on a light body, else white.
+  const feat = isLight(fill) ? PUPIL : WHITE;
+  const b = breathe(t, { rate: 0.35, amount: 0.025 }); // sx, sy
+  const shut = blink(t, { every: 3 });      // 0 open to 1 shut
+  const lx = look.x.step(dt) * 4, ly = look.y.step(dt) * 4;
+
+  stage.clear();
+  ctx.fillStyle = ink; ctx.fillRect(0, floor, stage.width, 2);
+  groundShadow(ctx, x, floor, R, 0);
+  // Breathe from the base, so the face stays on the floor.
+  withSquash(ctx, x, floor - R, b, (c) =>
+    face(c, fill, ink, feat, shut, lx, ly), { x: 0, y: R });
+});
+// @end
+});
+</script>
+</body>
+</html>

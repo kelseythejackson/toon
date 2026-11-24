@@ -25,24 +25,24 @@ To wind up on hover as well, add the anticipation preset. Use `--toon-exaggerati
 
 To replay it (for example, after new data arrives), remove the class, force a reflow and add it back:
 
-<Recipe file="settling-list.html" show={[1]} />
+<Recipe file="settling-list.html" join />
 
 ## A character jump, scripted
 
 This uses [anticipation](../principles/anticipation/), [squash and stretch](../principles/squash-and-stretch/), [slow in and slow out](../principles/slow-in-slow-out/) and [timing](../principles/timing/). Each `tween` is one beat, and `sequence` plays them in order. A `withSquash` pivot at the ball's base keeps it planted while it squashes:
 
-<Recipe file="character-jump.html" />
+<Recipe file="character-jump.html" join before={'<script src="toon.js"></script>'} />
 
 ## Throwing something along a path
 
 [Arcs](../principles/arcs/), with squash and stretch along the direction of travel. A quadratic arc run with linear timing follows the same path as a real throw:
 
-<Recipe file="throw-along-path.html" />
+<Recipe file="throw-along-path.html" join before={'<script src="toon.js"></script>'} />
 
 ## Respect reduced motion on canvas
 
-`toon.css` handles reduced motion for you. On canvas, check the media query yourself and either jump to the end state or slow decorative motion right down:
+`toon.css` handles reduced motion for you, and `data-motion="play"` on an ancestor lets a reader opt back in. On canvas, check the media query yourself and either jump to the end state or slow decorative motion right down:
 
-<Recipe file="reduced-motion.html" />
+<Recipe file="reduced-motion.html" join before={'<script src="toon.js"></script>'} />
 
 When the clock is frozen, tweens stop advancing. Anything that must still end up in its final state, such as the values your `onComplete` would set, should be set directly instead of animated.

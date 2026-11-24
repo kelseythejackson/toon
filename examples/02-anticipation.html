@@ -8,12 +8,7 @@
 <link rel="stylesheet" href="demo.css">
 <style>
   body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
-  canvas { display: block; width: 100%; height: 320px; cursor: pointer; }
-  .row { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.5rem; }
-  .btn { font: 600 16px system-ui; padding: .8em 1.6em; border: 0; border-radius: 999px; background: var(--demo-btn); color: var(--demo-on-btn); cursor: pointer; }
-  .card { padding: 1rem 1.4rem; border-radius: 12px; border: 0; font: inherit; color: inherit; background: color-mix(in srgb, var(--demo-primary) 14%, var(--demo-surface)); }
-  .track { width: 100%; height: 50px; position: relative; }
-  .arrow { position: absolute; left: 20px; top: 8px; font-size: 28px; }
+  canvas { display: block; width: 100%; height: 320px; margin: var(--space-sm) 0; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -23,15 +18,6 @@
 <label><input id="antic" type="checkbox" checked> Anticipation (crouch before the jump)</label>
 <canvas id="c" style="cursor:pointer" role="img" aria-label="Dot crouches down, then jumps and lands. With anticipation switched off, Dot jumps without crouching first."></canvas>
 <p class="demo-try"><button type="button" class="demo-act" id="act">Jump</button> <b>Try it</b> Press <i>Jump</i> or click the canvas, then turn anticipation off and compare.</p>
-
-<h2>CSS</h2>
-<div class="row">
-  <button type="button" class="btn toon-press" aria-describedby="fx-only">.toon-press — press and hold</button>
-  <button type="button" class="card toon-anticipate" aria-describedby="fx-only">.toon-anticipate — hover or focus</button>
-  <button class="btn" id="replay">Play .toon-launch</button>
-  <div class="track"><div class="arrow" id="arrow" aria-hidden="true">➜</div></div>
-  <p class="note" id="fx-only" style="margin:0">The first two buttons only show their effect; they don't do anything else.</p>
-</div>
 
 <script src="../src/toon.js"></script>
 <script src="demo-theme.js"></script>
@@ -44,9 +30,11 @@ ToonDemos.register('02-anticipation', (document, Toon, DemoTheme) => {
   const { createStage, ticker, tween, sequence, ease, withSquash, groundShadow } = Toon;
   const stage = createStage(document.getElementById('c'));
   const { ctx } = stage;
-  const hero = { y: 0, sy: 1 };              // y = height above ground; sx = 1/sy keeps volume
+  // Reduced motion opens on the crouch, the pose that shows the principle (nothing moves until Play and Jump).
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hero = { y: 0, sy: still ? 0.62 : 1 };  // y = height above ground; sx = 1/sy keeps volume
   const set = v => Object.assign(hero, v);
-  let mood = 'neutral';
+  let mood = still ? 'focused' : 'neutral';
   const to = (pose, duration, e, m) => () => { if (m) mood = m; return tween({ from: { ...hero }, to: pose, duration, ease: e, onUpdate: set }); };
 
   let busy = false;
@@ -77,11 +65,6 @@ ToonDemos.register('02-anticipation', (document, Toon, DemoTheme) => {
     withSquash(ctx, x, ground - R - hero.y, { sx: 1 / hero.sy, sy: hero.sy }, c => character(c, R), { x: 0, y: R });
   });
 
-  // CSS launch: restart the animation by re-adding the class
-  const arrow = document.getElementById('arrow');
-  document.getElementById('replay').onclick = () => {
-    arrow.classList.remove('toon-launch'); void arrow.offsetWidth; arrow.classList.add('toon-launch');
-  };
   document.getElementById('act').addEventListener('click', jump);
 });
 </script>

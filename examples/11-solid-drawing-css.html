@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 · Solid drawing in CSS — toon</title>
+<link rel="stylesheet" href="../src/toon.css">
+<link rel="stylesheet" href="demo.css">
+<style>
+  body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
+  /* Three columns at every width, so flat and solid stay side by side on a phone. */
+  .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; align-items: start;
+    background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border);
+    box-shadow: var(--demo-panel-shadow); padding: 1rem .75rem 1.25rem; }
+  .cell { display: flex; flex-direction: column; align-items: center; text-align: center; min-width: 0; }
+  .cell small { margin-top: .75rem; }
+  /* A floor line under each ball, like the canvas demos; the shadows sit on it. */
+  .cell > div { width: 100%; border-bottom: 2px solid var(--demo-ground-line); }
+  .cell .toon-shadow { margin-bottom: -9px; }
+  /* Reduced motion: no bounce, so hold the ball in the air, where the shadow is smaller and fainter. */
+  @media (prefers-reduced-motion: reduce) {
+    .cell .toon-bounce { translate: 0 -70px; }
+    .cell .toon-bounce-shadow { scale: .7; opacity: .55; }
+  }
+</style>
+</head>
+<body>
+<h1>Solid drawing in CSS</h1>
+<p>The same ball three ways: a flat fill, shaded with <code>.toon-solid</code> and grounded with a
+  <code>.toon-shadow</code>, then bouncing with a shadow that keeps time. With reduced motion on, the bouncing ball
+  holds a pose in the air until you press Play.</p>
+<div class="row" role="img" aria-label="Three balls side by side. The first is a flat disc. The second is shaded like a sphere, lit from the top left, with a soft shadow under it. The third is the shaded sphere bouncing; its shadow shrinks and fades as it rises.">
+  <div class="cell">
+    <div style="display:grid; justify-items:center; padding-top:150px">
+      <div style="width:64px; height:64px; border-radius:50%; background:var(--toon-color)"></div>
+    </div>
+    <small>flat fill</small>
+  </div>
+  <div class="cell">
+    <div style="display:grid; justify-items:center; padding-top:150px">
+      <div class="toon-solid" style="width:64px; height:64px"></div>
+      <div class="toon-shadow" style="width:76px; height:18px; margin-top:-9px"></div>
+    </div>
+    <small><code>.toon-solid</code><br>at rest</small>
+  </div>
+  <div class="cell">
+<!-- @recipe -->
+<!-- The ball bounces 140px high: leave room above it. -->
+<div style="display:grid; justify-items:center;
+  padding-top:150px">
+  <div class="toon-solid toon-bounce"
+    style="width:64px; height:64px"></div>
+  <!-- Overlap the ball's base, so the shadow sits under it. -->
+  <div class="toon-shadow toon-bounce-shadow"
+    style="width:76px; height:18px; margin-top:-9px"></div>
+</div>
+<!-- @end -->
+    <small><code>.toon-bounce</code><br>in motion</small>
+  </div>
+</div>
+
+<script src="demo-theme.js"></script>
+<script src="demo-runtime.js"></script>
+</body>
+</html>

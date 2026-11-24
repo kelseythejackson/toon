@@ -9,13 +9,6 @@
 <style>
   body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 1rem; }
   canvas { display: block; width: 100%; height: 360px; }
-  .lanes { display: grid; gap: .8rem; background: var(--demo-surface); border-radius: var(--demo-radius); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow); padding: 1.2rem 1.5rem; }
-  .lane { position: relative; height: 22px; border-bottom: 1px dashed var(--demo-faint); container-type: inline-size; }   /* cqw = lane width */
-  .lane span { position: absolute; right: 0; top: 0; font: 12px ui-monospace, monospace; color: var(--demo-muted); }
-  .dot { position: absolute; left: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--demo-primary);
-         animation: ex06-slide 1.6s infinite alternate; }
-  @keyframes ex06-slide { to { translate: calc(100cqw - 20px) 0; } }   /* translate, not left: no layout work per frame */
-  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }   /* toon.css only stops toon-* classes */
 </style>
 </head>
 <body>
@@ -23,15 +16,6 @@
 <p>Objects need time to accelerate and to slow down. The ghost dots are an animator's <i>spacing chart</i>:
   one dot per frame. Where the dots bunch up, the ball is moving slowly; where they spread out, it's fast. Evenly spaced dots look mechanical.</p>
 <canvas id="c" role="img" aria-label="Balls slide across the canvas with different easings. Faint dots mark each frame: they bunch up where a ball moves slowly and spread out where it moves fast."></canvas>
-
-<h2>CSS: easing custom properties</h2>
-<div class="lanes">
-  <div class="lane"><div class="dot" style="animation-timing-function: linear"></div><span>linear</span></div>
-  <div class="lane"><div class="dot" style="animation-timing-function: var(--toon-ease-in)"></div><span>var(--toon-ease-in)</span></div>
-  <div class="lane"><div class="dot" style="animation-timing-function: var(--toon-ease-out)"></div><span>var(--toon-ease-out)</span></div>
-  <div class="lane"><div class="dot" style="animation-timing-function: var(--toon-ease-in-out)"></div><span>var(--toon-ease-in-out)</span></div>
-  <div class="lane"><div class="dot" style="animation-timing-function: var(--toon-ease-overshoot)"></div><span>var(--toon-ease-overshoot)</span></div>
-</div>
 
 <script src="../src/toon.js"></script>
 <script src="demo-theme.js"></script>

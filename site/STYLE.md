@@ -61,6 +61,30 @@ Front-end developers adding motion to an interface, creative coders working on `
 - Keep lines under about 66 characters so they fit the content column.
 - Show good habits: label canvases (`role="img"` and an `aria-label` describing what moves), use `stage.loop`, and give `tween` real milliseconds.
 
+## Principle pages
+
+Every page in `principles/` follows one template, so readers know where to look and each snippet runs when pasted. Squash & stretch is the reference.
+
+1. **Intro.** One or two plain sentences: what the principle is, in everyday words. Define the term the first time.
+2. **The demo.** `<Demo file="NN-name.html" />`, straight after the intro, so the result comes first on a phone.
+3. **`## <Principle> in CSS`.**
+   - One sentence on what to add.
+   - The snippet: `<Recipe dir="" file="NN-name-css.html" before={'<link rel="stylesheet" href="toon.css">\n'} demo={false} />`. Sizes go inline in the snippet, so it runs without page styles. If the snippet needs a script (a Replay button, say), add `join`, so markup and `<script>` come out as one copyable block.
+   - One sentence introducing the result.
+   - The result: `<Demo file="NN-name-css.html" source={false} />`.
+   - At most two sentences on how it works.
+4. **`## <Principle> in Canvas`.**
+   - Up to three short sentences naming the calls, with no more than two code spans in a clause.
+   - The snippet as one copyable page: `<Recipe dir="" file="NN-name-canvas.html" join before={'<script src="toon.js"></script>'} />`.
+   - The canvas is 180px tall, sized inline in the snippet. Anything that moves on its own respects `prefers-reduced-motion`: freeze the clock (`Toon.ticker.timeScale = 0`) on a frame that shows the principle, or don't start until a button is pressed.
+   - The snippet loads only `toon.js`, so a color read from `--toon-color` needs a fallback: `.trim() || '#ff6b4a'`.
+   - Fold plumbing, not the lesson: wrap the reduced-motion freeze and the color-reading lines in `// @fold` … `// @end-fold` (on their own lines). They start folded on the page; the markers are never shown or copied. The code that teaches the principle stays open.
+5. **`## <Principle>: tuning tips`.** Three or four bullets, each a bold lead-in and one or two sentences of advice about this principle (not a list of properties).
+6. **Also on show** (optional). When the demo shows other principles too, a sentence linking to their pages.
+7. **Footer.** "For every option, see the [Canvas …](../../api/canvas/#…) and the [CSS …](../../api/css/#…)." One sentence, at most one code span in each link.
+
+The example files sit in `examples/` next to the demo: `NN-name-css.html` and `NN-name-canvas.html`. `npm run check` takes every `<Recipe>` on every docs page and pastes each code block into a bare page exactly as the page shows it, with nothing added but the toon file a block doesn't load itself. It runs each one with and without reduced motion, and fails on script errors, a script shown on its own, an unsized or blank canvas, a canvas with no color, drawing at the top edge, or motion under reduced motion.
+
 ## Demos
 
 - An intro paragraph says what you're looking at, in one or two plain sentences.
