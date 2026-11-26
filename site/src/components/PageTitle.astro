@@ -1,0 +1,30 @@
+---
+/**
+ * Overrides Starlight's PageTitle (docs pages only; the home page uses its hero). Following the Saturday morning
+ * docs layout (Figma: Explorations → "Option 3 — Docs layout (centered container)"): the title, the page's
+ * frontmatter description as a lede, and an "Edit this page" bar. The bar replaces Starlight's footer edit link
+ * (components/EditLink.astro renders nothing). The URL comes from `editLink.baseUrl` in astro.config.mjs.
+ */
+import { Icon } from '@astrojs/starlight/components';
+
+const { entry, editUrl } = Astro.locals.starlightRoute;
+---
+
+<h1 id="_top">{entry.data.title}</h1>
+{entry.data.description && <p class="page-lede">{entry.data.description}</p>}
+{editUrl && (
+  <a class="page-edit print:hidden" href={editUrl}>
+    <Icon name="pencil" size="1.1em" />
+    Edit this page
+  </a>
+)}
+
+<style>
+  @layer starlight.core {
+    h1 { margin-top: 1rem; font-size: var(--sl-text-h1); line-height: var(--sl-line-height-headings); font-weight: 600; color: var(--sl-color-white); }
+  }
+  .page-lede { margin-top: .75rem; font-size: var(--sl-text-xl); line-height: 1.5; color: var(--sl-color-gray-3); max-width: 60ch; }
+  .page-edit { display: flex; align-items: center; gap: .6rem; margin-top: 1.25rem; padding: .75rem 1rem; border-radius: 14px;
+    background: var(--sl-color-gray-7); color: var(--sl-color-white); font-weight: 500; text-decoration: none; }
+  .page-edit:hover { text-decoration: underline; text-underline-offset: .2em; }
+</style>

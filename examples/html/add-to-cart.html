@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" data-style="saturday">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Add to cart along an arc — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="html.css">
+</head>
+<body>
+<h1>Add to cart along an arc</h1>
+<p>The item is thrown into the cart along a curve, rising and falling like a real throw.</p>
+<div class="panel">
+<!-- @recipe -->
+<button id="add">Add to cart</button>
+<!-- The item rises 80px: leave room above it. -->
+<div style="padding-top:90px; width:232px">
+  <div class="toon-arc" style="--toon-distance:200px;
+    --toon-height:80px; width:32px">
+    <div style="width:32px; height:32px; border-radius:8px;
+      background:var(--toon-color)"></div>
+  </div>
+</div>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Press <i>Add to cart</i> to throw it again.</p>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
+<script>
+ToonDemos.register('html/add-to-cart', (document, Toon, DemoTheme) => {
+// @recipe
+const item = document.querySelector('.toon-arc');
+document.getElementById('add').onclick = () => {
+  item.classList.remove('toon-arc');
+  void item.offsetWidth;   // let the browser see the change
+  item.classList.add('toon-arc');
+};
+// @end
+});
+</script>
+</body>
+</html>

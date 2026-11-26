@@ -26,6 +26,7 @@ Set these on `:root` to change everything, or on any element (or container) to c
 | `--toon-height` | `140px` | Arcs, timing | Bounce and arc apex height |
 | `--toon-distance` | `240px` | Arcs, anticipation | Travel for arcs, launches and entrances |
 | `--toon-color` | `#ff6b4a` | Solid drawing | Base color for `.toon-solid` |
+| `--toon-recede-opacity` | `.75` | Staging | Opacity of the children `.toon-stage` steps back. Keep it at .75 or more when they hold text, so it stays readable (WCAG contrast); go lower only for images or icons |
 | `--toon-shadow-color` | `rgb(0 0 0 / .45)` | Solid drawing | Color at the center of `.toon-shadow`. Lighten it on dark backgrounds, where black barely shows |
 | `--toon-ease-in`, `--toon-ease-out`, `--toon-ease-in-out` | cubic-béziers | Slow in & slow out | General easing |
 | `--toon-ease-rise`, `--toon-ease-fall` | exact quadratics | Slow in & slow out, arcs | Gravity: rising after a throw, then falling |
@@ -37,7 +38,7 @@ Set these on `:root` to change everything, or on any element (or container) to c
 
 Each element also computes internal values (`--_d`, `--_s`, `--_h`, `--_e`) from these properties. Don't set those directly.
 
-**See it in:** [your first CSS animation](../../getting-started/#your-first-css-animation) for tuning a bounce, [Timing](../../principles/timing/) for `--toon-tempo`, and [Exaggeration](../../principles/exaggeration/) for `--toon-exaggeration`.
+**See it in:** [your first CSS animation](../../first-animation/#your-first-css-animation) for tuning a bounce, [Timing](../../principles/timing/) for `--toon-tempo`, and [Exaggeration](../../principles/exaggeration/) for `--toon-exaggeration`.
 
 ## Classes
 

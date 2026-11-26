@@ -17,8 +17,10 @@ import { getCollection } from 'astro:content';
 import { CardGrid, Icon } from '@astrojs/starlight/components';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+/** limit: show only the first n principles (the home page previews six). */
+const { limit = 12 } = Astro.props as { limit?: number };
 const pages = (await getCollection('docs', ({ id }) => id.startsWith('principles/') && id !== 'principles' && id !== 'principles/index'))
-  .sort((a, b) => (a.data.sidebar.order ?? 0) - (b.data.sidebar.order ?? 0));
+  .sort((a, b) => (a.data.sidebar.order ?? 0) - (b.data.sidebar.order ?? 0)).slice(0, limit);
 
 // data-reps: how many iterations make one whole cycle for that element, so parts with different
 // durations stop together (Timing's light ball bounces three times per heavy bounce).

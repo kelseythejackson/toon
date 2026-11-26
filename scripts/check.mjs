@@ -26,7 +26,7 @@ catch { console.log('✗ Playwright is not installed. Run: npm run setup   (or n
 const browser = await launchBrowser(chromium);
 const page = await browser.newPage({ viewport: { width: 820, height: 1000 } });
 const pages = [...readdirSync(root + 'examples').filter(f => f.endsWith('.html')).sort(),
-  ...['recipes', 'start'].flatMap(d => readdirSync(root + 'examples/' + d).filter(f => f.endsWith('.html')).sort().map(f => d + '/' + f))];
+  ...['recipes', 'start', 'html'].flatMap(d => readdirSync(root + 'examples/' + d).filter(f => f.endsWith('.html')).sort().map(f => d + '/' + f))];
 for (const file of pages) {
   const errors = [];
   const onConsole = m => m.type() === 'error' && errors.push(m.text());
@@ -64,11 +64,12 @@ for (const file of pages) {
   copyFileSync(root + 'src/toon.css', join(tmp, 'toon.css'));
   copyFileSync(root + 'src/toon.js', join(tmp, 'toon.js'));
   const docs = root + 'site/src/content/docs/';
-  const mdx = readdirSync(docs, { recursive: true }).filter(f => /\.mdx?$/.test(f));
+  const mdx = readdirSync(docs, { recursive: true, encoding: 'utf8' }).filter(f => /\.mdx?$/.test(f));
   let n = 0;
   for (const page of mdx) {
     for (const use of recipeUsages(readFileSync(docs + page, 'utf8'))) {
       const source = readFileSync(join(root, 'examples', use.dir, use.file), 'utf8');
+      /** @type {{ lang: string, code: string, collapse: string[], name?: string, path?: string }[]} */
       const blocks = recipeBlocks(source, use);
       blocks.forEach((block, bi) => {
         const loads = /<(link|script)[^>]+toon\.(css|js)/.test(block.code);
@@ -127,13 +128,25 @@ for (const file of pages) {
   rmSync(tmp, { recursive: true, force: true });
 }
 
+// Types: every export of toon.js is declared in the hand-written src/toon.d.ts (named export and default-object key).
+{
+  const { createRequire } = await import('node:module');
+  const api = Object.keys(createRequire(import.meta.url)('../src/toon.js'));
+  const dts = readFileSync(root + 'src/toon.d.ts', 'utf8');
+  const named = new Set([...dts.matchAll(/^export declare (?:const|function|class) (\w+)/gm)].map((m) => m[1]));
+  const block = dts.slice(dts.indexOf('declare const Toon: {'), dts.indexOf('export default Toon'));
+  const missing = api.filter((k) => !named.has(k) || !new RegExp(`\\b${k}: typeof ${k}\\b`).test(block));
+  console.log(`${missing.length ? '✗' : '✓'} types: ${api.length} exports declared in src/toon.d.ts${missing.length ? ' — missing: ' + missing.join(', ') : ''}`);
+  if (missing.length) failed = true;
+}
+
 // 3. Error handling: the clock survives a throwing callback, and misuse produces `toon.<fn>:` messages.
 {
   const page = await browser.newPage();
   await page.goto(pathToFileURL(root + 'scripts/fixtures/errors.html').href);
   await page.waitForTimeout(600);
-  const core = await page.evaluate(() => window.core);
-  const debug = await page.evaluate(() => window.debugMessages);
+  const core = await page.evaluate(() => /** @type {any} */ (window).core);
+  const debug = await page.evaluate(() => /** @type {any} */ (window).debugMessages);
   const problems = [];
   if (!(core.after > core.before)) problems.push('ticker stopped after a callback threw');
   if (!/^toon\.createStage:/.test(core.createStage || '')) problems.push('createStage(null) message: ' + core.createStage);

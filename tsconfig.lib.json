@@ -1,0 +1,18 @@
+{
+  // Type-checks the library itself, strictly, against its published types (src/toon.d.ts): `npm run typecheck`.
+  // toon.js stays plain ES2020; its JSDoc annotations point at toon.d.ts, so the code and the types can't drift apart.
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": [],
+    "skipLibCheck": false
+  },
+  "files": ["src/toon.d.ts", "src/toon.js"]
+}

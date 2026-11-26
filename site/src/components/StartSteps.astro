@@ -1,0 +1,53 @@
+---
+/**
+ * "Start in three steps" on the home page (Figma: "Start here + home (proposal)" → Home): install, add a class,
+ * draw on a canvas. Each card is a short teaser of its page, not a runnable snippet; the runnable versions are on
+ * the pages they link to.
+ */
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const steps = [
+  { title: 'Install', code: 'npm install toon-principles', link: 'install/', label: 'Install: npm, CDN or download' },
+  { title: 'Add a class', code: '<button class="toon-press">\n  Save\n</button>', link: 'first-animation/', label: 'Your first animation' },
+  {
+    title: 'Draw on a canvas',
+    code: "const stage =\n  Toon.createStage('#c');\nstage.loop(() => draw(stage));",
+    link: 'first-animation/#your-first-canvas-animation', label: 'Your first Canvas animation',
+  },
+];
+---
+<ol class="start-steps not-content">
+  {steps.map((s, i) => (
+    <li class="start-step">
+      <h3><span class="num" aria-hidden="true">{i + 1}</span> {s.title}</h3>
+      <pre><code>{s.code}</code></pre>
+      <a href={base + s.link}>{s.label}<span aria-hidden="true"> →</span></a>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .start-steps {
+    list-style: none; padding: 0; margin: 1.5rem 0 0;
+    display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 13.5rem), 1fr));
+  }
+  .start-step {
+    display: flex; flex-direction: column; gap: .875rem; margin: 0; padding: 1.25rem;
+    background: var(--sat-pink); color: var(--sat-candy-ink);
+    border: var(--sat-border, 3px) solid var(--sat-outline); border-radius: var(--radius-card, 28px);
+    box-shadow: 0 6px 0 var(--sat-outline);
+  }
+  .start-step:nth-child(2) { background: var(--sat-yellow); }
+  .start-step:nth-child(3) { background: var(--sat-blue); }
+  h3 { display: flex; align-items: center; gap: .625rem; margin: 0; font: 400 1.375rem var(--display); color: var(--sat-candy-ink) !important; }   /* !important: the site's heading colors flip in dark mode; the candy fill doesn't */
+  .num {
+    display: grid; place-items: center; flex: none; width: 1.75rem; height: 1.75rem; border-radius: 50%;
+    background: var(--sat-candy-ink); color: var(--sat-cream); font: 800 .9375rem var(--font-body);
+  }
+  pre {
+    flex: 1; margin: 0; padding: .875rem 1rem; border-radius: 14px; overflow-x: auto;
+    background: var(--sat-candy-ink); color: var(--sat-cream); font: .8125rem/1.6 var(--font-mono);
+  }
+  pre code { background: none; padding: 0; border: 0; color: inherit; font: inherit; white-space: pre; }
+  a { color: var(--sat-candy-ink) !important; font-weight: 800; font-size: .9375rem; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+</style>

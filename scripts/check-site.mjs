@@ -1,5 +1,6 @@
 // Site quality gate: builds the docs under a sub-path (like GitHub Pages), serves the build locally, and crawls it.
-// Fails on: pages wider than a phone screen (390px and 320px), search pushed off-screen on phones, broken internal links,
+// Fails on: WCAG 2.2 A/AA violations found by axe (light and dark), pages wider than a phone screen (390px and 320px),
+// search pushed off-screen on phones, broken internal links,
 // missing #anchors, broken demo files, demos that never start, and script errors (including the embedded demos').
 // Usage: npm run check:site          (add --no-build to reuse the last check build; browser choice: see scripts/browser.mjs)
 import { spawnSync } from 'node:child_process';
@@ -26,7 +27,9 @@ if (!process.argv.includes('--no-build') && !installed) {
   process.exit(1);
 }
 
-let chromium;
+let chromium, AxeBuilder;
+try { ({ AxeBuilder } = await import('@axe-core/playwright')); }
+catch { console.log('✗ @axe-core/playwright is not installed. Run: npm ci   (in the repo root)'); process.exit(1); }
 try { ({ chromium } = await import('playwright')); }
 catch { console.log('✗ Playwright is not installed. Run: npm ci   (in the repo root)'); process.exit(1); }
 
@@ -51,16 +54,37 @@ const server = createServer((req, res) => {
   if (!existsSync(file)) { res.writeHead(404).end(); return; }
   res.writeHead(200, { 'content-type': TYPES[extname(file)] || 'application/octet-stream' }).end(readFileSync(file));
 }).listen(0);
-const origin = `http://localhost:${server.address().port}`;
+const origin = `http://localhost:${/** @type {import('node:net').AddressInfo} */ (server.address()).port}`;
 
 // 3. Crawl
 const browser = await launchBrowser(chromium);
 const problems = [];
-const desktop = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+// A context, not browser.newPage(): axe opens helper pages in the same context.
+const desktop = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
 desktop.on('pageerror', e => problems.push(`script error on ${desktop.url()}: ${e.message}`));
 desktop.on('console', m => m.type() === 'error' && !/favicon/.test(m.text()) && problems.push(`console error on ${desktop.url()}: ${m.text()}`));
+// Name the missing file: a console 404 message alone doesn't say which one.
+desktop.on('response', r => r.status() === 404 && !/favicon/.test(r.url()) && problems.push(`404 on ${desktop.url()}: ${r.url()}`));
 
 const pages = new Set(), queue = [origin + BASE], anchors = [], checked = new Map();
+// Accessibility: axe's WCAG 2.0, 2.1 and 2.2 A/AA rules on each page, demos included (it reads open shadow roots).
+const AXE_TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
+let axeRuns = 0;
+async function axe(page, url, mode = 'light') {
+  // Scroll the whole page so scroll-revealed content (the card cascade) appears, then let every one-shot animation
+  // finish: a half-faded element reads as low contrast, and one never revealed (opacity 0) isn't checked at all.
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.documentElement.scrollHeight; y += innerHeight * .8) { scrollTo(0, y); await new Promise(r => setTimeout(r, 60)); }
+    scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 50));
+    const finite = document.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity);
+    await Promise.race([Promise.all(finite.map((a) => a.finished.catch(() => {}))), new Promise(r => setTimeout(r, 3000))]);
+  });
+  // preload: false: axe's stylesheet prefetch resolves @imports inside demos' shadow roots against the page URL (404s).
+  const { violations } = await new AxeBuilder({ page }).withTags(AXE_TAGS).options({ preload: false }).analyze();
+  axeRuns++;
+  for (const v of violations) problems.push(`a11y (${mode}) ${v.id} on ${url}: ${v.nodes.length}× ${v.help} — e.g. ${v.nodes[0]?.target.join(' ')}`);
+}
 const status = async url => {
   if (!checked.has(url)) checked.set(url, (await desktop.request.get(url)).status());
   return checked.get(url);
@@ -74,7 +98,7 @@ while (queue.length) {
   // Links, plus every file a <toon-demo> loads: its scripts, and the stylesheets in its shadow root
   const refs = await desktop.evaluate(() => [
     ...[...document.querySelectorAll('a[href]')].map(e => ['A', e.getAttribute('href')]),
-    ...[...document.querySelectorAll('toon-demo')].flatMap(d => [
+    .../** @type {HTMLElement[]} */ ([...document.querySelectorAll('toon-demo')]).flatMap(d => [
       ...JSON.parse(d.dataset.scripts || '[]').map(s => ['DEMO', s]),
       ...[...(d.shadowRoot?.querySelectorAll('link[href]') ?? [])].map(l => ['DEMO', l.getAttribute('href')])]),
   ]);
@@ -89,7 +113,7 @@ while (queue.length) {
   }
   // Start every lazy demo, so its script errors are caught too, and check each one actually mounted
   const stuck = await desktop.evaluate(async () => {
-    const demos = [...document.querySelectorAll('toon-demo')];
+    const demos = /** @type {HTMLElement[]} */ ([...document.querySelectorAll('toon-demo')]);
     for (const d of demos) { d.scrollIntoView(); await new Promise(r => setTimeout(r, 150)); }
     const t0 = performance.now();
     while (demos.some(d => d.dataset.state !== 'ready') && performance.now() - t0 < 5000) await new Promise(r => setTimeout(r, 100));
@@ -97,12 +121,21 @@ while (queue.length) {
   });
   for (const n of stuck) problems.push(`demo ${n} on ${url} never finished starting`);
   await desktop.waitForTimeout(400);
+  await axe(desktop, url);
 }
 const byPage = Map.groupBy(anchors, ([, page]) => page);     // one visit per target page
 for (const [page, list] of byPage) {
   await desktop.goto(page);
   const ids = new Set(await desktop.$$eval('[id]', els => els.map(e => e.id)));
   for (const [from, , id] of list) if (!ids.has(id)) problems.push(`missing anchor on ${from}: ${page}#${id}`);
+}
+
+// Dark mode gets its own accessibility pass (its colors differ everywhere). ?theme=dark pins it for the session.
+for (const url of pages) {
+  await desktop.goto(url + '?theme=dark');
+  await desktop.evaluate(async () => { for (const d of document.querySelectorAll('toon-demo')) { d.scrollIntoView(); await new Promise(r => setTimeout(r, 120)); } });
+  await desktop.waitForTimeout(300);
+  await axe(desktop, url, 'dark');
 }
 
 // 4. Phones: no page wider than the screen, and search stays on screen
@@ -123,10 +156,31 @@ for (const width of PHONES) {
   await phone.close();
 }
 
+// 5. Plain-text docs for agents (site/src/llms.ts): both files exist, every link in the index resolves, and no MDX
+//    component is left unconverted in the full text.
+let llmsLinks = 0;
+{
+  const index = await fetch(origin + BASE + 'llms.txt');
+  const full = await fetch(origin + BASE + 'llms-full.txt');
+  if (!index.ok || !full.ok) problems.push(`llms.txt or llms-full.txt is missing (${index.status}, ${full.status})`);
+  else {
+    // The build's links use SITE_URL; check the same paths on this server.
+    for (const [, href] of (await index.text()).matchAll(/\]\((https?:[^)]+)\)/g)) {
+      const path = new URL(href).pathname;
+      const r = await fetch(origin + path);
+      llmsLinks++;
+      if (!r.ok) problems.push(`llms.txt links to ${path} (${r.status})`);
+    }
+    const prose = (await full.text()).replace(/^```[\s\S]*?^```/gm, '');
+    for (const m of prose.matchAll(/<(Recipe|Demo|LinkCard|CardGrid|Tabs|TabItem|PrincipleCards|StartSteps)\b/g))
+      problems.push(`llms-full.txt still contains <${m[1]}>`);
+  }
+}
+
 await browser.close();
 server.close();
 
 const unique = [...new Set(problems)];
-console.log(`${unique.length ? '✗' : '✓'} site: ${pages.size} pages, ${checked.size} links and demo files, ${anchors.length} anchors, phones at ${PHONES.join(' and ')}px`);
+console.log(`${unique.length ? '✗' : '✓'} site: ${pages.size} pages, ${checked.size} links and demo files, ${anchors.length} anchors, ${axeRuns} axe scans (WCAG 2.2 AA, light and dark), phones at ${PHONES.join(' and ')}px, llms.txt (${llmsLinks} links)`);
 for (const p of unique) console.log('  - ' + p);
 process.exit(unique.length ? 1 : 0);

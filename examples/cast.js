@@ -52,12 +52,13 @@
       const big = (mood === 'surprised' ? 1.25 : 1) * es, open = Math.max(0.1, 1 - blink * 0.92);
       const gx = mood === 'focused' ? 0.38 : look.x * 0.32, gy = mood === 'focused' ? 0.3 : look.y * 0.28;
       if (f.eye === 'white') {
-        const r = f.eye_r * big;
+        // Pupils sit on the white eyeball, so they're always dark (feat turns white on dark bodies).
+        const r = f.eye_r * big, pupil = feat === '#FFFFFF' ? INK : feat;
         ctx.beginPath(); ctx.ellipse(x, y, r, r * open, 0, 0, Math.PI * 2);
         ctx.fillStyle = '#FFFFFF'; ctx.fill(); ctx.lineWidth = 1.8; ctx.strokeStyle = feat; ctx.stroke();
         if (open > 0.35) {
           const pr = r * (mood === 'surprised' ? 0.5 : 0.46);
-          ctx.beginPath(); ctx.arc(x + gx * r + 0.8, y + gy * r * open + 0.8, pr * Math.min(1, open * 1.3), 0, Math.PI * 2); ctx.fillStyle = feat; ctx.fill();
+          ctx.beginPath(); ctx.arc(x + gx * r + 0.8, y + gy * r * open + 0.8, pr * Math.min(1, open * 1.3), 0, Math.PI * 2); ctx.fillStyle = pupil; ctx.fill();
           if (f.glint) { ctx.beginPath(); ctx.arc(x + 2.2 * s + gx * r, y - 1.6 * s, 1.3 * s, 0, Math.PI * 2); ctx.fillStyle = '#FFFFFF'; ctx.fill(); }
         }
       } else {

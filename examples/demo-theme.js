@@ -14,7 +14,7 @@
   // ?theme=dark / ?style=riso pin the look of a standalone page (handy for a rehearsed demo); otherwise follow the OS.
   if (!embedded) {
     const params = new URLSearchParams(location.search), pinned = /^(light|dark)$/.test(params.get('theme') || '');
-    if (/^(graph|riso|collage|crayon)$/.test(params.get('style') || '')) root.dataset.style = params.get('style');
+    if (/^(graph|riso|collage|crayon|saturday)$/.test(params.get('style') || '')) root.dataset.style = params.get('style');
     if (pinned) root.dataset.theme = params.get('theme');
     const followSystem = () => { if (!pinned) root.dataset.theme = dark.matches ? 'dark' : 'light'; };
     if (!root.dataset.theme) followSystem();

@@ -9,7 +9,7 @@ The docs site's interface motion used to be written against specific elements: `
 | `src/styles/fx.css` | Tokens, keyframes and class-only utilities | No |
 | `src/scripts/fx.js` | `fx.bind`, `fx.reveal`, `fx.curtain`, all configured by their arguments | No |
 | `src/scripts/motion.js` | Site wiring: maps Starlight markup onto the utilities | Yes (the only file that does) |
-| `src/styles/styles/<style>.css` | Each style sets `--fx-*` tokens instead of writing its own hover rules | No motion rules |
+| `src/styles/saturday.css` (and the hidden palettes in `src/styles/styles/`) | Each look sets `--fx-*` tokens instead of writing its own hover rules | No motion rules |
 | `src/styles/custom.css` | `.actor-row` / `.actor`: a bounce-over-shadow layout for any image | No |
 
 The library's own animation presets (`toon.css`, `.toon-*`) were already reusable classes and are unchanged. This refactor covers the docs site's interface motion.

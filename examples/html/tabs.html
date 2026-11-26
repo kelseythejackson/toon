@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" data-style="saturday">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabs that put one in focus — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="html.css">
+</head>
+<body>
+<h1>Tabs that put one in focus</h1>
+<p>The featured or hovered tab grows a little and the others step back.</p>
+<div class="panel">
+<!-- @recipe -->
+<nav class="toon-stage">
+  <a href="#plans">Plans</a>
+  <a class="is-featured" href="#pricing">Pricing</a>
+  <a href="#faq">FAQ</a>
+</nav>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Point at a tab, or tab to one, to put it in focus.</p>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
+<script>
+ToonDemos.register('html/tabs', () => {});
+</script>
+</body>
+</html>

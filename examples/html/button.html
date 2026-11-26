@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-style="saturday">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A pressable button — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="html.css">
+</head>
+<body>
+<h1>A pressable button</h1>
+<p>One class makes a button dip while it is held and spring back on release.</p>
+<div class="panel">
+<!-- @recipe -->
+<button class="toon-press">Save</button>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Press and hold <i>Save</i>, then let go.</p>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
+<script>
+ToonDemos.register('html/button', () => {});
+</script>
+</body>
+</html>

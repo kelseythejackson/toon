@@ -97,7 +97,7 @@ Each easing on `Toon.ease` takes `t` from 0 to 1 and returns the eased value.
 
 </div>
 
-**See it in:** [Squash & stretch](../../principles/squash-and-stretch/) and [your first Canvas animation](../../getting-started/#your-first-canvas-animation).
+**See it in:** [Squash & stretch](../../principles/squash-and-stretch/) and [your first Canvas animation](../../first-animation/#your-first-canvas-animation).
 
 ## Physics
 

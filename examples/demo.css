@@ -1,9 +1,10 @@
 /* demo.css — the page chrome every example shares (headings, panels, buttons, banner, focus ring).
  *
  * Driven by the same attributes as the docs site:
- *   <html data-style="graph|riso|collage|crayon" data-theme="light|dark">
- * The docs embed sets both. Opened on its own, a page uses Graph Notebook and follows
- * prefers-color-scheme (demo-theme.js sets data-theme). With no JS at all it falls back to Graph · light.
+ *   <html data-style="graph|riso|collage|crayon|saturday" data-theme="light|dark">
+ * The docs embed sets both. Opened on its own, a page uses Saturday morning (every example's <html> says
+ * data-style="saturday", like the docs site) and follows prefers-color-scheme (demo-theme.js sets data-theme);
+ * ?style=graph etc. still switches it. With no JS at all it shows Saturday morning · light.
  * Canvas code reads these same tokens through DemoTheme (demo-theme.js).
  *
  * Contrast (checked in scripts/check-demo-contrast.mjs): text ≥ 4.5:1 on its background;
@@ -12,6 +13,15 @@
  * The tokens live in demo-tokens.css (imported below); this file is the page chrome every example shares.
  */
 @import url('demo-tokens.css');
+
+/* Saturday morning's fonts, shipped with the examples so they work offline and from disk (SIL OFL, see fonts/).
+ * Same family names as the docs site's Fontsource packages, so the tokens resolve in both places. */
+@font-face { font-family: 'Figtree Variable'; font-style: normal; font-weight: 300 900; font-display: swap;
+  src: url('fonts/figtree-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Figtree Variable'; font-style: italic; font-weight: 300 900; font-display: swap;
+  src: url('fonts/figtree-latin-wght-italic.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Caprasimo'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('fonts/caprasimo-latin-400-normal.woff2') format('woff2'); }
 
 /* ── Page chrome shared by every example ────────────────────────────────── */
 :root { color-scheme: light; --toon-color: var(--demo-primary); }
@@ -83,3 +93,25 @@ label:has(> input[type=range]) > input[type=range] { flex: 0 1 auto; min-width: 
 /* One visible focus ring for every control in every style (browser defaults vary and can vanish on tinted panels). */
 :is(button, input, select, textarea, a, [tabindex]):focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 2px; }
 .demo-try:has(.demo-act, .demo-act-range) b::before { content: ""; }
+/* A hint with its own control (a button or slider): the control sits on its own line above the text, so the hint
+ * wraps as plain prose instead of flowing around the button (which left ragged gaps on narrow screens). */
+.demo-try > :is(.demo-act, label.demo-act-range) { display: flex; width: fit-content; margin: 0 0 var(--space-xs); }
+
+/* ── Saturday morning page chrome (a demo opened on its own page) ──
+ * Scoped to body, so none of this reaches a demo embedded in the docs (its shadow root has no body; the docs page
+ * draws the TV around it there). The page is cream (deep navy in dark mode) and the demo panel is the TV: black
+ * bezel, orange cabinet (outline) and a black rim with an offset drop (box-shadow). Outline and shadows don't take
+ * up layout space, so the panel never widens the page on a phone. */
+:root[data-style='saturday'] body { background: #fff7ec; color: var(--demo-text); padding-inline: 28px; }
+:root[data-style='saturday'][data-theme='dark'] body { background: #141838; }
+:root[data-style='saturday'] body :is(h1, h2, h3) { font-weight: 400; letter-spacing: 0; }
+:root[data-style='saturday'] body h1 { font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.1; }
+:root[data-style='saturday'] body :is(canvas, .row, .panel):not(.panel canvas) {
+  border: 4px solid #1a1a1a; border-radius: 26px; outline: 12px solid #ff8a3d; outline-offset: 0;
+  box-shadow: 0 0 0 16px #1a1a1a, 8px 8px 0 16px #1a1a1a; margin-block: 30px 34px; }
+:root[data-style='saturday'] body :is(.demo-btn, .demo-btn-quiet, .demo-act, .panel button, .row button.demo-btn) {
+  border: 2.5px solid #1a1a1a; border-radius: 999px; box-shadow: 0 3px 0 #1a1a1a; font-weight: 800; }
+:root[data-style='saturday'] body :is(.demo-btn-quiet, .demo-act) { background: #ff9acb; color: #1a1a1a; }
+:root[data-style='saturday'] body :is(.demo-btn, .demo-btn-quiet, .demo-act, .panel button):not(:disabled):hover {
+  translate: 0 -1px; box-shadow: 0 4px 0 #1a1a1a; }
+:root[data-style='saturday'] body :is(.demo-btn-quiet, .demo-act):not(:disabled):hover { background: #ff9acb; border-color: #1a1a1a; }

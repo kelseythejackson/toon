@@ -34,11 +34,11 @@ A production library that teaches as you use it. Every preset and function maps 
 
 ## Operating Context
 
-- **Install:** copy `src/toon.css` and `src/toon.js` into a project. toon isn't published to npm (a local `npm install ../toon` works through the `exports` map).
+- **Install:** copy `src/toon.css` and `src/toon.js` into a project, or `npm install toon-principles` (CommonJS, ES module and TypeScript types; `toon-principles/toon.css` for the presets), or load them from a CDN (jsDelivr, unpkg).
 - **Docs site:** deployed to GitHub Pages at https://kelseythejackson.github.io/toon/ from `main`.
-- **Demos:** standalone HTML pages in `examples/` (12 principles, `recipes/`, `start/`) that also open straight from disk. The docs embed them into shadow roots as `<toon-demo>`, each with its own clock.
-- **Reader-selectable styles:** four sketchbook styles (Graph Notebook, the default; Riso Press; Cut & Paste; Crayon Cloud), each in light and dark. Readers switch with the pencil menu, and the choice is saved and applied before first paint. Demos follow the active style.
-- **Presenting:** the docs and demos work offline once installed, and `?style=…&theme=…` pins the look for a rehearsal or talk.
+- **Demos:** standalone HTML pages in `examples/` (12 principles, `recipes/`, `start/`, `html/`) that also open straight from disk. The docs embed them into shadow roots as `<toon-demo>`, each with its own clock.
+- **One look, Saturday morning:** a full-width navy header and footer, cream pages and demos framed as cartoon TVs, in light and dark (`site/src/styles/saturday.css`; Figma: Toon → Explorations → Option 3). Standalone demo pages use it too. Four older palettes (Graph Notebook, Riso Press, Cut & Paste, Crayon Cloud) are kept but hidden: no picker, and `motion.js` pins Saturday morning.
+- **Presenting:** the docs and demos work offline once installed, and `?theme=light|dark` pins the mode for a rehearsal or talk.
 - **Maintenance:** `npm run check` (size budget, example smoke tests, error handling, demo contrast) and `npm run check:site` (phone widths, links, anchors, script errors) run in CI on every push.
 
 ## Capabilities and Constraints

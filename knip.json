@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/*.mjs"],
+      "project": ["scripts/**/*.mjs", "src/**/*.{js,mjs}"]
+    },
+    "site": {
+      "entry": ["scripts/*.mjs", "src/content/**/*.{md,mdx}", "src/components/*.astro", "src/scripts/*.js"],
+      "project": ["**/*.{astro,mjs,ts,js,mdx}"],
+      "ignoreDependencies": ["@fontsource/*"]
+    }
+  }
+}

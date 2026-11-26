@@ -9,7 +9,7 @@
  *   show  which regions to print (0-based indexes, default all)
  *   join  print the shown regions as ONE html block (styles, markup, then <script>), so one copy is a working page.
  *         Any snippet that needs a script must be joined.
- *   demo  embed the running page under the code (default true)
+ *   demo  show the code inside a result-and-code block with the running page (default true); false prints the code alone
  *   dir   folder under examples/ (default 'recipes'; '' for examples/ itself, e.g. a principle demo)
  *   before  lines to print above the first shown block, in the same block (e.g. the <link> that loads toon.css)
  */
@@ -29,16 +29,12 @@ const pageTitle = title ?? source.match(/<h1>([^<]*)<\/h1>/)?.[1] ?? 'Live examp
 // A title passed in reads as a name ("the Canvas anticipation demo"); a page's own <h1> is quoted.
 const linkText = title ? `Open the ${title} on its own page` : `Open “${pageTitle}” on its own page`;
 ---
-{blocks.map((b) => <Code code={b.code} lang={b.lang} wrap collapse={b.collapse.length ? b.collapse : undefined} />)}
-{demo && (
-  <div class="recipe-result">
-    <p class="recipe-label">Result</p>
-    <Demo file={dir ? `${dir}/${file}` : file} title={pageTitle} source={false} linkText={linkText} />
-  </div>
-)}
-
-<style>
-  .recipe-result { margin-top: var(--space-md); }
-  .recipe-label { margin: 0 0 calc(var(--space-sm) * -1); font-size: var(--sl-text-xs); font-weight: 700; letter-spacing: .08em;
-    text-transform: uppercase; color: var(--sl-color-gray-3); }
-</style>
+{/* With a demo: one result-and-code block (Demo.astro's code slot): the result runs on the screen and the code sits
+    in a drawer under it, opened with Show code. Without a demo: the code blocks on their own. */}
+{demo ? (
+  <Demo file={dir ? `${dir}/${file}` : file} title={pageTitle} source={false} linkText={linkText}>
+    <div slot="code">
+      {blocks.map((b) => <Code code={b.code} lang={b.lang} wrap collapse={b.collapse.length ? b.collapse : undefined} />)}
+    </div>
+  </Demo>
+) : blocks.map((b) => <Code code={b.code} lang={b.lang} wrap collapse={b.collapse.length ? b.collapse : undefined} />)}

@@ -135,6 +135,37 @@
   --demo-shadow-alpha: .6;
 }
 
+/* ── Saturday morning (the docs site's look; site/src/styles/saturday.css) ──
+ * The demo is the picture on a cartoon TV: a sky-blue screen (bg and surface match, so a canvas sits flush in
+ * it), navy ink and ground line, candy objects. The orange cabinet around it is drawn by the docs page. */
+:root[data-style='saturday'] {
+  --demo-font: 'Figtree Variable', 'Figtree', system-ui, sans-serif;
+  --demo-display: 'Caprasimo', 'Cooper Black', Georgia, serif;
+  --demo-radius: 18px;
+  --demo-control-radius: 999px;
+  --demo-panel-border-width: 0px;
+  --demo-bg: #cfe0ff; --demo-surface: #cfe0ff; --demo-surface-2: #bccff5;
+  --demo-ground: #bccff5; --demo-ground-line: #1c2150;
+  --demo-ink: #1c2150; --demo-text: #1c2150; --demo-muted: #3d4478;
+  --demo-hair: #b3c6ee; --demo-faint: #5a6396;
+  --demo-primary: #c42d78; --demo-secondary: #b8470c; --demo-secondary-deep: #7f3108;
+  --demo-tertiary: #1a6e49; --demo-neutral: #1c2150; --demo-soft: #9c3f8a;
+  --demo-stage: #1c2150; --demo-stage-crowd: #8c93c8; --demo-stage-hero: #ff8a3d; --demo-stage-ink: #fff7ec;
+  --demo-btn: #1c2150; --demo-on-btn: #fff7ec;
+  --demo-shadow-alpha: .3;
+}
+:root[data-style='saturday'][data-theme='dark'] {
+  --demo-bg: #1f2656; --demo-surface: #1f2656; --demo-surface-2: #2a3170;
+  --demo-ground: #2a3170; --demo-ground-line: #9da4d6;
+  --demo-ink: #fff7ec; --demo-text: #ece6f5; --demo-muted: #c9cceb;
+  --demo-hair: #2a3170; --demo-faint: #8a91c4;
+  --demo-primary: #ff9acb; --demo-secondary: #ffa66e; --demo-secondary-deep: #ff8a3d;
+  --demo-tertiary: #8fe0be; --demo-neutral: #d9dcf5; --demo-soft: #ffb3d6;
+  --demo-stage: #0c0f2c;
+  --demo-btn: #fff7ec; --demo-on-btn: #1c2150;
+  --demo-shadow-alpha: .6;
+}
+
 /* Contact shadows (.toon-shadow): toon.css draws them in translucent black, which all but vanishes on a dark
  * surface. In dark themes they use the ground-line ink instead, so the ball still visibly meets the ground. */
 :root[data-theme='dark'] { --toon-shadow-color: var(--demo-ground-line); }

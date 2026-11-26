@@ -1,0 +1,98 @@
+---
+title: Install toon
+description: "Three ways to add toon to a project. Pick the one that matches how you build: all three give you the same two files, toon.css and toon.js."
+sidebar:
+  label: Install
+---
+
+import { Tabs, TabItem, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import Recipe from '../../components/Recipe.astro';
+
+<div class="install-tabs">
+<Tabs syncKey="install">
+<TabItem label="npm">
+
+With a bundler (Vite, webpack, esbuild, Parcel), install the package and import both halves:
+
+```bash
+npm install toon-principles
+```
+
+```js
+import 'toon-principles/toon.css';
+import { tween, arc, ease } from 'toon-principles';
+```
+
+It works with `require('toon-principles')` too, and includes TypeScript types.
+
+</TabItem>
+<TabItem label="CDN">
+
+With no bundler and no install, load both files from a CDN. `@1` keeps you on the newest 1.x release:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toon-principles@1/src/toon.css">
+<script src="https://cdn.jsdelivr.net/npm/toon-principles@1/src/toon.js"></script>
+```
+
+The script sets `window.Toon`.
+
+</TabItem>
+<TabItem label="Download">
+
+Download the two files, put them next to your page and include them. This works straight from a file on your disk, with no server.
+
+- <a href="../toon/src/toon.css" download><code>toon.css</code></a> for the CSS presets
+- <a href="../toon/src/toon.js" download><code>toon.js</code></a> for the Canvas API (`window.Toon`)
+
+```html
+<link rel="stylesheet" href="toon.css">
+<script src="toon.js"></script>
+```
+
+The same files are in [`src/` on GitHub](https://github.com/kelseythejackson/toon/tree/main/src).
+
+</TabItem>
+</Tabs>
+</div>
+
+## Check that it works
+
+Add one class to any button, then press and hold it. If it squashes and springs back a little past its size when you let go, toon is loaded:
+
+<Recipe dir="start" file="first-press.html" before={'<link rel="stylesheet" href="toon.css">'} />
+
+That's [squash and stretch](../principles/squash-and-stretch/) at the size of a button. If nothing moves, see [Composing and debugging](../guides/composing-and-debugging/#if-nothing-moves).
+
+## Using a framework
+
+toon is classes and plain functions, so it works in any framework. Put its classes in your markup, and start canvas work after the element mounts. [Using toon with frameworks](../guides/frameworks/) covers React, Vue and server rendering.
+
+## What you get
+
+Every way of installing gives you the same files. Only the first two are required.
+
+| File | What it is | Size |
+| --- | --- | ---: |
+| <a href="../toon/src/toon.css" download><code>toon.css</code></a> | The CSS presets: add a class, get motion | 12&nbsp;kB |
+| <a href="../toon/src/toon.js" download><code>toon.js</code></a> | The Canvas API (`window.Toon`, `require` and `import`) | 22&nbsp;kB |
+| <a href="../toon/src/toon.mjs" download><code>toon.mjs</code></a> | An ES module entry for `import` without a bundler | 1&nbsp;kB |
+| <a href="../toon/src/toon.d.ts" download><code>toon.d.ts</code></a> | TypeScript types for the Canvas API | 11&nbsp;kB |
+| <a href="../toon/src/toon.debug.js" download><code>toon.debug.js</code></a> | Checks while you develop, with clear error messages | 6&nbsp;kB |
+
+Sizes are before compression; gzip brings `toon.css` and `toon.js` to about 13 kB together.
+
+`toon.mjs` loads `toon.js` from the same folder, so keep the two together. Browsers only load modules over HTTP, so serve the folder with a local server:
+
+```js
+import { tween, arc, ease } from './toon.mjs';
+```
+
+`toon.debug.js` checks every call's arguments and explains mistakes. Load it after `toon.js`, or import it before `toon.mjs` (see [Errors and debugging](../api/canvas/#errors-and-debugging)).
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Your first animation" href="../first-animation/" description="Bounce a ball with two classes, then throw one along an arc on a canvas." />
+  <LinkCard title="Find an effect" href="../find-an-effect/" description="Start from what you want to build, like a list entrance or a loading indicator, and find the class or function for it." />
+</CardGrid>

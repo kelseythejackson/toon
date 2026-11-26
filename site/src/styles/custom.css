@@ -42,7 +42,7 @@
   background: var(--button, var(--sl-color-text-accent)); color: var(--on-button, var(--sl-color-black));
   box-shadow: var(--shadow-button-x, 0) var(--shadow-button-y, 0) 0 var(--shadow-button-spread, 0) var(--button-shadow-color, transparent);
 }
-.try-button:focus-visible { outline: 2px solid var(--sl-color-text-accent); outline-offset: 3px; }
+.try-button:focus-visible { outline: 2px solid var(--focus-ring, var(--sl-color-text-accent)); outline-offset: 3px; }
 .sl-markdown-content > .next-links { color: var(--sl-color-gray-3); }
 
 /* Hero actions on phones: Starlight's small button size is about 35px tall. Keep both actions at least 44px so they're easy to tap. */
@@ -62,7 +62,7 @@
 
 /* Reading measure: prose paragraphs and lists stop at about 75 characters a line (Inter runs narrower than its ch unit), while code blocks, tables and
  * demos keep the full content width (code and drawings need the room; long lines of prose don't). */
-.sl-markdown-content > :is(p, ul, ol):not(.ref-links, .section-lede),
+.sl-markdown-content > :is(p, ul, ol):not(.ref-links, .section-lede, .start-steps, .html-chips),
 .sl-markdown-content > blockquote > :is(p, ul, ol) { max-width: 60ch; }
 
 /* Reference tables: wrap a wide Markdown table in <div class="ref-table" style="--l2:'Default'; --l3:'…'">,

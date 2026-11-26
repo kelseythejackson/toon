@@ -14,10 +14,14 @@ try { process.loadEnvFile(new URL('../.env', import.meta.url)); } catch {}
 // SITE_URL and BASE_PATH are set by the GitHub Pages workflow (e.g. https://you.github.io + /toon/).
 // Locally they default to the root so `npm run dev` just works. OUT_DIR lets `npm run check:site` build
 // into its own folder (dist-check/) without replacing your normal build in dist/.
+const base = (process.env.BASE_PATH || '/').replace(/\/?$/, '/');
+
 export default defineConfig({
   site: process.env.SITE_URL || 'http://localhost:4321',
-  base: process.env.BASE_PATH || '/',
+  base,
   outDir: process.env.OUT_DIR || './dist',
+  // Getting started was split into Install, Your first animation and the Guides; old links land on Install.
+  redirects: { '/getting-started': `${base}install/` },
   integrations: [
     starlight({
       title: 'toon',
@@ -32,16 +36,25 @@ export default defineConfig({
         // Sketchbook styles — the reader picks one in the header (see components/ThemeSelect.astro)
         './src/styles/styles/base.css', './src/styles/styles/graph.css', './src/styles/styles/riso.css',
         './src/styles/styles/collage.css', './src/styles/styles/crayon.css',
+        // Saturday morning, the site's look for now: paints over Graph Notebook (see the note at the top of the file)
+        './src/styles/saturday.css',
         // Reusable motion utilities last: style files only set their --fx-* tokens.
         './src/styles/fx.css',
       ],
-      components: { ThemeSelect: './src/components/ThemeSelect.astro' },
+      components: {
+        Header: './src/components/Header.astro', ThemeSelect: './src/components/ThemeSelect.astro',
+        PageTitle: './src/components/PageTitle.astro', EditLink: './src/components/EditLink.astro',
+        PageFrame: './src/components/PageFrame.astro', Hero: './src/components/Hero.astro',
+      },
+      // "Edit this page" (components/PageTitle.astro) opens the page's source on GitHub.
+      editLink: { baseUrl: 'https://github.com/kelseythejackson/toon/edit/main/site/' },
       // Code block options (wrapping, collapsible setup lines) are in ec.config.mjs.
       head: [{ tag: 'script', content: motionScript }],
       sidebar: [
-        { label: 'Start here', items: ['getting-started', 'find-an-effect', 'recipes', 'glossary'] },
+        { label: 'Start here', items: ['install', 'first-animation', 'find-an-effect', 'everyday-html', 'recipes'] },
+        { label: 'Guides', items: [{ autogenerate: { directory: 'guides' } }] },
         { label: 'The 12 principles', items: [{ autogenerate: { directory: 'principles' } }] },
-        { label: 'API reference', items: ['api/css', 'api/canvas'] },
+        { label: 'Reference', items: ['api/css', 'api/canvas', 'glossary'] },
       ],
     }),
   ],

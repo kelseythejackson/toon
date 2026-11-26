@@ -1,0 +1,350 @@
+/* Saturday morning (Figma: Toon → Explorations → Option 3, "Saturday morning").
+ * Cartoon-TV night: a full-width navy header over cream pages, a wavy edge under the hero, chunky pills,
+ * candy-colored cards with a drop underneath. Caprasimo for display, Figtree for text.
+ *
+ * This is the site's only look for now: the theme picker is hidden (components/ThemeSelect.astro) and
+ * scripts/motion.js pins data-style="saturday", so none of the other theme files apply. The embedded demos use
+ * the 'saturday' block in examples/demo-tokens.css (contrast-checked by scripts/check-demo-contrast.mjs). */
+@import '@fontsource/caprasimo';
+@import '@fontsource-variable/figtree';
+@import '@fontsource-variable/figtree/wght-italic.css';   /* real italics: synthesized ones lean into the next space */
+
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+:root[data-style] {
+  --font-body: 'Figtree Variable', system-ui, sans-serif; --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --display: 'Caprasimo', 'Cooper Black', Georgia, serif; --display-weight: 400;
+  /* Figma colors (fixed in both modes: the candy fills always carry navy text) */
+  --sat-orange: #ff8a3d; --sat-pink: #ff9acb; --sat-yellow: #ffd66b; --sat-blue: #9db8ff; --sat-mint: #a8e6c8;
+  --sat-sky: #cfe0ff; --sat-cream: #fff7ec; --sat-candy-ink: #1c2150; --sat-outline: #1a1a1a;
+  /* Shapes */
+  --sat-border: 3px; --radius-card: 28px; --radius-button: 999px; --radius-code-frame: 24px; --border-card: var(--sat-border);
+  /* Graph's role tokens, re-pointed (the "Press me" button and hover lift read these) */
+  --accent: var(--sat-orange); --highlight: var(--sat-pink); --on-highlight: var(--sat-candy-ink);
+  --button: var(--sat-orange); --on-button: var(--sat-outline); --button-shadow-color: var(--sat-outline);
+  --shadow-button-x: 0px; --shadow-button-y: 4px; --shadow-button-spread: 0px;
+  --lift-shadow-color: var(--sat-outline); --shadow-lift-x: 0px; --shadow-lift-y: 9px; --shadow-lift-blur: 0px;
+  --fx-lift-x: 0px; --fx-lift-y: -4px;
+  --sl-color-bg-nav: var(--night); --sl-color-bg-sidebar: var(--paper); --sl-color-hairline-shade: transparent;
+}
+:root[data-style][data-theme='light'] {
+  --paper: #fff7ec; --wash: #fbeedb; --hair: #f0e2cc; --hair-strong: #d9c7ab; --faint: #63668a;
+  --muted: #474c78; --text: #1c2150; --ink: #1c2150; --link: #b2401a; --accent-low: #ffe2cc;
+  --line: #1a1a1a; --card: #ffffff;
+  --night: #1c2150; --night-2: #2a3170; --night-line: #3a4080; --on-night: #fff7ec; --night-muted: #c9cceb;
+}
+:root[data-style][data-theme='dark'] {
+  --paper: #141838; --wash: #1a1f47; --hair: #252b5c; --hair-strong: #3a4180; --faint: #a3a8d1;
+  --muted: #c9cceb; --text: #ece6f5; --ink: #fff7ec; --link: #ffa66e; --accent-low: #3a2730;
+  --line: #05071a; --card: #1f2656;
+  --night: #0c0f2c; --night-2: #1f2656; --night-line: #252b5c; --on-night: #fff7ec; --night-muted: #c9cceb;
+}
+
+/* ── Page ─────────────────────────────────────────────────────────────── */
+:root[data-style] body { background: var(--paper); }
+
+/* ── Focus ring: one rule, colored for the surface it lands on ──
+ * The ring sits just outside the focused control, so it reads against the surface behind it. Paper keeps the link
+ * color; the navy surfaces (header, hero, install card, code blocks) take orange; the candy surfaces (demo TVs, cards,
+ * asides) take navy ink. Every pair is at least 3:1 (WCAG 1.4.11) in both modes. */
+:root[data-style] { --focus-ring: var(--link); }
+:root[data-style] :is(header.header, .hero, .site-footer, .install-tabs starlight-tabs, .expressive-code) { --focus-ring: var(--sat-orange); }
+:root[data-style] header.header dialog { --focus-ring: var(--link); }   /* the search dialog lives in the header but sits on paper */
+:root[data-style] :is(.toon-demo, .card, .sl-link-card, .starlight-aside, .start-step) { --focus-ring: var(--sat-candy-ink); }
+:root[data-style] :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* ── Type ───────────────────────────────────────────────────────────────── */
+:root[data-style] :is(h1#_top, .sl-markdown-content :is(h2, h3), .site-title, starlight-toc h2) { font-family: var(--display); font-weight: 400; letter-spacing: 0; color: var(--ink); }
+:root[data-style] h1#_top { font-size: clamp(2.6rem, 6vw, 4.75rem); line-height: 1.05; }
+:root[data-style] .sl-markdown-content h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); line-height: 1.1; }
+:root[data-style] .sl-markdown-content :not(pre) > code { color: var(--link); background: transparent; padding: 0; }
+
+/* ── Global header (components/Header.astro; Figma: Option 3 → Nav) ──
+ * The navy bar is full width; components/Header.astro centers its contents (margin-inline: auto,
+ * padding-inline: 2.5rem), so the bar itself drops Starlight's side padding. */
+:root[data-style] { --sl-nav-height: 4.5rem; }
+@media (min-width: 50rem) { :root[data-style] { --sl-nav-height: 6.5rem; } }
+:root[data-style] header.header { color: var(--on-night); padding-inline: 0; border-bottom: 0; }
+/* Phones: the menu button is fixed to the right edge; line it up with the 2.5rem gutter and keep the bar's contents clear of it. */
+:root[data-style] .sl-menu-button { inset-inline-end: 2.5rem; }
+@media (max-width: 49.99rem) { :root[data-style][data-has-sidebar] header .toon-nav { padding-inline-end: calc(2.5rem + var(--sl-menu-button-size) + .75rem); } }
+:root[data-style] :is(.site-title, .site-title span) { font-size: 2.25rem; color: var(--sat-orange); }
+@media (min-width: 50rem) { :root[data-style] :is(.site-title, .site-title span) { font-size: 2.75rem; } }
+:root[data-style] .site-title img { display: none; }
+:root[data-style] header .nav-links a { color: var(--on-night); text-underline-offset: .35em; text-decoration-thickness: 3px; }
+:root[data-style] header .nav-links a:hover,
+:root[data-style] header .nav-links a[aria-current='page']:not(.nav-cta) { text-decoration-line: underline; text-decoration-color: var(--sat-orange); }
+:root[data-style] header .nav-links .nav-cta { margin-inline-start: .25rem; padding: .7rem 1.4rem; border-radius: 999px; font-weight: 800; font-size: 1.0625rem;
+  background: var(--sat-pink); color: var(--sat-outline); border: var(--sat-border) solid var(--sat-outline); box-shadow: 0 4px 0 var(--sat-outline); }
+:root[data-style] header .nav-links .nav-cta:hover { text-decoration: none; translate: 0 -2px; box-shadow: 0 6px 0 var(--sat-outline); }
+:root[data-style] header .nav-links .nav-cta:active { translate: 0 2px; box-shadow: 0 2px 0 var(--sat-outline); }
+/* Search and light/dark: small round controls on a lighter navy. Search is an icon button (Ctrl+K still works). */
+:root[data-style] header site-search button[data-open-modal] { background-color: var(--night-2); color: var(--on-night); border: 0; border-radius: 999px; }
+:root[data-style] header site-search button[data-open-modal] { width: 2.75rem; height: 2.75rem; padding: 0; justify-content: center; }
+:root[data-style] header site-search button[data-open-modal] > :is(span, kbd) { display: none !important; }
+:root[data-style] header site-search button[data-open-modal] svg { color: var(--on-night); }
+:root[data-style] header starlight-theme-select { color: var(--on-night); --sl-color-gray-1: var(--on-night); }
+:root[data-style] header starlight-theme-select select { background-color: var(--night-2); color: var(--on-night); border: 0; border-radius: 999px; padding-block: .55rem; }
+:root[data-style] header starlight-theme-select label { color: var(--on-night); }
+
+/* ── Global footer (components/SiteFooter.astro; Figma: Option 3 → Footer) ── */
+:root[data-style] .site-footer { background: var(--night); color: var(--on-night); border-top: 2px solid var(--night-line);
+  font: 500 1rem var(--font-body); }
+:root[data-style] .site-footer-logo { font: 400 2rem var(--display); color: var(--sat-orange); }
+
+/* ── Docs layout (Figma: Explorations → "Option 3 — Docs layout (centered container)") ──
+ * From 50rem the sidebar, the content and "On this page" share one container that lines up with the header's:
+ * max-width 90rem, margin-inline auto, padding-inline 2.5rem. Starlight positions the sidebar and the right column
+ * as fixed panels; here they become grid / flex columns that stick below the header instead. Phones keep
+ * Starlight's layout (the sidebar opens from the menu button). */
+@media (min-width: 50rem) {
+  :root[data-style][data-has-sidebar] { --toon-sidebar: 16.5rem; --toon-toc: 13.75rem; --toon-gap: 3rem; }
+  :root[data-style][data-has-sidebar] .page { display: grid; grid-template-columns: var(--toon-sidebar) minmax(0, 1fr);
+    column-gap: var(--toon-gap); align-items: stretch; max-width: 90rem; margin-inline: auto; padding-inline: 2.5rem; width: 100%; }
+  :root[data-style][data-has-sidebar] .page > nav.sidebar { grid-column: 1; grid-row: 1; padding-top: var(--sl-nav-height); }
+  :root[data-style][data-has-sidebar] .page > .main-frame { grid-column: 2; grid-row: 1; padding-inline-start: 0; min-width: 0; }
+  :root[data-style] .sidebar-pane { position: sticky; inset: auto; top: var(--sl-nav-height); width: auto;
+    height: calc(100vh - var(--sl-nav-height)); background: transparent; border-inline-end: 0; scrollbar-width: thin; }
+  :root[data-style] .sidebar-content { padding: 3rem 0 2rem; }
+  /* Content column: no inner max-width or side padding; the grid sets the width. */
+  :root[data-style][data-has-sidebar] .main-pane .content-panel { padding-inline: 0; }
+  :root[data-style][data-has-sidebar] .main-pane .content-panel:first-child { padding-top: 3rem; }
+  :root[data-style][data-has-sidebar] .main-pane .sl-container { max-width: none; margin-inline: 0; }
+}
+/* Between 50rem and 72rem "On this page" is Starlight's fixed bar under the header: line it up with the content column. */
+@media (min-width: 50rem) and (max-width: 71.99rem) {
+  :root[data-style][data-has-sidebar] mobile-starlight-toc nav { inset-inline: calc(2.5rem + var(--toon-sidebar) + var(--toon-gap)) 2.5rem;
+    background: var(--paper); border-top: 0; border-bottom: 1px solid var(--hair-strong); }
+}
+@media (max-width: 49.99rem) {
+  :root[data-style] mobile-starlight-toc nav { background: var(--paper); border-top: 0; border-bottom: 1px solid var(--hair-strong); }
+}
+@media (min-width: 72rem) {
+  :root[data-style] .right-sidebar-container { width: var(--toon-toc); margin-inline-start: var(--toon-gap); flex-shrink: 0; }
+  :root[data-style] .right-sidebar { position: sticky; top: var(--sl-nav-height); height: calc(100vh - var(--sl-nav-height));
+    padding-top: 0; border-inline-start: 0; }
+  :root[data-style] .right-sidebar-panel { padding: 3rem 0 2rem; }
+  :root[data-style] .right-sidebar-panel .sl-container { width: auto; max-width: none; }
+  :root[data-style][data-has-sidebar][data-has-toc] .main-pane { width: auto; flex: 1; min-width: 0; }
+}
+
+/* ── Sidebar: groups with an icon chip and a bold title, page links indented beneath (Bootstrap docs structure) ── */
+:root[data-style] .sidebar-content .top-level > li + li { margin-top: 1.75rem; }
+:root[data-style] .sidebar-content summary { padding: 0 0 .5rem; }
+:root[data-style] .sidebar-content .group-label { display: flex; align-items: center; gap: .625rem; }
+:root[data-style] .sidebar-content .group-label::before { content: ''; flex: none; width: 26px; height: 26px; border-radius: 8px;
+  border: 2px solid var(--sat-outline); background: var(--toon-group-icon) center / 16px no-repeat, var(--toon-group-color, var(--sat-pink)); }
+:root[data-style] .sidebar-content .group-label .large { font: 800 1.0625rem var(--font-body); color: var(--ink); }
+:root[data-style] .sidebar-content .caret { color: var(--faint); }
+/* One icon and color per group (astro.config.mjs), found by a page the group holds rather than its position, so
+ * reordering the groups keeps each icon on its own group: Start here, Guides, The 12 principles, Reference. */
+:root[data-style] .sidebar-content .top-level > li:has(a[href$='/install/']) { --toon-group-color: var(--sat-pink);
+  --toon-group-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231c2150' stroke-width='2.2' stroke-linejoin='round'%3E%3Cpath d='M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5v-15zM5 19.5A1.5 1.5 0 0 0 6.5 21H19'/%3E%3C/svg%3E"); }
+:root[data-style] .sidebar-content .top-level > li:has(a[href*='/principles/']) { --toon-group-color: var(--sat-orange);
+  --toon-group-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231c2150' stroke-width='2.2' stroke-linejoin='round'%3E%3Cpath d='M12 3l2.2 6.3L20.5 12l-6.3 2.2L12 20.5l-2.2-6.3L3.5 12l6.3-2.7z'/%3E%3C/svg%3E"); }
+:root[data-style] .sidebar-content .top-level > li:has(a[href*='/api/']) { --toon-group-color: var(--sat-blue);
+  --toon-group-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231c2150' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5'/%3E%3C/svg%3E"); }
+:root[data-style] .sidebar-content .top-level > li:has(a[href*='/guides/']) { --toon-group-color: var(--sat-mint);
+  --toon-group-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231c2150' stroke-width='2.2' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M15.5 8.5l-2 5-5 2 2-5z'/%3E%3C/svg%3E"); }
+:root[data-style] .sidebar-content ul ul li { margin-inline-start: 1.5rem; padding-inline-start: 0; border-inline-start: 0; }
+:root[data-style] .sidebar-content ul ul li + li { margin-top: 2px; }
+/* Radius ≈ half a one-line link's height: a pill on one line, a rounded box (not a squeezed capsule) when a long
+ * title wraps. Balanced wrapping keeps the two lines even. */
+:root[data-style] .sidebar-content a { color: var(--muted); font-weight: 500; font-size: .9375rem; padding: .5rem 1rem;
+  border: 2.5px solid transparent; border-radius: 1.25rem; line-height: 1.35; text-wrap: balance; }
+:root[data-style] .sidebar-content a:hover { color: var(--ink); background: var(--wash); }
+:root[data-style] .sidebar-content a[aria-current='page'] { background: var(--sat-pink) !important; color: var(--sat-outline) !important;
+  border-color: var(--sat-outline); box-shadow: 0 3px 0 var(--sat-outline); font-weight: 800; }
+/* Phone menu button: the same round navy control as search beside it */
+:root[data-style] { --sl-menu-button-size: 2.75rem; }
+:root[data-style] .sl-menu-button { background: var(--night-2); color: var(--on-night); border: 0; box-shadow: none; padding: 0; align-items: center; justify-content: center; }
+:root[data-style] .sl-menu-button:has(~ :popover-open) { background: var(--night-line); }   /* open: one step lighter, no white disc */
+:root[data-style] .sl-menu-button:hover { background: var(--night-line); }
+
+/* ── On this page: a rule down the left, orange beside the section in view ── */
+:root[data-style] .right-sidebar starlight-toc h2 { font-size: 1.2rem; margin-bottom: .75rem; }
+:root[data-style] .right-sidebar starlight-toc a { --pad-inline: .875rem; border-radius: 0; padding-block: .3rem; color: var(--muted); font-size: .9375rem; font-weight: 500;
+  border-inline-start: 3px solid var(--hair-strong); }
+:root[data-style] .right-sidebar starlight-toc a:hover { color: var(--ink); }
+:root[data-style] .right-sidebar starlight-toc a[aria-current='true'] { color: var(--ink); font-weight: 800; border-inline-start-color: var(--sat-orange); }
+
+/* ── Docs pages ─────────────────────────────────────────────────────────── */
+:root[data-style] .content-panel { border-top: 0; }
+
+/* ── Splash hero: the night surface runs on from the header, edge to edge, then ends in a wave ──
+ * The hero paints it with border-image (outset up to the header, out to the screen edges, and down across the
+ * gap Starlight leaves above the content), so nothing leaves the content column; main clips the overhang. */
+:root[data-style] main:has(.hero) { overflow-x: clip; }
+/* The home page uses the full container, like the header: room for three step cards and three principle cards. */
+:root[data-style] main:has(.hero) { --sl-content-width: 75rem; }
+@container (min-width: 56rem) { :root[data-style] main:has(.hero) .principle-grid .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+:root[data-style] .hero { border-image: linear-gradient(var(--night) 0 0) fill 0 / 0 / 4rem 100vmax calc(1.5rem + 1px); }
+:root[data-style] main:has(.hero) .sl-markdown-content::before { content: ''; display: block; height: 40px; margin: 0 -100vmax 2.5rem;
+  background: var(--night);
+  -webkit-mask: radial-gradient(44px 28px at 50% 0, #000 98%, transparent) 0 12px / 84px 28px repeat-x, linear-gradient(#000 0 0) top / 100% 13px no-repeat;
+          mask: radial-gradient(44px 28px at 50% 0, #000 98%, transparent) 0 12px / 84px 28px repeat-x, linear-gradient(#000 0 0) top / 100% 13px no-repeat; }
+:root[data-style] .hero h1#_top { display: block; background: none; font-size: clamp(3.2rem, 8vw, 5.5rem); line-height: 1; color: var(--on-night); }
+:root[data-style] .hero .tagline { color: var(--on-night); }
+/* The cast plays on a little TV: orange cabinet, sky-blue screen. */
+:root[data-style] .hero .actor-row { padding: 1.25rem 1.5rem .75rem; background: var(--sat-sky); border-radius: 26px;
+  border: 4px solid var(--sat-outline); outline: 14px solid var(--sat-orange); outline-offset: 0; box-shadow: 8px 22px 0 6px var(--sat-outline); margin: 14px; }
+:root[data-style] .hero .actor small { color: var(--sat-candy-ink); font-weight: 700; }
+/* Sparkles */
+:root[data-style] .hero::before { content: '+       +\A\A    +            +'; content: '+       +\A\A    +            +' / ''; white-space: pre;
+  position: absolute; inset: -1.5rem auto auto 42%; font: 700 1.4rem/1.6 var(--font-body); color: var(--sat-pink); pointer-events: none; }
+@media (max-width: 50rem) { :root[data-style] .hero::before { content: none; } }
+
+/* ── Buttons: pills with a drop underneath ──────────────────────────────── */
+:root[data-style] :is(.hero .sl-link-button, .try-button) { border-radius: 999px; border: var(--sat-border) solid var(--sat-outline);
+  font-weight: 800; box-shadow: 0 4px 0 var(--sat-outline); padding-inline: 1.5rem; }
+:root[data-style] :is(.hero .sl-link-button.primary, .try-button) { background: var(--sat-orange); color: var(--sat-outline); }
+:root[data-style] .hero .sl-link-button:not(.primary) { background: transparent; color: var(--on-night); border-color: var(--on-night);
+  box-shadow: none; font-family: var(--font-body); font-size: inherit; text-decoration: none; }
+
+/* ── Cards: candy colors, navy text, round corners, a drop underneath ───── */
+:root[data-style] :is(.card, .sl-link-card) { border: var(--sat-border) solid var(--sat-outline) !important; border-radius: var(--radius-card) !important;
+  background: var(--sat-pink) !important; box-shadow: 0 6px 0 var(--sat-outline); }
+:root[data-style] .card-grid > :nth-child(4n+2) { background: var(--sat-blue) !important; }
+:root[data-style] .card-grid > :nth-child(4n+3) { background: var(--sat-mint) !important; }
+:root[data-style] .card-grid > :nth-child(4n) { background: var(--sat-yellow) !important; }
+:root[data-style] :is(.card, .sl-link-card) :is(.title, .description, .icon, p, a, h2, h3) { color: var(--sat-candy-ink) !important; }
+:root[data-style] :is(.card, .sl-link-card) .title { font: 400 1.3rem var(--display); }
+:root[data-style] :is(.card, .sl-link-card) .description { font-weight: 500; }
+/* Specimens in the principle cards are drawn in the demo tokens; keep them on a light chip so they read on every candy. */
+:root[data-style] .principle-card .spec { background: color-mix(in srgb, #fff 70%, transparent); border-radius: 14px; }
+
+/* ── Code: navy blocks with a pill label, in both modes ──
+ * Expressive Code ships a dark and a light syntax theme (Night Owl). Navy needs the dark one, so in light mode this
+ * puts back the dark token colors (--0*, which its light rule swaps for --1* inside a low-specificity :where) and
+ * the dark UI colors. (Setting `themes: ['starlight-dark']` in ec.config.mjs instead breaks the API pages'
+ * code stylesheet in the build.) */
+:root[data-style] .expressive-code { --ec-codeBg: var(--night); --ec-frm-edBg: var(--night); --ec-frm-trmBg: var(--night);
+  --ec-frm-edTabBarBg: var(--night); --ec-frm-trmTtbBg: var(--night); --ec-brdCol: transparent;
+  --ec-codeFg: #d6deeb; --ec-codeSelBg: #1d3b53; --ec-gtrFg: #8b9fc1; --ec-gtrBrdCol: #4b6479; --ec-gtrHlFg: #c5e4fd; }
+:root[data-style][data-theme='light'] .expressive-code .ec-line span[style^='--']:not([class]) {
+  color: var(--0, inherit); background-color: var(--0bg, transparent); font-style: var(--0fs, inherit);
+  font-weight: var(--0fw, inherit); text-decoration: var(--0td, inherit); }
+:root[data-style] .expressive-code .frame { border-radius: var(--radius-code-frame); border: 0; overflow: hidden; box-shadow: none; }
+:root[data-style] .expressive-code .frame .header { background: transparent; border: 0; }
+:root[data-style] .expressive-code .frame .header::after,
+:root[data-style] .expressive-code .frame .title::after { display: none; }
+:root[data-style] .expressive-code .frame .title { border-radius: 999px; margin: .6rem .9rem 0; padding: .15rem .75rem; border: 0;
+  background: var(--sat-orange); color: var(--sat-outline); font-weight: 800; font-size: .8rem; }
+
+/* ── Asides, tables ─────────────────────────────────────────────────────── */
+:root[data-style] .starlight-aside { border: var(--sat-border) solid var(--sat-outline); border-radius: 22px; background: var(--sat-mint); color: var(--sat-candy-ink);
+  --sl-color-asides-text-accent: var(--sat-candy-ink); --sl-color-white: var(--sat-candy-ink); }
+:root[data-style] .starlight-aside :is(code, a) { color: var(--sat-candy-ink); }
+:root[data-style] .starlight-aside--caution { background: var(--sat-yellow); }
+:root[data-style] .starlight-aside--danger { background: var(--sat-pink); }
+:root[data-style] .starlight-aside--note { background: var(--sat-blue); }
+/* Starlight makes tables display: block (to scroll sideways), so rows stop where the text does and the header color
+ * ends short of the frame. As a real table at full width, the rows fill it; cells wrap on phones instead. */
+.sl-markdown-content table { display: table; width: 100%; }
+:root[data-style] .sl-markdown-content table { border: var(--sat-border) solid var(--sat-outline); border-radius: 22px; border-collapse: separate; border-spacing: 0; overflow: hidden; }
+/* The narrowest phones: a table that can't fit scrolls sideways inside its frame again. */
+@media (max-width: 24rem) { :root[data-style] .sl-markdown-content table { display: block; overflow-x: auto; } }
+:root[data-style] .sl-markdown-content th { background: var(--sat-yellow); color: var(--sat-candy-ink); }
+:root[data-style] .sl-markdown-content :is(th, td) { border-color: var(--hair-strong); }
+/* Starlight drops the outer padding of the first and last columns (its tables have no frame). These tables do, so the
+ * edge cells keep a gutter inside the border and its rounded corners. */
+:root[data-style] .sl-markdown-content :is(th, td):first-child { padding-inline-start: 1rem; }
+:root[data-style] .sl-markdown-content :is(th, td):last-child { padding-inline-end: 1rem; }
+/* Narrow reference tables stack each row as a card (custom.css): every line of the card gets the same gutter. */
+@container (max-width: 36rem) { :root[data-style] .sl-markdown-content .ref-table :is(th, td) { padding-inline: 1rem; } }
+
+/* ── Previous / next: two big pills, next on the night surface ──────────── */
+:root[data-style] .pagination-links a { border: var(--sat-border) solid var(--sat-outline); border-radius: 999px; box-shadow: 0 5px 0 var(--sat-outline);
+  padding: 1rem 1.75rem; background: var(--card); color: var(--ink); }
+:root[data-style] .pagination-links a[rel='next'] { background: var(--night); }
+:root[data-style] .pagination-links a[rel='next'] :is(span, .link-title, svg) { color: var(--on-night); }
+:root[data-style] .pagination-links .link-title { font: 400 1.5rem var(--display); }
+
+/* ── Demos as cartoon TVs (Figma: Option 3 docs page → "Demo (TV)") ──
+ * components/Demo.astro: figure.toon-demo is the orange cabinet; the <toon-demo> inside it is the screen (its sky
+ * colors come from the 'saturday' block in examples/demo-tokens.css); the figcaption is the control row. */
+:root[data-style] .toon-demo { padding: 22px 22px 18px; background: var(--sat-orange); border: 4px solid var(--sat-outline);
+  border-radius: 40px; box-shadow: 8px 8px 0 var(--sat-outline); margin-block: 2rem 1.5rem; }
+:root[data-style] .toon-demo toon-demo { border: 4px solid var(--sat-outline); border-radius: 26px; overflow: clip; }
+:root[data-style] .toon-demo figcaption { margin-top: 16px; font: 800 .9375rem var(--font-body); }
+:root[data-style] .toon-demo :is(.demo-now, .demo-open, .demo-control-slot button) { padding: .45rem 1rem; border-radius: 999px;
+  border: 2.5px solid var(--sat-outline); color: var(--sat-outline); line-height: 1.3; font: 800 .9375rem var(--font-body); }
+:root[data-style] .toon-demo figcaption > .demo-now { background: var(--paper); color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:root[data-style] .toon-demo .demo-control-slot button { background: var(--sat-pink); box-shadow: 0 3px 0 var(--sat-outline); }
+:root[data-style] .toon-demo .demo-control-slot button:hover { background: var(--sat-pink); translate: 0 -1px; box-shadow: 0 4px 0 var(--sat-outline); }
+:root[data-style] .toon-demo .demo-open { background: var(--sat-blue); box-shadow: 0 3px 0 var(--sat-outline); text-decoration: none; }
+:root[data-style] .toon-demo .demo-open:hover { translate: 0 -1px; box-shadow: 0 4px 0 var(--sat-outline); }
+:root[data-style] .toon-demo-source summary { color: var(--ink); text-decoration: underline; text-underline-offset: .2em; }
+@media (max-width: 30rem) {
+  :root[data-style] .toon-demo { padding: 14px 14px 12px; border-radius: 28px; box-shadow: 5px 5px 0 var(--sat-outline); }
+  /* Phones: "Now showing" gets the first row; the buttons stay together, right-aligned, beneath it. */
+  :root[data-style] .toon-demo figcaption { justify-content: flex-end; }
+  :root[data-style] .toon-demo figcaption > .demo-now { flex-basis: 100%; margin-inline-end: 0; }
+  :root[data-style] .toon-demo toon-demo { border-radius: 18px; }
+}
+
+/* ── Result + code block (Demo.astro with a code slot; Figma: HTML examples → "Docs / Example block") ──
+ * The same TV, now holding the code: the screen (with a resize grip on its right edge), a code drawer under it and a
+ * toolbar of pills. Layout lives in Demo.astro. */
+:root[data-style] .toon-example .ex-screen { border: 4px solid var(--sat-outline); border-radius: 26px; background: var(--demo-bg); }
+:root[data-style] .toon-example .ex-screen toon-demo { border: 0; border-radius: 22px 0 0 22px; overflow: clip; }
+:root[data-style] .toon-example .ex-grip { background: var(--card); color: var(--sat-outline); border: 0; border-inline-start: 2px solid var(--sat-outline);
+  border-radius: 0 22px 22px 0; }
+:root[data-style][data-theme='dark'] .toon-example .ex-grip { color: var(--on-night); }
+:root[data-style] .toon-example .ex-grip:focus-visible { outline: 3px solid currentColor; outline-offset: -6px; }   /* inside the grip: its own ink */
+:root[data-style] .toon-example .ex-width { padding: .2rem .65rem; border-radius: 999px; background: var(--night); color: var(--on-night);
+  font: .8125rem var(--font-mono); }
+:root[data-style] .toon-example .ex-code .expressive-code .frame { border: 4px solid var(--sat-outline); border-radius: 22px; box-shadow: none; }
+:root[data-style] .toon-example :is(.ex-tool, .demo-control-slot button) { padding: .45rem 1rem; border-radius: 999px; border: 2.5px solid var(--sat-outline);
+  color: var(--sat-outline); box-shadow: 0 3px 0 var(--sat-outline); font: 800 .9375rem var(--font-body); line-height: 1.3; }
+:root[data-style] .toon-example :is(.ex-tool, .demo-control-slot button):hover { translate: 0 -1px; box-shadow: 0 4px 0 var(--sat-outline); }
+:root[data-style] .toon-example :is(.ex-tool, .demo-control-slot button):active { translate: 0 2px; box-shadow: 0 1px 0 var(--sat-outline); }
+:root[data-style] .toon-example .ex-code-toggle { background: var(--sat-cream); }
+:root[data-style] .toon-example .ex-code-toggle[aria-expanded='true'] { background: var(--sat-candy-ink); color: var(--sat-cream); }
+:root[data-style] .toon-example .ex-replay { background: var(--sat-yellow); }
+:root[data-style] .toon-example .demo-control-slot button { background: var(--sat-pink); }
+:root[data-style] .toon-example .ex-slow { background: var(--sat-mint); }
+:root[data-style] .toon-example .ex-slow[aria-pressed='true'] { background: var(--sat-candy-ink); color: var(--sat-cream); }
+:root[data-style] .toon-example .demo-open { background: var(--sat-blue); }
+:root[data-style] .toon-example .demo-control-slot { min-width: 0; }
+@media (max-width: 40rem) { :root[data-style] .toon-example .ex-screen toon-demo { border-radius: 22px; } }
+
+/* ── Install tabs (install.mdx): one navy card, the three ways as pills along its top ── */
+:root[data-style] .install-tabs starlight-tabs { display: block; margin-top: 2rem; padding: 1rem 1.25rem 1.25rem;
+  background: var(--night); color: var(--on-night); border: var(--sat-border) solid var(--sat-outline);
+  border-radius: var(--radius-card); box-shadow: 0 6px 0 var(--sat-outline); }
+:root[data-style] .install-tabs .tablist-wrapper { border: 0; }
+:root[data-style] .install-tabs [role='tablist'] { gap: .5rem; border: 0; padding: 0; }
+:root[data-style] .install-tabs [role='tab'] { border: 2px solid var(--night-line); border-radius: 999px; padding: .375rem 1rem;
+  margin: 0; color: var(--on-night); font-weight: 800; font-size: .9375rem; }
+:root[data-style] .install-tabs [role='tab']:hover { border-color: var(--on-night); }
+:root[data-style] .install-tabs [role='tab']:not([aria-selected='true']) { box-shadow: none; }   /* Starlight's underline */
+:root[data-style] .install-tabs [role='tab'][aria-selected='true'] { background: var(--sat-orange); color: var(--sat-outline);
+  border-color: var(--sat-outline); box-shadow: 0 3px 0 var(--sat-outline); }
+:root[data-style] .install-tabs [role='tabpanel'] { margin-top: 1rem; }
+:root[data-style] .install-tabs [role='tabpanel'] :is(p, li) { color: var(--on-night); }
+:root[data-style] .install-tabs [role='tabpanel'] a { color: var(--on-night); }
+:root[data-style] .install-tabs [role='tabpanel'] :not(pre) > code { background: var(--night-2); color: var(--on-night); }
+:root[data-style] .install-tabs .expressive-code .frame { box-shadow: none; border: 2px solid var(--night-line); border-radius: 16px; overflow: hidden; }
+:root[data-style] .install-tabs .expressive-code :is(pre, .header) { background: var(--night-2) !important; border: 0 !important; }
+:root[data-style] .install-tabs .expressive-code .header::before { content: none; }
+
+/* ── Home: "See all" links beside a section, and the everyday-HTML chip strip ── */
+:root[data-style] .see-all { font-weight: 800; white-space: nowrap; color: var(--ink); text-underline-offset: 3px; }
+:root[data-style] .html-chips { list-style: none; padding: 0; margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: .75rem; }
+:root[data-style] .html-chips li { margin: 0; }
+:root[data-style] .html-chips a { display: inline-flex; align-items: center; gap: .4em; padding: .5rem 1rem; border-radius: 999px;
+  border: 2.5px solid var(--sat-outline); box-shadow: 0 3px 0 var(--sat-outline); background: var(--sat-pink);
+  color: var(--sat-candy-ink); font-weight: 800; font-size: .9375rem; text-decoration: none; }
+:root[data-style] .html-chips li:nth-child(5n+1) a { background: var(--sat-orange); }
+:root[data-style] .html-chips li:nth-child(5n+3) a { background: var(--sat-mint); }
+:root[data-style] .html-chips li:nth-child(5n+4) a { background: var(--sat-yellow); }
+:root[data-style] .html-chips li:nth-child(5n) a { background: var(--sat-blue); }
+:root[data-style] .html-chips a.all { background: var(--sat-cream); }
+:root[data-style] .html-chips a:hover { translate: 0 -2px; box-shadow: 0 5px 0 var(--sat-outline); }
+:root[data-style] .sl-markdown-content .html-chips code { background: none; border: 0; padding: 0; color: inherit; font-size: .875rem; }
+@media (prefers-reduced-motion: reduce) { :root[data-style] .html-chips a:hover { translate: none; } }
+/* A terminal frame with no title has nothing to label inside the install card. */
+:root[data-style] .install-tabs .expressive-code .is-terminal .header:has(.title:empty) { display: none; }
+/* …and with no title bar, the Copy button goes back to the top of the code (Expressive Code still leaves room for the bar). */
+:root[data-style] .install-tabs .expressive-code .is-terminal:has(.header .title:empty) .copy { --button-spacing: 0.4rem; }
+:root[data-style] .expressive-code .frame .title:empty { display: none; }   /* untitled terminals: no empty pill */

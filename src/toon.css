@@ -1,4 +1,4 @@
-/*! toon.css v1.1 — the 12 basic principles of animation for DOM elements.
+/*! toon.css v1.2 — the 12 basic principles of animation for DOM elements.
  *  Vanilla CSS, zero dependencies. Uses individual transform properties (translate / scale /
  *  rotate) so effects compose, plus color-mix(), linear() and :has().
  *  Principle tags match toon.js: [SQUASH] [ANTICIPATION] [STAGING] [STRAIGHT-AHEAD]
@@ -12,7 +12,8 @@
   --toon-duration: 800ms;   /* base length of one action */
   --toon-tempo: 1;          /* higher = SLOWER (multiplies duration): 2 = half speed. JS ticker.timeScale runs the other way. */
   --toon-overlap: 70ms;     /* [FOLLOW-THROUGH] offset between overlapping parts */
-  /* [SLOW-IN-OUT] */
+  /* [SLOW-IN-OUT] The presets' @keyframes repeat the five curves below as literals: browsers ignore var() in a
+     keyframe's animation-timing-function (Chrome falls back to ease), so keep both copies in step. */
   --toon-ease-in: cubic-bezier(.55, 0, 1, .45);
   --toon-ease-out: cubic-bezier(0, .55, .45, 1);
   --toon-ease-in-out: cubic-bezier(.65, 0, .35, 1);
@@ -49,8 +50,8 @@
   animation: toon-bounce-y var(--_d) infinite, toon-bounce-scale var(--_d) linear infinite;
 }
 @keyframes toon-bounce-y {
-  0%, 100% { translate: 0 0; animation-timing-function: var(--toon-ease-rise); }
-  50%      { translate: 0 calc(var(--_h) * -1); animation-timing-function: var(--toon-ease-fall); }
+  0%, 100% { translate: 0 0; animation-timing-function: cubic-bezier(.333, .667, .667, 1); }
+  50%      { translate: 0 calc(var(--_h) * -1); animation-timing-function: cubic-bezier(.333, 0, .667, .333); }
 }
 @keyframes toon-bounce-scale {
   0%, 100% { scale: calc(1 + var(--_s)) calc(1 / (1 + var(--_s))); }      /* contact: squash */
@@ -60,8 +61,8 @@
 /* [SOLID] Contact shadow kept in sync: smaller and fainter while the ball is high. */
 .toon-bounce-shadow { animation: toon-shadow var(--_d) infinite; }
 @keyframes toon-shadow {
-  0%, 100% { scale: 1; opacity: .5; animation-timing-function: var(--toon-ease-rise); }
-  50%      { scale: .45; opacity: .15; animation-timing-function: var(--toon-ease-fall); }
+  0%, 100% { scale: 1; opacity: .5; animation-timing-function: cubic-bezier(.333, .667, .667, 1); }
+  50%      { scale: .45; opacity: .15; animation-timing-function: cubic-bezier(.333, 0, .667, .333); }
 }
 
 /* ── [ANTICIPATION] Prepare the audience for the action ──────────────────────── */
@@ -84,12 +85,12 @@
 /* Launch (add the class to play): pull back, shoot forward --toon-distance, overshoot, settle. */
 .toon-launch { animation: toon-launch var(--_d) both; }
 @keyframes toon-launch {
-  0%   { translate: 0 0; animation-timing-function: var(--toon-ease-out); }
+  0%   { translate: 0 0; animation-timing-function: cubic-bezier(0, .55, .45, 1); }
   30%  { translate: calc(var(--toon-distance) * -.12 * var(--_e)) 0; scale: .926 1.08;
-         animation-timing-function: var(--toon-ease-in); }                         /* wind-up */
+         animation-timing-function: cubic-bezier(.55, 0, 1, .45); }                         /* wind-up */
   45%  { scale: calc(1 + var(--_s)) calc(1 / (1 + var(--_s))); }                 /* stretch */
   75%  { translate: calc(var(--toon-distance) + 14px * var(--_e)) 0; scale: 1;
-         animation-timing-function: var(--toon-ease-in-out); }                     /* overshoot */
+         animation-timing-function: cubic-bezier(.65, 0, .35, 1); }                     /* overshoot */
   100% { translate: var(--toon-distance) 0; scale: 1; }
 }
 
@@ -103,8 +104,8 @@
 }
 @keyframes toon-arc-x { to { translate: var(--toon-distance) 0; } }
 @keyframes toon-arc-y {
-  0%   { translate: 0 0; animation-timing-function: var(--toon-ease-rise); }
-  50%  { translate: 0 calc(var(--_h) * -1); animation-timing-function: var(--toon-ease-fall); }
+  0%   { translate: 0 0; animation-timing-function: cubic-bezier(.333, .667, .667, 1); }
+  50%  { translate: 0 calc(var(--_h) * -1); animation-timing-function: cubic-bezier(.333, 0, .667, .333); }
   100% { translate: 0 0; }
 }
 
@@ -139,7 +140,7 @@
  * Opacity + scale only: both are composited, unlike filter: blur(), which repaints every frame. */
 .toon-stage > * { transition: opacity .3s var(--toon-ease-out), scale .3s var(--toon-ease-out); }
 .toon-stage:has(> :is(.is-featured, :hover, :focus-visible)) > :not(.is-featured, :hover, :focus-visible) {
-  opacity: .4; scale: .96;
+  opacity: var(--toon-recede-opacity, .75); scale: .96;
 }
 .toon-stage > :is(.is-featured, :hover, :focus-visible) { scale: 1.04; }
 /* Overlay a spotlight; position with --toon-spot-x / -y / -r. Parent needs position: relative. */

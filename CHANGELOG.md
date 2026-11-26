@@ -1,8 +1,61 @@
 # Changelog
 
-## Unreleased
+## 1.2.0 (not yet published)
 
-Everything since 1.1.0, newest first.
+Everything since 1.1.0, newest first. The first version prepared for npm: replace "not yet published" with the
+release date when you run `npm publish`.
+
+### Docs site: keyboard focus, the resize handle and the install card
+- **The keyboard focus ring shows on every surface.** It was hard to see on the orange demo frames, the candy-colored cards and the navy header (1.0 to 2.6:1). It now takes its color from the surface behind it: the link color on paper, orange on navy, navy ink on candy. Every pair is at least 3:1 in light and dark mode. The demo resize handle's ring uses the handle's own ink.
+- **Install page:** the Copy button on the `npm install` line sits inside the code again. It hung off the bottom, because the empty terminal title bar was hidden but its space was still reserved.
+- **Resize handle on result + code blocks:** screen readers hear its real width in pixels from the start (it used to report a minimum of 280 and a maximum of 100), and a cancelled touch or lost pointer ends the drag instead of leaving the screen following the pointer. Its label reads "Resize the example: Your first CSS animation" (it was "Resize the Your first CSS animation").
+- **Home page tab title:** "toon: the 12 principles of animation for CSS and Canvas" (it was "toon | toon").
+- **Home page, everyday HTML chips:** the parts are spaced again ("Button · toon-press", not "Button·toon-press"), and screen readers hear "Button toon-press" instead of the two words run together.
+- **Home page on phones:** the `npm install` command and its Copy button stay on one line in the pill down to 360px wide, instead of Copy dropping below.
+- **Sidebar group icons** are matched to their group by a page it holds, not by position, so reordering the groups in `astro.config.mjs` keeps each icon and color on its own group. The last hard-coded cream and navy fills now use the `--sat-cream` and `--sat-candy-ink` tokens.
+
+### Using toon with frameworks, filled out
+- The guide now has one complete component per framework (React, Next.js, Vue and Nuxt, Svelte and SvelteKit, Astro), where to import `toon.css` in each, the three rules for canvas work in a component (start after mount, cancel tweens as well as destroying the stage, respect reduced motion), replaying one-shot effects with or without a framework, and TypeScript.
+- **Corrected:** importing `toon-principles` is safe during server rendering; only calling its clock and canvas functions needs the browser. The guide and README said to load it only in the browser.
+
+### For AI agents
+- **`llms.txt` and `llms-full.txt`** at the docs root: an index of every page with its description and links to the source files, and every page as Markdown, with each recipe expanded into the exact code readers copy. Both are built from the docs pages, so they stay in step; `npm run check:site` checks every link in the index.
+- **README: "Using toon: which class or function".** The whole library at a glance, for people and for agents working from the installed package alone: which class or function to use for each effect, the modifiers and custom properties, and the rules that catch people out (one animation per element, opposite speed controls, units, reduced motion).
+
+### Start here and the home page, reworked
+- **Getting started is split up.** **Install** has npm, CDN and Download as tabs (the choice is remembered across pages), a one-class check that it works, and a table of the files you get. **Your first animation** has the first CSS and Canvas animations. A new **Guides** group holds Using toon with frameworks, Timing and units, Composing and debugging, and Browser support. `/getting-started/` redirects to Install.
+- **Sidebar:** Start here, Guides, The 12 principles, Reference (CSS API, Canvas API, Glossary), each with its own icon chip.
+- **Home page:** the hero has the install command with a Copy button and links to the other two ways; then "Start in three steps", six principle cards with a link to all 12, and a strip of everyday HTML examples. "Get started" in the header and hero opens Install.
+
+### Ready for npm
+- **Package:** `npm install toon-principles` gives `require` and `import` entry points, `toon-principles/toon.css`, and TypeScript types (`src/toon.d.ts`, hand-written, covering the whole Canvas API and the `Toon` global). `prepublishOnly` runs lint, type-check and the tests.
+- **`toon.js` is type-checked, strictly, against `toon.d.ts`** (`tsconfig.lib.json`, part of `npm run typecheck`). Inline JSDoc ties each function to its published type, so the core is still 520 lines. `Spring` and `Chain` assign their properties directly instead of through `Object.assign`, which the checker can follow; behavior is unchanged.
+- **`engines` became `devEngines`:** the Node 22.23.4 requirement is for working on the repo, so people installing the package on older Node no longer get `EBADENGINE` warnings. npm still stops `npm install` in the repo on an older Node.
+- **Docs:** Getting started has an "Install from npm" section (bundler import, `require`, CDN links); the home page, README and PRODUCT.md no longer say toon isn't on npm. README has the release steps.
+
+### Production readiness: lint, types, accessibility scans, agent docs
+- **New scripts:** `npm test` (the existing `check`), `npm run lint` (ESLint and knip), `npm run typecheck`, `npm run build` (the docs), and `npm run verify`, which runs all of them plus `check:site`. CI runs lint and type-check too.
+- **`npm run check:site` runs axe** (WCAG 2.0 to 2.2, A and AA) on every page in light and dark mode, after revealing scroll-triggered content and letting animations finish. 404s now name the missing file.
+- **Fixed, found by it:** `.toon-stage` faded its receded children to 40% opacity, which dropped their text to about 2:1 contrast. It's now `--toon-recede-opacity`, default .75 (about 4.5:1 for dark text on light); lower it only for images and icons. The header navigation was labeled "Main" like Starlight's sidebar; it's now "Site sections".
+- **`toon.js` is ES2020 again:** two `??=` (ES2021) became equivalent ES2020 on the same lines, so the core stays at 520 lines. ESLint now enforces the syntax level.
+- **`AGENTS.md`** (and a `CLAUDE.md` that imports it) lists the commands and the hard rules: the line budget, snippets from example files, tokens over hex values, reduced motion.
+- Not covered yet: 12 ESLint complexity warnings remain as a cleanup list.
+
+### Result and code in one block
+- **Recipes and Everyday HTML** show each example as one block (Figma: HTML examples → "Docs / Example block"): the result runs on the TV screen, and **Show code** slides the snippet out in a drawer under it. The toolbar has **Replay** (restarts one-shot presets, shown only when the example uses one), **Pause**, **Slow motion** (quarter speed, for CSS presets and canvas clocks alike) and **Open**. A handle on the screen's right edge resizes the result (drag, arrow keys, or double-click to reset), with a width readout.
+- **Snippets got shorter:** the list, dialog and toast examples no longer carry their own Replay button and script.
+- `Recipe.astro` with `demo={false}` still prints the code on its own; principle pages are unchanged.
+
+### Everyday HTML: toon on twelve ordinary elements
+- **New docs page, Everyday HTML** (Start here): a button, hover card, list, dialog, toast, tabs, add-to-cart, send button, bell, loader, avatar and one button at three intensities, each with one toon class. Every section shows its snippet, then the same code running in a TV. Designed first in Figma (Toon → HTML examples).
+- **`examples/html/`:** one example page per element (snippets between `@recipe` markers, page styling in `html.css`). `npm run check` smoke-tests them and paste-tests every snippet.
+
+### Presets move on their real curves again; Loop walks forward
+- **`toon.css`:** `.toon-bounce`, its shadow, `.toon-launch` and `.toon-arc` set each keyframe's easing with `var(--toon-ease-…)`. Browsers ignore `var()` in a keyframe's `animation-timing-function` (Chrome falls back to `ease`), so bounces didn't fall with gravity and the arc ball left its parabola on the way down. The keyframes now hold the curves as literals (a comment by the `--toon-ease-*` tokens says to keep both in step). Overriding those tokens still affects only your own transitions, as before.
+- **Demos opened on their own page look like the docs (Saturday morning):** every example's `<html>` sets `data-style="saturday"` (`?style=graph` etc. still switches it). `examples/demo.css` gives the standalone page a cream background (navy in dark mode), Caprasimo headings and each demo panel the TV frame, with pill buttons. The fonts ship in `examples/fonts/` (SIL OFL, licenses alongside), so the pages still work offline and from disk. Embedded demos are unchanged.
+- **Cast pupils (`examples/cast.js`):** on a dark body the face features turn white, and the pupils went white with them, vanishing into the white eyeballs (Dot in the Appeal demo had none). Pupils are now always dark ink.
+- **"Try it" rows (`examples/demo.css`):** a hint with its own button or slider puts the control on its own line above the text, so the text wraps cleanly on narrow screens.
+- **Secondary action demo:** Loop's feet lifted while sliding back and planted while moving forward, so the walk read as a moonwalk. Feet now lift on the forward swing, the stride (17px) keeps a planted foot still under the moving body, and the body bobs highest as the feet pass.
 
 ### The paste check tests what readers actually copy
 - **`npm run check`** now reads every `<Recipe>` on every docs page and pastes each code block exactly as the page shows it, adding nothing but the toon file a block doesn't load itself. The old check always added `toon.css` and wrapped scripts, so it passed snippets that broke when copied. New failures: a script shown on its own, and a canvas that draws only in grays. `scripts/recipe-regions.mjs` builds the blocks for both the check and `Recipe.astro`.

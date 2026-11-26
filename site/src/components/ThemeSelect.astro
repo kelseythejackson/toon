@@ -14,7 +14,9 @@ const styles = [
 ];
 ---
 <div class="toon-pickers">
-  <toon-style-select>
+  {/* Hidden for now: the site uses the Saturday morning look only (styles/saturday.css). Remove `hidden` to bring it back,
+      and drop the pin in scripts/motion.js. */}
+  <toon-style-select hidden>
     <Select icon="pencil" label="Sketchbook style"
       options={styles.map((s, i) => ({ ...s, selected: i === 0 }))} width="11.25em" />
   </toon-style-select>

@@ -25,12 +25,14 @@ const combos = {
   riso: [":root[data-style='riso']", ":root[data-style='riso'][data-theme='dark']"],
   collage: [":root[data-style='collage']", ":root[data-style='collage'][data-theme='dark']"],
   crayon: [":root[data-style='crayon']", ":root[data-style='crayon'][data-theme='dark']"],
+  saturday: [":root[data-style='saturday']", ":root[data-style='saturday'][data-theme='dark']"],
 };
 let fails = 0;
 for (const [style, [lightSel, darkSel]] of Object.entries(combos)) {
   const light = block(lightSel);
-  for (const [mode, t] of [['light', light], ['dark', { ...light, ...block(darkSel) }]]) {
+  for (const [mode, t] of /** @type {[string, Record<string, string>][]} */ ([['light', light], ['dark', { ...light, ...block(darkSel) }]])) {
     const s = t.surface;
+    /** @type {[string, string, string, number][]} */
     const checks = [
       ['text/bg', t.text, t.bg, 4.5], ['text/surface', t.text, s, 4.5],
       ['muted/surface', t.muted, s, 4.5], ['muted/bg', t.muted, t.bg, 4.5],
@@ -44,7 +46,7 @@ for (const [style, [lightSel, darkSel]] of Object.entries(combos)) {
     ];
     ['primary', 'secondary', 'tertiary', 'soft'].forEach((k, i) =>
       checks.push([`text/tint-${i + 1}`, t.text, mix(t[k], s, i < 2 ? 0.14 : 0.16), 4.5]));
-    const bad = checks.map(([n, a, b, need]) => [n, ratio(a, b), need]).filter(([, r, need]) => r < need);
+    const bad = checks.map(([n, a, b, need]) => /** @type {[string, number, number]} */ ([n, ratio(a, b), need])).filter(([, r, need]) => r < need);
     fails += bad.length;
     const worst = checks.reduce((w, c) => (ratio(c[1], c[2]) / c[3] < ratio(w[1], w[2]) / w[3] ? c : w));
     console.log(`${style.padEnd(8)} ${mode.padEnd(5)}  ${checks.length} checks  ` +

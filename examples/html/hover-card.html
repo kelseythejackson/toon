@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en" data-style="saturday">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A card that winds up on hover — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="html.css">
+</head>
+<body>
+<h1>A card that winds up on hover</h1>
+<p>The card crouches, springs up and settles slightly raised when you point at it or tab to it.</p>
+<div class="panel">
+<!-- @recipe -->
+<a class="card toon-anticipate" href="#plans">
+  Plans <small>From $9 a month</small>
+</a>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Point at the card, or tab to it.</p>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
+<script>
+ToonDemos.register('html/hover-card', () => {});
+</script>
+</body>
+</html>

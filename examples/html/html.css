@@ -1,0 +1,26 @@
+/* Page chrome shared by the everyday-HTML examples (examples/html/): the stage panel and a plain look for the
+ * elements. Not part of any snippet: the snippet is the part between the @recipe markers in each page, and it
+ * runs without this file. Colors come from the demo tokens (demo-tokens.css). */
+body { font-size: 15px; line-height: 1.5; max-width: var(--demo-max-width); margin: 2rem auto; padding: 0 var(--space-md); }
+.panel { background: var(--demo-surface); border: var(--demo-panel-border); box-shadow: var(--demo-panel-shadow);
+  border-radius: var(--demo-radius); padding: var(--space-lg); display: flex; flex-wrap: wrap; gap: var(--space-md);
+  align-items: center; justify-content: center; min-height: 150px; color: var(--demo-text); }
+.panel :is(button, a, [role="status"], dialog, li) { font: 700 15px var(--demo-font); color: var(--demo-ink); }
+.panel button { padding: .65em 1.3em; border-radius: var(--radius-pill); border: 2.5px solid var(--demo-ink); cursor: pointer;
+  background: color-mix(in srgb, var(--demo-primary) 22%, var(--demo-surface)); min-height: 44px; }
+.panel button:focus-visible, .panel a:focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 3px; }
+/* Replay controls look quieter than the element they replay. */
+.panel #replay { background: var(--demo-surface); border-width: 1.5px; font-weight: 600; }
+.panel ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--space-xs); width: min(100%, 220px); }
+.panel li { padding: .55rem .9rem; border-radius: 10px; border: 2px solid var(--demo-ink);
+  background: color-mix(in srgb, var(--demo-secondary) 20%, var(--demo-surface)); }
+.panel .card { display: block; width: 180px; padding: var(--space-md); border-radius: 14px; border: 2.5px solid var(--demo-ink);
+  background: var(--demo-bg); text-decoration: none; }
+.panel .card small { display: block; color: var(--demo-muted); font-weight: 500; }
+.panel dialog, .panel [role="status"] { padding: var(--space-md) var(--space-lg); border-radius: 14px; border: 2.5px solid var(--demo-ink);
+  background: var(--demo-bg); }
+.panel dialog p { margin: 0 0 var(--space-sm); }
+.panel nav { display: flex; gap: var(--space-xs); }
+.panel nav a { padding: .45em 1em; border-radius: var(--radius-pill); border: 2px solid var(--demo-ink); text-decoration: none;
+  background: var(--demo-bg); }
+.panel nav a.is-featured { background: color-mix(in srgb, var(--demo-primary) 22%, var(--demo-surface)); }

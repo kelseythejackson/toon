@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-style="saturday">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,16 +38,18 @@ ToonDemos.register('08-secondary-action', (document, Toon, DemoTheme) => {
     if (x === null) x = stage.width * 0.45;
     x += speed * dt; if (x > stage.width + 80) x = -80;
     const phase = t * Math.PI * 2 * 1.6;
-    const bob = Math.abs(Math.sin(phase)) * 8;                // primary: walk bounce
+    const bob = Math.abs(Math.cos(phase)) * 8;                // primary: walk bounce, highest as the feet pass
     const cy = ground - H / 2 - 12 - bob;
 
     stage.clear();
     ctx.fillStyle = T.ground; ctx.fillRect(0, ground, stage.width, 40);
     ctx.fillStyle = T.groundLine; ctx.fillRect(0, ground, stage.width, 2);
     for (const side of [0, 1]) {                              // feet, alternating
-      const f = Math.sin(phase + side * Math.PI);
+      // A foot swings forward (f rising, cos > 0) in the air, then plants and slides back under the moving body.
+      // Stride 17px: at 1.6 steps/s a planted foot then moves back as fast as the body moves on (no net skating).
+      const f = Math.sin(phase + side * Math.PI), lift = Math.max(0, Math.cos(phase + side * Math.PI)) * 8;
       ctx.fillStyle = T.ink; ctx.beginPath();
-      ctx.ellipse(x + f * 14, ground - 5 - Math.max(0, -Math.cos(phase + side * Math.PI)) * 8, 11, 5, 0, 0, 7); ctx.fill();
+      ctx.ellipse(x + f * 17, ground - 5 - lift, 11, 5, 0, 0, 7); ctx.fill();
     }
     const on = sec.checked, swing = Math.sin(phase) * 28;
     Cast.draw(ctx, 'loop', { x, y: cy, h: H, fill: T.secondary, ink: T.ink, bg: T.surface, feet: false, noWink: true,

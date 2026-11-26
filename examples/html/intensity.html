@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" data-style="saturday">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>One button, three intensities — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="html.css">
+</head>
+<body>
+<h1>One button, three intensities</h1>
+<p>The same pressable button, toned down, at the default, and pushed further.</p>
+<div class="panel">
+<!-- @recipe -->
+<div class="toon-subtle">
+  <button class="toon-press">Subtle</button>
+</div>
+<button class="toon-press">Default</button>
+<div class="toon-exaggerate">
+  <button class="toon-press">Exaggerated</button>
+</div>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Press and hold each button to compare how far it dips.</p>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
+<script>
+ToonDemos.register('html/intensity', () => {});
+</script>
+</body>
+</html>

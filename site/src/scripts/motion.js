@@ -25,6 +25,10 @@
     saved = localStorage.getItem('toon-style');
   } catch {}
   root.dataset.style = STYLES.includes(params.get('style')) ? params.get('style') : STYLES.includes(saved) ? saved : STYLES[0];
+  // For now the site has one look, Saturday morning (styles/saturday.css; its demo colors are the 'saturday' block
+  // in examples/demo-tokens.css), and the style picker is hidden (components/ThemeSelect.astro). Pin it so a saved
+  // or ?style= choice can't show another style. Delete this line when the picker comes back.
+  root.dataset.style = 'saturday';
   const theme = params.get('theme');
   if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
   window.toonSetStyle = (style) => {

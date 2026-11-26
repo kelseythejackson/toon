@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en" data-style="saturday">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A bouncing loader — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="html.css">
+</head>
+<body>
+<h1>A bouncing loader</h1>
+<p>A ball bounces while something loads, with a contact shadow that shrinks as it rises.</p>
+<div class="panel">
+<!-- @recipe -->
+<div role="status" aria-label="Loading"
+  style="--toon-height:60px; display:grid;
+    justify-items:center; padding-top:70px">
+  <div class="toon-solid toon-bounce"
+    style="width:28px; height:28px"></div>
+  <div class="toon-shadow toon-bounce-shadow"
+    style="width:36px; height:8px"></div>
+</div>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Watch the ball squash on the ground and stretch at speed.</p>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
+<script>
+ToonDemos.register('html/loader', () => {});
+</script>
+</body>
+</html>

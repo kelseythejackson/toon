@@ -41,14 +41,61 @@ const mayMove = /<canvas|class="[^"]*\btoon-/.test(body);
 if (inline.includes('</script')) throw new Error(`${file}: inline script can't contain </script`);
 const shadow = links.map((h) => `<link rel="stylesheet" href="${h}">`).join('')
   + `<style>${styles}\np.demo-hint:first-of-type{margin-top:0}</style>` + body;
+
+// Result and code in one block (Figma: HTML examples → "Docs / Example block"), when the page passes code in the
+// `code` slot (Recipe.astro does). The code sits in a drawer under the screen, closed until Show code is pressed.
+const hasCode = Astro.slots.has('code');
+const codeId = `code-${name.replace(/[^a-z0-9]+/gi, '-')}-${Math.random().toString(36).slice(2, 7)}`;
+// Replay restarts one-shot presets (they play once and stop), so their snippets need no Replay script of their own.
+const oneShot = /class="[^"]*\btoon-(?:follow|settle|pop-in|launch|arc)\b/.test(body);
+const icon = {
+  code: '<path d="M8.5 7L3.5 12l5 5M15.5 7l5 5-5 5"/>',
+  chevron: '<path d="M6 9l6 6 6-6"/>',
+  replay: '<path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4.5h4.5"/>',
+  slow: '<path d="M3 15c0-4 4-7 8-7s7 3 7 6v1H3zM18 14h2.5a1.5 1.5 0 0 0 0-3H19M6 15v3M14 15v3"/>',
+  open: '<path d="M8 16L16 8M9 8h7v7"/>',
+};
+const svg = (k: keyof typeof icon) => `<svg class="ex-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon[k]}</svg>`;
 ---
+{hasCode ? (
+  <figure class="toon-demo toon-example not-content" data-example>
+    <div class="ex-screen">
+      <toon-demo name={name} data-scripts={JSON.stringify(scripts)} data-motion-control={motionControl} role="group" aria-label={title}>
+        <template shadowrootmode="open" set:html={shadow} />
+        {inline && <Fragment set:html={`<script type="text/plain" data-demo-script>${inline}</script>`} />}
+      </toon-demo>
+      {/* Drag (or arrow keys) to try the example at a narrower width; double-click or Home to reset. */}
+      {/* Value attributes are filled in with real pixel widths by the script below, once the screen has a size. */}
+      <button class="ex-grip" type="button" role="separator" aria-orientation="vertical" aria-label={`Resize the example: ${title}`}
+        aria-valuemin="280"><span aria-hidden="true"></span></button>
+      <output class="ex-width" hidden></output>
+    </div>
+    <div class="ex-code" id={codeId} hidden><slot name="code" /></div>
+    <div class="ex-tools" role="toolbar" aria-label={`${title} tools`}>
+      <button class="ex-tool ex-code-toggle" type="button" aria-expanded="false" aria-controls={codeId}>
+        <Fragment set:html={svg('code')} /><span class="ex-label"><span class="ex-verb">Show </span><span class="ex-noun">code</span></span><Fragment set:html={svg('chevron')} />
+      </button>
+      {oneShot && <button class="ex-tool ex-replay" type="button"><Fragment set:html={svg('replay')} /><span class="ex-label">Replay</span></button>}
+      {mayMove && <span class="demo-control-slot" />}
+      <button class="ex-tool ex-slow" type="button" aria-pressed="false"><Fragment set:html={svg('slow')} /><span class="ex-label">Slow motion</span></button>
+      <a class="ex-tool demo-open" href={src} target="_blank" rel="noopener"><Fragment set:html={svg('open')} /><span class="sr-only">{linkText} (opens in a new tab)</span><span class="ex-label" aria-hidden="true">Open</span></a>
+    </div>
+  </figure>
+) : (
 <figure class="toon-demo not-content">
   <toon-demo name={name} data-scripts={JSON.stringify(scripts)} data-motion-control={motionControl} role="group" aria-label={title}>
     <template shadowrootmode="open" set:html={shadow} />
     {inline && <Fragment set:html={`<script type="text/plain" data-demo-script>${inline}</script>`} />}
   </toon-demo>
-  <figcaption><a href={src} target="_blank" rel="noopener">{linkText}<span class="sr-only"> (opens in a new tab)</span><span aria-hidden="true">&nbsp;↗</span></a>{mayMove && <span class="demo-control-slot" />}</figcaption>
+  {/* The TV's control row (styles/saturday.css): what's on, the demo's Pause button, and a pop-out link. The link
+      shows "Open ↗" but its accessible name is the full linkText, which starts with the same word. */}
+  <figcaption>
+    <span class="demo-now">Now showing: {title.replace(/ demo$/, '')}</span>
+    {mayMove && <span class="demo-control-slot" />}
+    <a class="demo-open" href={src} target="_blank" rel="noopener"><span class="sr-only">{linkText} (opens in a new tab)</span><span aria-hidden="true">Open&nbsp;↗</span></a>
+  </figcaption>
 </figure>
+)}
 {source && (
   <details class="toon-demo-source">
     <summary>Show the demo's source</summary>
@@ -93,11 +140,83 @@ const shadow = links.map((h) => `<link rel="stylesheet" href="${h}">`).join('')
         if (!registered.has(name)) { registered.add(name); const s = document.createElement('script'); s.textContent = code; document.head.append(s); }
         fn = await runtime.whenRegistered(name);
       }
-      runtime.mount(root, fn);
+      this.demo = runtime.mount(root, fn) as { theme?: { setSpeed(x: number): void } };   // its own clock, for Slow motion
       this.dataset.state = 'ready';
     }
+    demo?: { theme?: { setSpeed(x: number): void } };
   }
   if (!customElements.get('toon-demo')) customElements.define('toon-demo', ToonDemo);
+
+  // ── Result + code blocks (figure[data-example]): Show code, Replay, Slow motion and the resize handle ──
+  const hostOf = (el: Element) => el.closest('figure[data-example]')?.querySelector('toon-demo') as (ToonDemo | null);
+  document.addEventListener('click', (e) => {
+    const t = e.target as Element;
+    const fig = t.closest?.('figure[data-example]'); if (!fig) return;
+    const host = hostOf(fig);
+    const toggle = t.closest('.ex-code-toggle');
+    if (toggle) {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.querySelector('.ex-verb')!.textContent = open ? 'Hide ' : 'Show ';
+      (fig.querySelector('.ex-code') as HTMLElement).hidden = !open;
+      return;
+    }
+    if (t.closest('.ex-replay') && host?.shadowRoot) {
+      // Restart every toon preset in the example: take its toon- classes off, let the browser see that, put them back.
+      for (const el of host.shadowRoot.querySelectorAll<HTMLElement>('[class*="toon-"]')) {
+        const cls = [...el.classList].filter((c) => c.startsWith('toon-'));
+        el.classList.remove(...cls); void el.offsetWidth; el.classList.add(...cls);
+      }
+      return;
+    }
+    const slow = t.closest('.ex-slow');
+    if (slow && host) {
+      const on = slow.getAttribute('aria-pressed') !== 'true';
+      slow.setAttribute('aria-pressed', String(on));
+      // CSS presets read --toon-tempo (higher is slower); canvas demos run on the demo's own clock.
+      host.style.setProperty('--toon-tempo', on ? '4' : '');
+      if (!on) host.style.removeProperty('--toon-tempo');
+      host.demo?.theme?.setSpeed(on ? 0.25 : 1);
+    }
+  });
+
+  // Resize handle: drag, arrow keys (20px), Home or double-click to reset. The screen narrows; a readout names its width.
+  const MIN = 280;
+  const resize = (grip: HTMLElement, w: number | null) => {
+    const screen = grip.closest('.ex-screen') as HTMLElement, full = screen.parentElement!.clientWidth, out = screen.querySelector('.ex-width') as HTMLOutputElement;
+    if (w === null || w >= full - 2) {
+      screen.style.width = ''; out.hidden = true;
+      grip.setAttribute('aria-valuenow', String(full)); grip.setAttribute('aria-valuemax', String(full)); grip.setAttribute('aria-valuetext', `Full width, ${full} pixels`);
+      return;
+    }
+    const px = Math.round(Math.max(MIN, Math.min(full, w)));
+    screen.style.width = px + 'px'; out.hidden = false; out.textContent = `${px} px${px <= 430 ? ' · phone' : ''}`;
+    grip.setAttribute('aria-valuenow', String(px)); grip.setAttribute('aria-valuemax', String(full)); grip.setAttribute('aria-valuetext', `${px} pixels wide`);
+  };
+  // Real values from the start (full width), and again whenever the page's width changes them.
+  const syncGrips = () => document.querySelectorAll<HTMLElement>('.ex-grip').forEach((g) => {
+    if (!(g.closest('.ex-screen') as HTMLElement).style.width) resize(g, null);
+  });
+  syncGrips();
+  addEventListener('resize', syncGrips);
+  document.addEventListener('pointerdown', (e) => {
+    const grip = (e.target as Element).closest?.('.ex-grip') as HTMLElement | null; if (!grip) return;
+    e.preventDefault(); grip.setPointerCapture(e.pointerId);
+    const left = (grip.closest('.ex-screen') as HTMLElement).getBoundingClientRect().left;
+    const move = (ev: PointerEvent) => resize(grip, ev.clientX - left);
+    // Whatever ends the drag (release, a cancelled touch, lost capture), stop following the pointer.
+    const drag = new AbortController(), { signal } = drag;
+    grip.addEventListener('pointermove', move, { signal });
+    for (const t of ['pointerup', 'pointercancel', 'lostpointercapture']) grip.addEventListener(t, () => drag.abort(), { signal });
+  });
+  document.addEventListener('dblclick', (e) => { const g = (e.target as Element).closest?.('.ex-grip') as HTMLElement | null; if (g) resize(g, null); });
+  document.addEventListener('keydown', (e) => {
+    const grip = (e.target as Element).closest?.('.ex-grip') as HTMLElement | null; if (!grip) return;
+    const now = (grip.closest('.ex-screen') as HTMLElement).getBoundingClientRect().width;
+    if (e.key === 'ArrowLeft') resize(grip, now - 20); else if (e.key === 'ArrowRight') resize(grip, now + 20);
+    else if (e.key === 'Home') resize(grip, null); else return;
+    e.preventDefault();
+  });
 </script>
 
 <style>
@@ -105,18 +224,42 @@ const shadow = links.map((h) => `<link rel="stylesheet" href="${h}">`).join('')
   .toon-demo-source { margin: 0 0 var(--space-lg); }
   .toon-demo-source summary { cursor: pointer; font-size: var(--sl-text-sm); font-weight: var(--font-weight-strong); min-height: var(--tap-target); display: flex; align-items: center; }
   .toon-demo-source p { font-size: var(--sl-text-sm); }
-  .toon-demo figcaption { margin-top: .4rem; font-size: var(--sl-text-sm); display: flex; align-items: center; gap: .5rem 1rem; }
-  .toon-demo figcaption a { min-width: 0; }
+  .toon-demo figcaption { margin-top: .4rem; font-size: var(--sl-text-sm); display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; }
+  .demo-now { margin-inline-end: auto; min-width: 0; }
   /* Pause/Play (demo-runtime.js fills the slot). The demo's quiet-button look, from the site-wide demo tokens. */
-  .demo-control-slot { flex: none; margin-inline-start: auto; min-width: 5.5rem; min-height: 2.25rem; display: flex; justify-content: flex-end; }
+  .demo-control-slot { flex: none; min-width: 5.5rem; min-height: 2.25rem; display: flex; justify-content: flex-end; }
   .demo-control-slot :global(button) { font: var(--font-weight-strong, 600) 14px var(--demo-font, inherit); padding: .45em 1.1em; cursor: pointer;
     border-radius: var(--demo-control-radius, 6px); border: 1.5px solid var(--demo-faint); background: var(--demo-surface); color: var(--demo-ink); }
   .demo-control-slot :global(button:hover) { background: var(--demo-surface-2); border-color: var(--demo-ink); }
-  .demo-control-slot :global(button:focus-visible) { outline: 3px solid var(--demo-primary); outline-offset: 2px; }
+  .demo-control-slot :global(button:focus-visible) { outline: 3px solid var(--focus-ring, var(--demo-primary)); outline-offset: 2px; }
   /* 24px+ tap target (WCAG 2.5.8): this link is the only way to a demo's standalone page. */
   /* The figure is .not-content, so Starlight's link color doesn't reach it: use the same accent as prose links. */
   /* Plain text flow (not inline-flex), so the ↗ stays beside the last word when the link wraps; padding keeps the target 24px+. */
-  .toon-demo figcaption a { display: block; padding: .3rem .1rem; line-height: 1.4;
+  .toon-demo figcaption a { display: block; padding: .3rem .1rem; line-height: 1.4; white-space: nowrap;
     color: var(--sl-color-text-accent); text-underline-offset: .2em; }
+  /* Result + code block: layout only (colors and shapes are the look's, in styles/saturday.css). */
+  .ex-screen { position: relative; display: flex; max-width: 100%; }
+  .ex-screen toon-demo { flex: 1; min-width: 0; }
+  .ex-grip { flex: none; width: 22px; padding: 0; cursor: col-resize; touch-action: none; display: grid; place-items: center; }
+  .ex-grip span { width: 8px; height: 28px; border-inline: 2.5px solid currentColor; }
+  .ex-width { position: absolute; inset-inline-start: calc(100% + 16px); top: 14px; white-space: nowrap; }
+  .ex-code { margin-top: var(--space-sm); }
+  .ex-code :global(.expressive-code) { margin: 0; }
+  .ex-code :global(.expressive-code + .expressive-code) { margin-top: var(--space-sm); }
+  .ex-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs) .625rem; margin-top: var(--space-md); }
+  .ex-code-toggle { margin-inline-end: auto; }
+  .ex-tool { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; text-decoration: none; min-height: 2.5rem; }
+  .ex-tool :global(.ex-icon) { flex: none; }
+  .ex-code-toggle[aria-expanded='true'] :global(.ex-icon:last-child) { rotate: 180deg; }
+  /* Phones: the tools keep their icons and drop their visible labels (screen readers still hear them). */
+  @media (max-width: 40rem) {
+    .ex-tool:not(.ex-code-toggle) .ex-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .ex-tool:not(.ex-code-toggle) { padding-inline: .7rem; }
+    /* …and the code toggle reads just "Code" (aria-expanded still says open or closed), so the row fits a phone. */
+    .ex-verb, .ex-code-toggle :global(.ex-icon:last-child) { display: none; }
+    .ex-noun { text-transform: capitalize; }
+    .ex-tools { gap: var(--space-xs); }
+    .ex-grip, .ex-width { display: none; }
+  }
   .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 </style>

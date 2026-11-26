@@ -1,0 +1,213 @@
+---
+/**
+ * A copy of Starlight 0.42.10's Hero, plus the install line under the actions (Figma: "Start here + home
+ * (proposal)" → Home): the npm command with a Copy button, and links to the other two ways on the Install page.
+ * Only the splash home page has a hero. When you upgrade Starlight, copy its new Hero.astro and keep the
+ * `.hero-install` block and its script.
+ */
+import { Image } from 'astro:assets';
+import DraftContentNotice from 'virtual:starlight/components/DraftContentNotice';
+import { LinkButton } from '@astrojs/starlight/components';
+
+const { data } = Astro.locals.starlightRoute.entry;
+const { title = data.title, tagline, image, actions = [] } = data.hero || {};
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const command = 'npm install toon-principles';
+
+const imageAttrs = {
+	loading: 'eager' as const,
+	decoding: 'async' as const,
+	width: 400,
+	height: 400,
+	alt: image?.alt || '',
+};
+
+let darkImage: ImageMetadata | undefined;
+let lightImage: ImageMetadata | undefined;
+let rawHtml: string | undefined;
+if (image) {
+	if ('file' in image) {
+		darkImage = image.file;
+	} else if ('dark' in image) {
+		darkImage = image.dark;
+		lightImage = image.light;
+	} else {
+		rawHtml = image.html;
+	}
+}
+---
+
+<div class="hero">
+	{darkImage && (
+		<Image
+			src={darkImage}
+			fetchpriority={lightImage ? undefined : 'high'}
+			{...imageAttrs}
+			class:list={{ 'light:sl-hidden': Boolean(lightImage) }}
+		/>
+	)}
+	{lightImage && <Image src={lightImage} {...imageAttrs} class="dark:sl-hidden" />}
+	{rawHtml && <div class="hero-html sl-flex" set:html={rawHtml} />}
+	<div class="sl-flex stack">
+		<div class="sl-flex copy">
+			<h1 id="_top" data-page-title set:html={title} />
+			{data.draft && <DraftContentNotice />}
+			{tagline && <div class="tagline" set:html={tagline} />}
+		</div>
+		{actions.length > 0 && <div class="sl-flex actions">
+			{actions.map(
+				({
+					attrs: { class: className, ...attrs } = {},
+					icon,
+					link: href,
+					text,
+					variant,
+				}) => <LinkButton {href} {variant} icon={icon?.name} class:list={[className]} {...attrs}>
+					{text}
+					{icon?.html && <Fragment set:html={icon.html} />}
+				</LinkButton>
+			)}
+		</div>}
+		<div class="hero-install">
+			<p class="install-line">
+				<code><span class="prompt" aria-hidden="true">$ </span>{command}</code>
+				<button type="button" class="install-copy" data-copy={command}>Copy<span class="sr-only"> the install command</span></button>
+				<span class="install-status" role="status"></span>
+			</p>
+			<p class="install-alt">
+				or <a href={base + 'install/'} data-install-tab="CDN">use a CDN</a>,
+				or <a href={base + 'install/'} data-install-tab="Download">download two files</a>:
+				see <a href={base + 'install/'}>Install</a>
+			</p>
+		</div>
+	</div>
+</div>
+
+<script>
+	for (const button of document.querySelectorAll<HTMLButtonElement>('.install-copy')) {
+		const status = button.parentElement?.querySelector('.install-status');
+		button.addEventListener('click', async () => {
+			try {
+				await navigator.clipboard.writeText(button.dataset.copy ?? '');
+				if (status) status.textContent = 'Copied';
+			} catch {
+				if (status) status.textContent = 'Copy failed: select the command instead';
+			}
+			setTimeout(() => { if (status) status.textContent = ''; }, 2000);
+		});
+	}
+	// "use a CDN" / "download two files" open Install on that tab: the Tabs there (syncKey "install") restore
+	// the label saved under this key.
+	for (const link of document.querySelectorAll<HTMLAnchorElement>('[data-install-tab]')) {
+		link.addEventListener('click', () => {
+			try { localStorage.setItem('starlight-synced-tabs__install', link.dataset.installTab ?? ''); } catch {}
+		});
+	}
+</script>
+
+<style>
+	@layer starlight.core {
+		.hero {
+			display: grid;
+			grid-template-columns: 100%;
+			align-items: center;
+			gap: 1rem;
+			padding-bottom: 1rem;
+		}
+
+		.hero > img,
+		.hero > .hero-html {
+			object-fit: contain;
+			width: min(70%, 20rem);
+			height: auto;
+			margin-inline: auto;
+		}
+
+		.stack {
+			flex-direction: column;
+			gap: clamp(1.5rem, calc(1.5rem + 1vw), 2rem);
+			text-align: center;
+		}
+
+		.copy {
+			flex-direction: column;
+			gap: 1rem;
+			align-items: center;
+		}
+
+		.copy > * {
+			max-width: 50ch;
+		}
+
+		h1 {
+			font-size: clamp(var(--sl-text-3xl), calc(0.25rem + 5vw), var(--sl-text-6xl));
+			line-height: var(--sl-line-height-headings);
+			font-weight: 600;
+			color: var(--sl-color-white);
+		}
+
+		.tagline {
+			font-size: clamp(var(--sl-text-base), calc(0.0625rem + 2vw), var(--sl-text-xl));
+			color: var(--sl-color-gray-2);
+		}
+
+		.actions {
+			gap: 1rem 2rem;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		@media (min-width: 50rem) {
+			.hero {
+				grid-template-columns: 7fr 4fr;
+				gap: 3%;
+				padding-block: clamp(2.5rem, calc(1rem + 10vmin), 10rem);
+			}
+
+			.hero > img,
+			.hero > .hero-html {
+				order: 2;
+				width: min(100%, 25rem);
+			}
+
+			.stack {
+				text-align: start;
+			}
+
+			.copy {
+				align-items: flex-start;
+			}
+
+			.actions {
+				justify-content: flex-start;
+			}
+		}
+	}
+
+	/* The install line: a chip with the command and a Copy button, then the other ways in small print. */
+	.hero-install { display: flex; flex-direction: column; gap: .75rem; align-items: center; margin-top: -.5rem; }
+	.install-line {
+		display: inline-flex; align-items: center; gap: .75rem; flex-wrap: wrap; justify-content: center;
+		margin: 0; padding: .375rem .375rem .375rem 1rem; border-radius: 999px;
+		background: var(--night-2, var(--sl-color-gray-6)); border: 2px solid var(--night-line, var(--sl-color-gray-5));
+	}
+	.install-line code { background: none; padding: 0; border: 0; font-size: .9375rem; color: var(--on-night, var(--sl-color-white)); }
+	.prompt { opacity: .6; }
+	.install-copy {
+		font: 800 .875rem var(--font-body, inherit); padding: .375rem .875rem; border-radius: 999px; cursor: pointer;
+		background: var(--sat-cream, #fff7ec); color: var(--sat-outline, #1a1a1a); border: 2px solid var(--sat-outline, #1a1a1a);
+	}
+	.install-copy:hover { background: var(--sat-yellow, #ffd66b); }
+	.install-status:empty { display: none; }
+	.install-status { font-size: .875rem; font-weight: 700; color: var(--on-night, var(--sl-color-white)); padding-inline-end: .5rem; }
+	.install-alt { margin: 0; font-size: .875rem; color: var(--on-night, var(--sl-color-gray-2)); }
+	.install-alt a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+	.install-alt a:hover { text-decoration-thickness: 2px; }
+	.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+	@media (min-width: 50rem) { .hero-install { align-items: flex-start; } }
+	/* Phones: a touch smaller, so the command and Copy stay on one line in the pill (down to 360px wide). */
+	@media (max-width: 30rem) {
+		.install-line { gap: .5rem; padding-inline-start: .875rem; }
+		.install-line code { font-size: .8125rem; }
+	}
+</style>

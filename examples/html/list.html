@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en" data-style="saturday">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A list that settles in — toon</title>
+<link rel="stylesheet" href="../../src/toon.css">
+<link rel="stylesheet" href="../demo.css">
+<link rel="stylesheet" href="html.css">
+</head>
+<body>
+<h1>A list that settles in</h1>
+<p>Each item slides in a little after the one above and swings past its stop.</p>
+<div class="panel">
+<!-- @recipe -->
+<ul class="toon-follow">
+  <li>Inbox</li>
+  <li>Drafts</li>
+  <li>Sent</li>
+</ul>
+<!-- @end -->
+</div>
+<p class="demo-try"><b>Try it</b> Press <i>Replay</i> under the demo (or reload the page) to see the list arrive again.</p>
+<script src="../../src/toon.js"></script>
+<script src="../demo-theme.js"></script>
+<script src="../demo-runtime.js"></script>
+<script>
+ToonDemos.register('html/list', () => {});
+</script>
+</body>
+</html>
