@@ -1,6 +1,6 @@
 ---
 title: Find an effect
-description: Start from what you want to build (a pressable button, a list entrance, a loading indicator) and find the class or function for it.
+description: Start from what you want to build (a button that squashes, a list entrance, a loading indicator) and find the class or function for it.
 ---
 
 Look up what you're trying to do, then use the CSS class or Canvas function next to it. Each task links to the page with a live demo and tuning tips, and to a ready-made recipe where there is one.
@@ -11,9 +11,9 @@ Look up what you're trying to do, then use the CSS class or Canvas function next
 
 | I want to… | CSS | Canvas |
 |---|---|---|
-| [Make a button feel pressable](../principles/anticipation/)<br/><small>Anticipation, with a [button recipe](../recipes/#a-button-that-feels-physical)</small> | `.toon-press` | — |
+| [Make a button feel physical](../principles/anticipation/)<br/><small>Anticipation, with an [everyday example](../everyday-html/#a-button-that-squashes)</small> | `.toon-press` | — |
 | [Give a card or button a wind-up on hover](../principles/anticipation/)<br/><small>Anticipation</small> | `.toon-anticipate` | — |
-| [Animate a list in, item by item (staggered entrance)](../principles/follow-through/)<br/><small>Follow-through, with a [list recipe](../recipes/#a-list-that-settles-in)</small> | `.toon-follow` on the list | `stagger(items, fn, { each })` |
+| [Animate a list in, item by item (staggered entrance)](../principles/follow-through/)<br/><small>Follow-through, with an [everyday example](../everyday-html/#a-list-that-settles-in)</small> | `.toon-follow` on the list | `stagger(items, fn, { each })` |
 | [Bring in one element: modal, toast, card](../principles/appeal/)<br/><small>Appeal</small> | `.toon-pop-in` or `.toon-settle` | `tween` with `ease.outBack` |
 | [Highlight one item and dim the rest](../principles/staging/)<br/><small>Staging</small> | `.toon-stage` with `.is-featured`, or `.toon-spotlight` | `stage.spotlight(x, y, r)` |
 | [Show that something is waiting or alive (loading, idle)](../principles/appeal/)<br/><small>Appeal and [Secondary action](../principles/secondary-action/)</small> | `.toon-bob`, `.toon-breathe`, `.toon-bounce` | `breathe(t)`, `wave(t)` |

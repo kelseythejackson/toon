@@ -1,0 +1,1079 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/principles/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.407Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/install/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.424Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/guides/timing-and-units/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.438Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/guides/frameworks/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.451Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/guides/composing-and-debugging/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.465Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/guides/browser-support/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.477Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/glossary/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.488Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/first-animation/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.499Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/find-an-effect/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.509Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/api/css/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.519Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "flat-type-hierarchy",
+        "value": "*",
+        "files": [
+          "site/dist-check/api/canvas/index.html"
+        ],
+        "createdAt": "2026-11-27T16:47:34.530Z",
+        "reason": "Claude measured rendered /guides/browser-support/: h1 61px vs body 16px (3.8x); finding is on generated check-build output (site/dist-check), not source"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/01-squash-and-stretch.html"
+        ],
+        "createdAt": "2026-11-27T16:53:25.385Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon' (saturday.css, examples/demo-tokens.css); file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/08-secondary-action.html"
+        ],
+        "createdAt": "2026-11-27T16:53:25.402Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon' (saturday.css, examples/demo-tokens.css); file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/01-squash-and-stretch.html"
+        ],
+        "createdAt": "2026-11-27T16:53:25.417Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon' (saturday.css, examples/demo-tokens.css); file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/08-secondary-action.html"
+        ],
+        "createdAt": "2026-11-27T16:53:25.432Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon' (saturday.css, examples/demo-tokens.css); file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/03-staging-canvas.html"
+        ],
+        "createdAt": "2026-11-27T16:53:25.445Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon' (saturday.css, examples/demo-tokens.css); file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/02-anticipation.html"
+        ],
+        "createdAt": "2026-11-27T16:53:25.459Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon' (saturday.css, examples/demo-tokens.css); file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/03-staging-canvas.html"
+        ],
+        "createdAt": "2026-11-27T16:53:25.473Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon' (saturday.css, examples/demo-tokens.css); file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/06-slow-in-slow-out-css.html"
+        ],
+        "createdAt": "2026-11-27T16:58:30.832Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/06-slow-in-slow-out-css.html"
+        ],
+        "createdAt": "2026-11-27T17:16:49.213Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/01-squash-and-stretch-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.762Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/01-squash-and-stretch-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.783Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/02-anticipation-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.814Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/02-anticipation-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.830Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/03-staging-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.871Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/03-staging.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.886Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/04-straight-ahead-vs-pose-to-pose-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.901Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/04-straight-ahead-vs-pose-to-pose-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.916Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/04-straight-ahead-vs-pose-to-pose.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.931Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/05-follow-through-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.946Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/05-follow-through-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.962Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/05-follow-through.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.977Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/06-slow-in-slow-out-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:37.992Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/06-slow-in-slow-out.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.020Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/07-arcs-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.035Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/07-arcs-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.050Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/07-arcs.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.065Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/08-secondary-action-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.081Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/08-secondary-action-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.097Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/09-timing-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.125Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/09-timing-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.141Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/09-timing.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.157Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/10-exaggeration-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.173Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/10-exaggeration-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.188Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/10-exaggeration.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.204Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/11-solid-drawing-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.219Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/11-solid-drawing-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.235Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/11-solid-drawing.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.251Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/12-appeal-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.266Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/12-appeal-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.282Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/12-appeal.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.298Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/add-to-cart.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.314Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/avatar.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.330Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/bell.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.345Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/button.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.361Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/dialog.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.376Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/hover-card.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.392Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/intensity.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.408Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/list.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.424Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/loader.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.440Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/send.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.456Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/tabs.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.472Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/html/toast.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.487Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/recipes/character-jump.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.503Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/recipes/reduced-motion.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.519Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/recipes/throw-along-path.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.534Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/start/first-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.550Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/start/first-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.569Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/dist-check/toon/examples/start/first-press.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.588Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/01-squash-and-stretch-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.607Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/01-squash-and-stretch-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.624Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/02-anticipation-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.654Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/02-anticipation-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.671Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/02-anticipation.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.687Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/03-staging-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.718Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/03-staging.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.735Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/04-straight-ahead-vs-pose-to-pose-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.755Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/04-straight-ahead-vs-pose-to-pose-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.774Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/04-straight-ahead-vs-pose-to-pose.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.791Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/05-follow-through-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.809Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/05-follow-through-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.830Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/05-follow-through.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.859Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/06-slow-in-slow-out-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.883Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/06-slow-in-slow-out.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.918Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/07-arcs-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.937Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/07-arcs-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.955Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/07-arcs.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.973Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/08-secondary-action-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:38.991Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/08-secondary-action-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.008Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/09-timing-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.040Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/09-timing-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.058Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/09-timing.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.075Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/10-exaggeration-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.093Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/10-exaggeration-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.112Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/10-exaggeration.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.134Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/11-solid-drawing-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.156Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/11-solid-drawing-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.181Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/11-solid-drawing.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.206Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/12-appeal-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.233Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/12-appeal-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.255Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/12-appeal.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.275Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/add-to-cart.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.294Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/avatar.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.312Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/bell.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.329Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/button.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.348Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/dialog.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.366Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/hover-card.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.388Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/intensity.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.410Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/list.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.431Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/loader.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.455Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/send.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.478Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/tabs.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.502Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/html/toast.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.524Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/recipes/character-jump.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.547Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/recipes/reduced-motion.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.568Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/recipes/throw-along-path.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.594Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/start/first-canvas.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.617Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/start/first-css.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.638Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "site/public/toon/examples/start/first-press.html"
+        ],
+        "createdAt": "2026-11-27T17:18:39.659Z",
+        "reason": "Claude verified: #fff7ec is --paper of the Saturday morning palette the user chose from their Figma file 'Toon'; file is a generated copy of examples/"
+      }
+    ]
+  }
+}

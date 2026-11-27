@@ -44,7 +44,7 @@ sets `window.Toon`.
 
 | I want to… | Use |
 |---|---|
-| Make a button feel pressable | `.toon-press` |
+| Make a button feel physical | `.toon-press` |
 | Give a card or button a wind-up on hover or focus | `.toon-anticipate` |
 | Bring a list in item by item | `.toon-follow` on the list (the first 12 children are staggered; set `--toon-i` on later ones) |
 | Bring in one element (dialog, toast, card) | `.toon-pop-in` (elastic) or `.toon-settle` (slides in and settles) |
@@ -107,7 +107,8 @@ Everything else (how to use each preset and function, live demos and runnable re
 | **Your first animation** | A bouncing ball in CSS and a thrown ball on a canvas, with live results |
 | **Guides** | Using toon with frameworks, timing and units, composing and debugging, browser support |
 | **Find an effect** | "I want to…" → the class or function to use |
-| **Recipes** | Complete, runnable examples (button, list entrance, jump, throw, reduced motion) |
+| **Everyday HTML** | One class on an ordinary element: button, card, list, dialog, toast, tabs, loader… |
+| **Recipes** | Scripted canvas effects with `toon.js`: a character jump, a throw along a path, reduced motion |
 | **The 12 principles** | One page per principle: live demo, CSS, Canvas, tuning tips |
 | **CSS API / Canvas API** | Every class, custom property, function and option, including *Errors and debugging* |
 

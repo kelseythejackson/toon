@@ -88,7 +88,7 @@ The example files sit in `examples/` next to the demo: `NN-name-css.html` and `N
 ## Demos
 
 - An intro paragraph says what you're looking at, in one or two plain sentences.
-- Any interaction goes in a visible **Try it** line under the canvas, not in the intro (the docs hide the intro when they embed a demo).
+- Any interaction goes in a visible hint under the canvas (`<p class="demo-try">`), not in the intro (the docs hide the intro when they embed a demo). Start it with the action itself ("Press and hold…", "Move your pointer…"), with no label in front.
 - Every canvas has `role="img"` and an `aria-label` that describes what moves.
 - Every canvas action also has a real `<button>` (or a slider). Clicking the canvas can stay as a shortcut.
 - Colors come from `demo.css` tokens (`T.primary`…), never hex values. Run `npm run check:contrast` after changing them.

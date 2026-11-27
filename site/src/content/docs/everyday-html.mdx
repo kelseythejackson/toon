@@ -11,13 +11,13 @@ Under each screen, **Replay** plays a one-shot entrance again and **Slow motion*
 
 Every preset here switches off when the viewer has asked for reduced motion, and one-shot entrances jump to where they end.
 
-## A pressable button
+## A button that squashes
 
 To make a button feel physical, add `.toon-press`. It dips while it's held and springs a little past its size on release.
 
 <Recipe dir="html" file="button.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
 
-At the default `--toon-squash` of .22 it dips to 91%. Add `.toon-subtle` to halve that.
+At the default `--toon-squash` of .22 it dips to 91%. Add `.toon-subtle` to halve that. To make it wind up on hover as well, add `.toon-anticipate` from the card below.
 
 ## A card that winds up on hover
 
@@ -41,7 +41,7 @@ To open a dialog, popover or tooltip with a friendly bounce, add `.toon-pop-in`.
 
 <Recipe dir="html" file="dialog.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
 
-To play a one-shot class again in your own page, remove the class, read `offsetWidth` and add the class back. The [list recipe](../recipes/#a-list-that-settles-in) shows the script.
+To play a one-shot class again in your own page, remove the class, read `offsetWidth` and add the class back. [Replay a one-shot effect](../guides/frameworks/#replay-a-one-shot-effect-without-a-framework) shows the script, and how to do it in React, Vue and Svelte.
 
 ## A toast that settles
 

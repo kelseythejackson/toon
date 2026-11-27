@@ -31,8 +31,10 @@ body { font-family: var(--demo-font); color: var(--demo-text); background: var(-
 /* Embedded in the docs: the <toon-demo> host stands in for <html> and <body> (each rule alone, so a page
  * that doesn't understand :host still applies the rest). */
 :host { display: block; --toon-color: var(--demo-primary); font-family: var(--demo-font); color: var(--demo-text);
-  background: var(--demo-bg); font-size: 15px; line-height: 1.5; padding: 16px 16px 32px; border-radius: 12px;
+  background: var(--demo-bg); font-size: 15px; line-height: 1.5; padding: 16px; border-radius: 12px;
   transition: background-color .3s, color .3s; }
+/* The same 16px on every side: the last element (often the hint) adds no margin of its own at the bottom. */
+:host > :last-child { margin-bottom: 0; }
 h1, h2, h3 { font-family: var(--demo-display); color: var(--demo-ink); }
 a { color: var(--demo-primary); }
 small, .note { color: var(--demo-muted); }
@@ -71,10 +73,8 @@ canvas, .demo-panel {
 .demo-paused * { animation-play-state: paused !important; }
 :host(.demo-paused) * { animation-play-state: paused !important; }
 
-/* "Try it" hint under an interactive canvas. Kept out of the intro paragraph so it stays visible when the docs embed the demo. */
+/* The hint under an interactive demo (what to press or move). Kept out of the intro paragraph so it stays visible when the docs embed the demo. */
 .demo-try { margin: var(--space-xs) 0 var(--space-md); font-size: 13px; color: var(--demo-muted); }
-.demo-try b { color: var(--demo-text); margin-right: .35em; }
-.demo-try b::before { content: "☞ "; }
 
 /* Action buttons that sit beside interactive canvases, so every canvas action also works from the keyboard. */
 .demo-act { font: var(--font-weight-strong) 13px var(--demo-font, system-ui); padding: .45em 1.1em; margin-right: .6em; border-radius: var(--radius-pill);
@@ -92,7 +92,6 @@ label:has(> input[type=range]) > input[type=range] { flex: 0 1 auto; min-width: 
 
 /* One visible focus ring for every control in every style (browser defaults vary and can vanish on tinted panels). */
 :is(button, input, select, textarea, a, [tabindex]):focus-visible { outline: 3px solid var(--demo-primary); outline-offset: 2px; }
-.demo-try:has(.demo-act, .demo-act-range) b::before { content: ""; }
 /* A hint with its own control (a button or slider): the control sits on its own line above the text, so the hint
  * wraps as plain prose instead of flowing around the button (which left ragged gaps on narrow screens). */
 .demo-try > :is(.demo-act, label.demo-act-range) { display: flex; width: fit-content; margin: 0 0 var(--space-xs); }

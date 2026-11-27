@@ -10,13 +10,11 @@ This page assumes toon is on your page; see [Install toon](../install/). `toon.c
 
 ## Your first CSS animation
 
-With `toon.css` included, two classes make a bouncing ball. A second element under it makes its contact shadow (the shadow on the ground, which shrinks as the ball rises). The ball jumps 140px, so the box around it leaves that much room above:
+With `toon.css` included, two classes make a bouncing ball. A second element under it makes its contact shadow (the shadow on the ground, which shrinks as the ball rises). The ball jumps 140px, so the box around it leaves that much room above. That's the left ball, and the first block of code.
 
-<Recipe dir="start" file="first-css.html" show={[0]} demo={false} />
+The right ball is the same ball, tuned with custom properties on the element (or on `:root`, to change everything at once). It gets more squash (it flattens further when it lands), a higher bounce and a slower tempo. `--toon-tempo` multiplies every duration, so a higher tempo is *slower*:
 
-Tune it with custom properties on the element, or on `:root` to change everything at once. Here the ball gets more squash (it flattens further when it lands), a higher bounce and a slower tempo. `--toon-tempo` multiplies every duration, so a higher tempo is *slower*:
-
-<Recipe dir="start" file="first-css.html" show={[1]} />
+<Recipe dir="start" file="first-css.html" join />
 
 ## Your first Canvas animation
 
@@ -30,7 +28,7 @@ You've made a ball bounce and a ball fly along an arc. Pick what to build next:
 
 <CardGrid>
   <LinkCard title="Find an effect" href="../find-an-effect/" description="Start from what you want to build, like a list entrance or a loading indicator, and find the class or function for it." />
-  <LinkCard title="Recipes" href="../recipes/" description="Complete, runnable effects that combine several principles: a physical button, a settling list, a character jump." />
+  <LinkCard title="Recipes" href="../recipes/" description="Scripted canvas effects that combine several principles: a character jump, a throw along a path, and reduced motion." />
   <LinkCard title="Timing and units" href="../guides/timing-and-units/" description="One clock, two speed controls that run in opposite directions, and the unit each part of toon measures in." />
   <LinkCard title="Using toon with frameworks" href="../guides/frameworks/" description="React, Next.js, Vue, Svelte and Astro: where the CSS goes, and how to start and clean up a canvas in a component." />
 </CardGrid>

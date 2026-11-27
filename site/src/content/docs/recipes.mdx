@@ -1,31 +1,13 @@
 ---
 title: Recipes
-description: Several principles combined into common UI and character effects.
+description: "Scripted effects with toon.js that combine several principles: a character jump, a throw along a path, and reduced motion on canvas."
 ---
 
 import Recipe from '../../components/Recipe.astro';
 
-Each recipe shows its code, then that same code running. The snippets are read from the example pages in `examples/recipes/`, so what you see is what runs. Only the page styling (the panel, fonts and theme colors) is left out.
+Each recipe uses `toon.js` and combines several principles in one script. For one class on an ordinary element, see [Everyday HTML](../everyday-html/).
 
-## A button that feels physical
-
-This combines [anticipation](../principles/anticipation/), [squash](../principles/squash-and-stretch/) and an [overshoot](../principles/exaggeration/) on release. One class does it:
-
-<Recipe file="physical-button.html" show={[0]} demo={false} />
-
-To wind up on hover as well, add the anticipation preset. Use `--toon-exaggeration` to tone it down for a business app or up for a game:
-
-<Recipe file="physical-button.html" show={[1]} />
-
-## A list that settles in
-
-[Follow-through and overlapping action](../principles/follow-through/): each item arrives slightly after the one before it, and its bottom swings past the stop.
-
-<Recipe file="settling-list.html" show={[0]} demo={false} />
-
-To replay it (for example, after new data arrives), remove the class, force a reflow and add it back:
-
-<Recipe file="settling-list.html" join />
+Each recipe runs on the screen, and **Show code** opens its code. The snippets are read from the example pages in `examples/recipes/`, so what you see is what runs. Only the page styling (the panel, fonts and theme colors) is left out.
 
 ## A character jump, scripted
 

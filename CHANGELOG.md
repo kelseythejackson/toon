@@ -5,6 +5,17 @@
 Everything since 1.1.0, newest first. The first version prepared for npm: replace "not yet published" with the
 release date when you run `npm publish`.
 
+### Demos: plain hints
+- The light/dark menu's third choice is "System" (it was "Auto"): it follows the operating system's setting. Set in `site/src/content/i18n/en.json`, which overrides Starlight's own interface text.
+- Demos in the docs have the same 16px of space on every side. The bottom had 48px: 32px of padding plus the hint's own margin.
+- The hint under an interactive demo is plain text that starts with the action ("Press and hold each button…"), without the bold "Try it" label and the ☞ pointing hand in front of it.
+
+### Docs: Everyday HTML and Recipes each have one job
+- **Everyday HTML** is one class on an ordinary element, in CSS. **Recipes** are scripted effects with `toon.js`: the character jump, the throw along a path, and reduced motion on canvas.
+- Everyday HTML's first example is now "A button that squashes" (it was "A pressable button": every button is pressable).
+- The "A button that feels physical" and "A list that settles in" recipes are gone. They repeated Everyday HTML's pressable button and list (the list even had the same heading on both pages). Their links in Find an effect now point to Everyday HTML, and the replay script Everyday HTML pointed to is in [Using toon with frameworks](site/src/content/docs/guides/frameworks.md).
+- **Your first CSS animation** shows one result-and-code block, with both balls' code in its drawer as one code block. It used to print the first ball's code above the demo and the second in the drawer.
+
 ### Docs site: keyboard focus, the resize handle and the install card
 - **The keyboard focus ring shows on every surface.** It was hard to see on the orange demo frames, the candy-colored cards and the navy header (1.0 to 2.6:1). It now takes its color from the surface behind it: the link color on paper, orange on navy, navy ink on candy. Every pair is at least 3:1 in light and dark mode. The demo resize handle's ring uses the handle's own ink.
 - **Install page:** the Copy button on the `npm install` line sits inside the code again. It hung off the bottom, because the empty terminal title bar was hidden but its space was still reserved.
