@@ -1,6 +1,28 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "docs", "runtimeExecutable": "npm", "runtimeArgs": ["run", "docs:dev"], "port": 4321 }
+    {
+      "name": "docs",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "docs:dev"
+      ],
+      "port": 4321
+    },
+    {
+      "name": "docs-built",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "preview",
+        "-w",
+        "site",
+        "--",
+        "--port",
+        "4322"
+      ],
+      "port": 4322
+    }
   ]
 }

@@ -1,0 +1,488 @@
+---
+/**
+ * Overrides Starlight's Search with the "answer first" design (Figma: Toon → Search (proposal) → B).
+ *
+ * - An exact class, custom property, Canvas function or page title gets a best-match card, answered from the
+ *   site's own name index (/search-index.json, built by src/searchIndex.ts from the API pages and toon.d.ts).
+ *   Effect classes play on a small specimen in the card.
+ * - Pages follow, from Pagefind: one row per matching section, with a prose excerpt. Code and demos aren't indexed
+ *   (data-pagefind-ignore in Demo.astro, Recipe.astro and the rehype step in astro.config.mjs).
+ * - Before two letters it suggests names and starting pages; with nothing found it offers toon's own words.
+ *
+ * Keeps Starlight's trigger button, Ctrl/⌘+K shortcut and <site-search> element, so the header styles
+ * (styles/saturday.css) and the dialog's entrance (scripts/motion.js) still apply. Pagefind's index only exists
+ * in a build: in `npm run docs:dev` the best match works and the page list says so.
+ */
+import { Icon } from '@astrojs/starlight/components';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const suggestions = ['.toon-press', 'bounce', 'tween()', 'reduced motion', 'follow-through', 'arc()'];
+const starts = [
+  { title: 'Find an effect', text: 'Start from what you want to build.', href: 'find-an-effect/' },
+  { title: 'HTML', text: 'One class on an ordinary element.', href: 'everyday-html/' },
+  { title: 'Install', text: 'npm, a CDN or two files.', href: 'install/' },
+];
+---
+
+<site-search data-base={base} data-dev={import.meta.env.DEV ? '' : undefined}>
+  <button data-open-modal disabled aria-label="Search" aria-keyshortcuts="Control+K">
+    <Icon name="magnifier" />
+    <span class="sl-hidden md:sl-block" aria-hidden="true">Search</span>
+    <kbd class="sl-hidden md:sl-flex" style="display: none"><kbd>Ctrl</kbd><kbd>K</kbd></kbd>
+  </button>
+
+  <dialog class="toon-search" aria-label="Search the docs">
+    <div class="ts-frame">
+      <div class="ts-top">
+        <label class="ts-field">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2.6"/><path d="M15.5 15.5L21 21" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+          <span class="sr-only">Search the docs</span>
+          <input type="search" data-nav placeholder="Search classes, functions and pages" autocomplete="off" spellcheck="false" enterkeyhint="go" />
+          <kbd class="ts-esc" aria-hidden="true">esc</kbd>
+        </label>
+        <button type="button" class="ts-close" data-close-modal>Close</button>
+      </div>
+      <p class="sr-only" role="status" aria-live="polite" data-status></p>
+
+      <div class="ts-body">
+        <section class="ts-start" data-view="start">
+          <h2 class="ts-display">What do you want to move?</h2>
+          <ul class="ts-chips" aria-label="Suggestions">
+            {suggestions.map((s) => <li><button type="button" class="ts-chip" data-nav data-query={s}><span class:list={[/[.()-]/.test(s) && !s.includes(' ') && 'ts-mono']}>{s}</span></button></li>)}
+          </ul>
+          <h3 class="ts-heading">Or start from a page</h3>
+          <ul class="ts-starts">
+            {starts.map((s) => <li><a data-nav href={base + s.href}><b>{s.title}</b><span>{s.text}</span></a></li>)}
+          </ul>
+        </section>
+
+        <section class="ts-results" data-view="results" hidden>
+          <div data-best></div>
+          <div class="ts-also" data-also hidden><span>Also matches</span><ul></ul></div>
+          <h3 class="ts-heading" data-pages-heading hidden>Pages <span data-count></span></h3>
+          <ol class="ts-rows" data-rows></ol>
+          <p class="ts-note" data-pages-note hidden></p>
+        </section>
+
+        <section class="ts-none" data-view="none" hidden>
+          <h2 class="ts-display" data-none-title></h2>
+          <p class="ts-note" data-none-text></p>
+          <ul class="ts-chips" data-none-chips aria-label="Try instead"></ul>
+          <a class="ts-plain-link" data-nav href={base + 'find-an-effect/'}>Or describe the effect in Find an effect</a>
+        </section>
+      </div>
+
+      <div class="ts-keys" aria-hidden="true">
+        <span><kbd>↑</kbd><kbd>↓</kbd> to move</span><span><kbd>↵</kbd> to open</span><span><kbd>esc</kbd> to close</span>
+      </div>
+    </div>
+  </dialog>
+</site-search>
+
+{/* Show ⌘ on Apple devices, as Starlight does (inline, so the wrong key never flashes). */}
+<script is:inline>
+  (() => {
+    const openBtn = document.querySelector('button[data-open-modal]');
+    const shortcut = openBtn?.querySelector('kbd');
+    if (!openBtn || !(shortcut instanceof HTMLElement)) return;
+    const platformKey = shortcut.querySelector('kbd');
+    if (platformKey && /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
+      platformKey.textContent = '⌘';
+      openBtn.setAttribute('aria-keyshortcuts', 'Meta+K');
+    }
+    shortcut.style.display = '';
+  })();
+</script>
+
+<script>
+  interface NameEntry { name: string; kind: string; description: string; url: string; seeIt?: { title: string; url: string } }
+  interface PageEntry { title: string; description: string; url: string; kind: string }
+  interface Index { names: NameEntry[]; pages: PageEntry[] }
+  interface SubResult { title: string; url: string; excerpt: string }
+  interface PageData { url: string; excerpt: string; meta: { title?: string }; sub_results: SubResult[] }
+  interface Pagefind {
+    options(o: object): Promise<void>;
+    debouncedSearch(q: string, o?: object, ms?: number): Promise<{ results: { data(): Promise<PageData> }[] } | null>;
+  }
+
+  // Effect classes that can play on a small specimen in the best-match card (modifiers ride on a bounce).
+  const LIVE = new Set(['toon-bounce', 'toon-sway', 'toon-bob', 'toon-blink', 'toon-breathe', 'toon-pop-in', 'toon-settle']);
+  const ON_BOUNCE = new Set(['toon-heavy', 'toon-light', 'toon-subtle', 'toon-exaggerate']);
+  // Words people use for motion toon names differently: offered when nothing matches.
+  const SYNONYMS: Record<string, string[]> = {
+    wobble: ['ease.elastic()', '--toon-ease-elastic', '.toon-pop-in', 'follow-through'],
+    jiggle: ['ease.elastic()', '.toon-pop-in', 'follow-through'],
+    spring: ['new Spring()', 'ease.elastic()', '.toon-pop-in'],
+    springy: ['new Spring()', 'ease.elastic()', '.toon-pop-in'],
+    jump: ['anticipation', '.toon-anticipate', 'bounce'],
+    hop: ['anticipation', '.toon-arc', 'bounce'],
+    shake: ['.toon-sway', 'noise()', 'secondary action'],
+    wiggle: ['.toon-sway', 'noise()', 'secondary action'],
+    fade: ['.toon-pop-in', '.toon-settle', 'staging'],
+    entrance: ['.toon-pop-in', '.toon-settle', '.toon-follow'],
+    loading: ['.toon-bounce', '.toon-bob', '.toon-breathe'],
+    spinner: ['.toon-bounce', '.toon-bob', '.toon-breathe'],
+    delay: ['.toon-follow', '--toon-overlap', 'stagger()'],
+    speed: ['--toon-tempo', 'ticker.timeScale', 'timing'],
+    'slow motion': ['--toon-tempo', 'ticker.timeScale', 'timing'],
+    easing: ['slow in & slow out', '--toon-ease-out', 'ease.inOutCubic'],
+    hover: ['.toon-anticipate', '.toon-stage'],
+    click: ['.toon-press', 'anticipation'],
+    throw: ['arc()', '.toon-arc', 'arcs'],
+    path: ['path()', 'arc()', 'arcs'],
+    curve: ['arc()', 'path()', 'arcs'],
+    shadow: ['.toon-shadow', 'groundShadow()', 'solid drawing'],
+    '3d': ['.toon-solid', 'drawSolid()', 'solid drawing'],
+    idle: ['.toon-breathe', '.toon-bob', 'appeal'],
+    blink: ['.toon-blink', 'blink()', 'appeal'],
+  };
+
+  const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  // Escaped text with `code spans` shown as code.
+  const prose = (s: string) => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>');
+  const stripName = (s: string) => s.toLowerCase().replace(/^new /, '').replace(/^(\.toon-|--toon-|\.|--|ease\.|stage\.|ticker\.)/, '').replace(/\(\)$/, '');
+  const norm = (s: string) => s.trim().toLowerCase().replace(/\(\)$/, '');
+  const kindOf = (path: string) => /^principles/.test(path) ? 'Principle' : /^(api\/|glossary)/.test(path) ? 'Reference'
+    : /^(everyday-html|recipes)/.test(path) ? 'Example' : 'Guide';
+  // Pagefind starts a section's excerpt with its heading, which the row already shows: drop it, tags and all.
+  function dropLead(html: string, title: string) {
+    let i = 0, n = 0;
+    const t = title.toLowerCase();
+    while (i < html.length && n < t.length) {
+      if (html[i] === '<') { i = html.indexOf('>', i) + 1 || html.length; continue; }
+      if (html[i].toLowerCase() !== t[n]) return html;
+      i++; n++;
+    }
+    const rest = html.slice(i).replace(/^(\s*<\/mark>)?[\s.:,]+/, (m, close) => close ?? '');
+    return rest.trim() ? rest : html;
+  }
+  // An excerpt cut mid-sentence starts or ends in an ellipsis (Pagefind's window can start inside a sentence).
+  const ending = (html: string) => {
+    const text = html.replace(/<[^>]+>/g, '');
+    const start = /^[a-z]/.test(text) ? '…' : '';
+    return start + (/[.!?:)]\s*$/.test(text) ? html : html.replace(/[\s,;]*$/, '') + '…');
+  };
+  const chip = (kind: string) => `<span class="ts-kind" data-kind="${esc(kind)}">${esc(kind)}</span>`;
+
+  class SiteSearch extends HTMLElement {
+    base = this.dataset.base ?? '/';
+    dialog = this.querySelector('dialog')!;
+    input = this.querySelector<HTMLInputElement>('input[type=search]')!;
+    status = this.querySelector<HTMLElement>('[data-status]')!;
+    index: Promise<Index> | null = null;
+    pagefind: Promise<Pagefind | null> | null = null;
+    run = 0;
+    timer = 0;
+
+    connectedCallback() {
+      const open = this.querySelector<HTMLButtonElement>('button[data-open-modal]')!;
+      const frame = this.querySelector('.ts-frame')!;
+      const onClick = (e: MouseEvent) => {
+        const t = e.target as Element;
+        if (t.closest('a[href]') || (document.body.contains(t) && !frame.contains(t))) this.close();
+      };
+      const show = (e?: Event) => {
+        this.dialog.showModal();
+        document.body.toggleAttribute('data-search-modal-open', true);
+        this.input.focus(); this.input.select();
+        e?.stopPropagation();
+        window.addEventListener('click', onClick);
+        this.load();
+      };
+      open.addEventListener('click', show);
+      open.disabled = false;
+      this.querySelector('[data-close-modal]')!.addEventListener('click', () => this.close());
+      this.dialog.addEventListener('close', () => {
+        document.body.toggleAttribute('data-search-modal-open', false);
+        window.removeEventListener('click', onClick);
+      });
+      window.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); this.dialog.open ? this.close() : show(); }
+      });
+      this.input.addEventListener('input', () => { clearTimeout(this.timer); this.timer = window.setTimeout(() => this.search(), 120); });
+      this.addEventListener('click', (e) => {
+        const b = (e.target as Element).closest<HTMLElement>('[data-query]');
+        if (b) { this.input.value = b.dataset.query!; this.search(); this.input.focus(); }
+      });
+      this.dialog.addEventListener('keydown', (e) => this.keys(e));
+    }
+
+    close() { this.dialog.close(); }
+
+    load() {
+      this.index ??= fetch(this.base + 'search-index.json').then((r) => r.json()).catch(() => ({ names: [], pages: [] }));
+      if (this.dataset.dev === undefined) {
+        this.pagefind ??= import(/* @vite-ignore */ this.base + 'pagefind/pagefind.js')
+          .then(async (pf: Pagefind) => { await pf.options({ baseUrl: this.base, excerptLength: 24 }); return pf; })
+          .catch(() => null);
+      }
+    }
+
+    // ↑ and ↓ move between the field, suggestions and results; Enter in the field opens the first result.
+    keys(e: KeyboardEvent) {
+      const items = [...this.querySelectorAll<HTMLElement>('[data-view]:not([hidden]) [data-nav], input[data-nav]')]
+        .filter((el) => !el.closest('[hidden]'));
+      const at = items.indexOf(document.activeElement as HTMLElement);
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (at < 0) return;
+        e.preventDefault();
+        const next = items[Math.min(items.length - 1, Math.max(0, at + (e.key === 'ArrowDown' ? 1 : -1)))];
+        next.focus(); next.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter' && document.activeElement === this.input) {
+        const first = items.find((el) => el !== this.input && el.tagName === 'A');
+        if (first) { e.preventDefault(); (first as HTMLAnchorElement).click(); }
+      }
+    }
+
+    view(name: 'start' | 'results' | 'none') {
+      for (const s of this.querySelectorAll<HTMLElement>('[data-view]')) s.hidden = s.dataset.view !== name;
+    }
+
+    async search() {
+      const run = ++this.run;
+      const raw = this.input.value.trim();
+      if (raw.length < 2) { this.view('start'); this.status.textContent = ''; return; }
+      const index = await this.index!;
+      if (run !== this.run) return;
+
+      // Best match: an exact name, then an exact page title. Partial names become "Also matches".
+      const q = norm(raw), qs = stripName(raw);
+      const exact = index.names.find((n) => norm(n.name) === q) ?? index.names.find((n) => stripName(n.name) === qs);
+      const page = exact ? undefined : index.pages.find((p) => p.title.toLowerCase() === q);
+      const also = qs.length < 3 ? [] : index.names
+        .filter((n) => n !== exact && stripName(n.name).includes(qs))
+        .sort((a, b) => Number(!stripName(a.name).startsWith(qs)) - Number(!stripName(b.name).startsWith(qs)))
+        .slice(0, 4);
+      this.renderBest(exact, page);
+      const alsoBox = this.querySelector<HTMLElement>('[data-also]')!;
+      alsoBox.hidden = !also.length;
+      alsoBox.querySelector('ul')!.innerHTML = also.map((n) => `<li><a data-nav href="${this.base + n.url}"><code>${esc(n.name)}</code></a></li>`).join('');
+
+      // Pages, from Pagefind: one row per matching section, never the page title twice.
+      const rows: { title: string; page: string; kind: string; excerpt: string; url: string }[] = [];
+      const note = this.querySelector<HTMLElement>('[data-pages-note]')!;
+      note.hidden = true;
+      const pf = this.pagefind ? await this.pagefind : null;
+      if (pf) {
+        const found = await pf.debouncedSearch(raw, {}, 60);
+        if (!found || run !== this.run) return;
+        const pages = await Promise.all(found.results.slice(0, 8).map((r) => r.data()));
+        if (run !== this.run) return;
+        for (const d of pages) {
+          const title = d.meta.title ?? '';
+          const path = d.url.startsWith(this.base) ? d.url.slice(this.base.length) : d.url.replace(/^\//, '');
+          const subs = d.sub_results.filter((s) => s.title && s.title !== title).slice(0, 2);
+          if (subs.length) for (const s of subs) rows.push({ title: s.title, page: title, kind: kindOf(path), excerpt: s.excerpt, url: s.url });
+          else rows.push({ title, page: '', kind: kindOf(path), excerpt: d.excerpt, url: d.url });
+        }
+      } else if (this.dataset.dev !== undefined) {
+        note.hidden = false;
+        note.textContent = 'Page results need the search index, which is built with the site: run npm run build, then npm run docs:preview.';
+      }
+      const list = rows.slice(0, 10);
+      this.querySelector('[data-rows]')!.innerHTML = list.map((r) => `
+        <li><a class="ts-row" data-nav href="${esc(r.url)}">
+          <span class="ts-row-head"><b>${esc(r.title)}</b>${chip(r.kind)}</span>
+          ${r.page ? `<span class="ts-row-page">${esc(r.page)}</span>` : ''}
+          <span class="ts-row-excerpt">${ending(dropLead(r.excerpt, r.title))}</span>
+        </a></li>`).join('');
+      const heading = this.querySelector<HTMLElement>('[data-pages-heading]')!;
+      heading.hidden = !list.length;
+      this.querySelector('[data-count]')!.textContent = `${list.length} ${list.length === 1 ? 'section' : 'sections'}`;
+
+      if (!exact && !page && !also.length && !list.length && note.hidden) return this.renderNone(raw);
+      this.view('results');
+      const best = exact?.name ?? page?.title;
+      this.status.textContent = [best && `Best match: ${best}.`, `${list.length} page ${list.length === 1 ? 'section' : 'sections'}.`].filter(Boolean).join(' ');
+    }
+
+    renderBest(n?: NameEntry, p?: PageEntry) {
+      const box = this.querySelector<HTMLElement>('[data-best]')!;
+      if (!n && !p) { box.innerHTML = ''; return; }
+      const cls = n?.name.startsWith('.toon-') ? n.name.slice(1) : '';
+      const live = LIVE.has(cls) ? cls : ON_BOUNCE.has(cls) ? `toon-bounce ${cls}` : '';
+      const spec = live || cls === 'toon-solid' ? `<span class="ts-spec" aria-hidden="true"><i class="ts-thing ${live || 'toon-solid'}"></i>${live.includes('toon-bounce') ? '<i class="ts-shadow toon-shadow toon-bounce-shadow ' + cls + '"></i>' : ''}</span>` : '';
+      const links = n
+        ? [`<a data-nav href="${this.base + n.url}">Open in the ${n.kind === 'Canvas API' ? 'Canvas' : 'CSS'} API</a>`,
+           n.seeIt ? `<a data-nav href="${this.base + n.seeIt.url}">See it in ${esc(n.seeIt.title)}</a>` : '']
+        : [`<a data-nav href="${this.base + p!.url}">Open ${esc(p!.title)}</a>`];
+      box.innerHTML = `<article class="ts-best${spec ? '' : ' no-spec'}" aria-label="Best match">
+        ${spec}
+        <div class="ts-best-body">
+          <p class="ts-best-head">${n ? `<code>${esc(n.name)}</code>` : `<b>${esc(p!.title)}</b>`}${chip(n ? n.kind : p!.kind)}</p>
+          <p class="ts-best-text">${prose(n ? n.description : p!.description)}</p>
+          <p class="ts-best-links">${links.join('')}</p>
+        </div></article>`;
+    }
+
+    renderNone(raw: string) {
+      const words = raw.toLowerCase();
+      const key = Object.keys(SYNONYMS).find((k) => words.includes(k));
+      this.querySelector('[data-none-title]')!.textContent = `No matches for “${raw}”`;
+      this.querySelector('[data-none-text]')!.textContent = key ? 'toon has another name for that. Try one of these:' : 'Try a class, a function or a principle:';
+      const tries = key ? SYNONYMS[key] : ['.toon-press', 'bounce', 'tween()', 'follow-through'];
+      this.querySelector('[data-none-chips]')!.innerHTML = tries.map((t) =>
+        `<li><button type="button" class="ts-chip" data-nav data-query="${esc(t)}"><span class="${/[.()]|^--/.test(t) ? 'ts-mono' : ''}">${esc(t)}</span></button></li>`).join('');
+      this.view('none');
+      this.status.textContent = `No matches for ${raw}.`;
+    }
+  }
+  customElements.define('site-search', SiteSearch);
+</script>
+
+<style is:global>
+  [data-search-modal-open] { overflow: hidden; }
+  site-search { display: contents; }
+  site-search button[data-open-modal] {
+    display: flex; align-items: center; gap: .5rem; border: 0; background: transparent; color: inherit; cursor: pointer;
+    height: 2.5rem; font-size: var(--sl-text-xl);
+  }
+
+  /* ── The dialog: navy panel, cream field and rows, candy accents (Figma: Search (proposal) → B) ── */
+  .toon-search {
+    --focus-ring: var(--sat-orange);
+    margin: 4rem auto auto; padding: 0; width: min(47.5rem, calc(100% - 2rem)); max-height: calc(100dvh - 6rem);
+    background: var(--night); color: var(--on-night); border: 4px solid var(--sat-outline); border-radius: 32px;
+    box-shadow: 10px 12px 0 var(--sat-outline); overflow: hidden;
+  }
+  .toon-search[open] { display: flex; }
+  .toon-search::backdrop { background: color-mix(in srgb, var(--sat-candy-ink) 55%, transparent); }
+  .toon-search .ts-frame { display: flex; flex-direction: column; gap: 1.125rem; padding: 2.25rem 2.5rem 1.5rem; width: 100%; min-height: 0; }
+  .toon-search .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .toon-search code, .toon-search .ts-mono { font-family: var(--font-mono); }
+
+  /* Field */
+  .toon-search .ts-top { display: flex; align-items: center; gap: .75rem; }
+  .toon-search .ts-field {
+    flex: 1; display: flex; align-items: center; gap: .75rem; padding: .875rem .875rem .875rem 1.25rem; border-radius: 999px;
+    background: var(--sat-cream); color: var(--sat-candy-ink); border: 3px solid var(--sat-outline);
+  }
+  .toon-search .ts-field:focus-within { box-shadow: 0 0 0 4px var(--sat-orange); }
+  .toon-search .ts-field svg { flex: none; }
+  .toon-search input {
+    flex: 1; min-width: 0; border: 0; background: none; color: inherit; font: 600 1.1875rem var(--font-body); outline: none;
+  }
+  /* The pill shows focus (its orange ring), so the field inside it doesn't need the site's own outline too. */
+  :root[data-style] .toon-search input:focus-visible { outline: none; }
+  .toon-search input::placeholder { color: #63668a; font-weight: 500; opacity: 1; }
+  .toon-search input::-webkit-search-cancel-button { display: none; }
+  .toon-search kbd, .toon-search .ts-esc {
+    font: 500 .75rem var(--font-mono); padding: .125rem .4375rem; border-radius: 6px; line-height: 1.5;
+  }
+  .toon-search .ts-esc { background: #fbeedb; color: #474c78; border: 1.5px solid #d9c7ab; }
+  .toon-search .ts-close { display: none; background: none; border: 0; color: var(--on-night); font: 800 1rem var(--font-body); cursor: pointer; padding: .5rem .25rem; }
+
+  .toon-search .ts-body { overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 1.125rem; margin: -.375rem; padding: .375rem; }
+  .toon-search [hidden] { display: none !important; }
+  .toon-search section { display: grid; gap: 1.125rem; align-content: start; }
+  .toon-search .ts-display { margin: 0; font: 400 clamp(1.5rem, 4vw, 1.875rem)/1.15 var(--display); color: var(--on-night); }
+  .toon-search .ts-heading { margin: 0; font: 800 .9375rem var(--font-body); color: var(--on-night); }
+  .toon-search .ts-heading span { font-weight: 500; font-size: .8125rem; color: var(--night-muted); margin-inline-start: .375rem; }
+  .toon-search .ts-note { margin: 0; color: var(--night-muted); font-size: 1rem; }
+  .toon-search ul, .toon-search ol { list-style: none; margin: 0; padding: 0; }
+
+  /* Suggestion chips */
+  .toon-search .ts-chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .toon-search .ts-chip {
+    padding: .4375rem .875rem; border-radius: 999px; background: var(--night-2); color: var(--on-night);
+    border: 2px solid var(--night-line); font: 700 .875rem var(--font-body); cursor: pointer;
+  }
+  .toon-search .ts-chip .ts-mono { font-weight: 500; }
+  .toon-search .ts-chip:hover { border-color: var(--on-night); }
+
+  /* Start pages */
+  .toon-search .ts-starts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .625rem; }
+  .toon-search .ts-starts a {
+    display: grid; gap: .25rem; height: 100%; padding: .875rem 1rem; border-radius: 18px; text-decoration: none;
+    color: var(--sat-candy-ink); border: 3px solid var(--sat-outline); box-shadow: 0 5px 0 var(--sat-outline); background: var(--sat-pink);
+  }
+  .toon-search .ts-starts li:nth-child(2) a { background: var(--sat-blue); }
+  .toon-search .ts-starts li:nth-child(3) a { background: var(--sat-mint); }
+  .toon-search .ts-starts b { font-weight: 800; }
+  .toon-search .ts-starts span { font-weight: 500; font-size: .875rem; }
+  .toon-search .ts-starts a:focus-visible { outline: 3px solid var(--sat-orange); outline-offset: 3px; }
+
+  /* Best match */
+  .toon-search .ts-best {
+    display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 1.25rem; padding: 1.25rem 1.5rem 1.25rem 1.25rem;
+    background: var(--sat-yellow); color: var(--sat-candy-ink); border: 3px solid var(--sat-outline); border-radius: 24px;
+    box-shadow: 0 6px 0 var(--sat-outline);
+  }
+  .toon-search .ts-best.no-spec { grid-template-columns: minmax(0, 1fr); padding-inline-start: 1.5rem; }
+  .toon-search .ts-best p { margin: 0; }
+  .toon-search .ts-best-body { display: grid; gap: .5rem; }
+  .toon-search .ts-best-head { display: flex; flex-wrap: wrap; align-items: center; gap: .625rem; }
+  .toon-search .ts-best-head code { font-size: 1.375rem; font-weight: 700; background: none; padding: 0; color: inherit; }
+  .toon-search .ts-best-head b { font: 400 1.5rem var(--display); }
+  .toon-search .ts-best-text { font-weight: 500; line-height: 1.45; }
+  .toon-search .ts-best-text code { font-size: .875em; background: color-mix(in srgb, #fff 55%, transparent); padding: .0625rem .3125rem; border-radius: 5px; }
+  .toon-search .ts-best-links { display: flex; flex-wrap: wrap; gap: .375rem 1.125rem; }
+  .toon-search .ts-best-links a { color: inherit; font-weight: 800; font-size: .875rem; text-underline-offset: 3px; }
+  .toon-search .ts-best-links a:focus-visible { outline: 3px solid var(--sat-candy-ink); outline-offset: 3px; border-radius: 4px; }
+  /* The specimen: the class itself, playing on a cream stage (toon.css stops it under reduced motion). */
+  .toon-search .ts-spec {
+    position: relative; width: 6rem; height: 6rem; border-radius: 18px; background: color-mix(in srgb, #fff 70%, transparent);
+    overflow: hidden; --toon-color: var(--sat-orange); --toon-height: 36px; --toon-distance: 30px;
+  }
+  .toon-search .ts-spec::after { content: ''; position: absolute; inset: auto 10px 13px; height: 2px; border-radius: 1px; background: var(--sat-candy-ink); opacity: .3; }
+  .toon-search .ts-thing {
+    position: absolute; left: calc(50% - 14px); bottom: 15px; width: 28px; height: 28px; border-radius: 10px;
+    background: var(--sat-orange); border: 2.5px solid var(--sat-outline); box-sizing: border-box; transform-origin: 50% 100%;
+  }
+  .toon-search .ts-thing.toon-solid { border-radius: 50%; border: 0; }
+  .toon-search .ts-shadow { position: absolute; left: calc(50% - 16px); bottom: 10px; width: 32px; height: 7px; }
+
+  /* Also matches */
+  .toon-search .ts-also { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+  .toon-search .ts-also > span { color: var(--night-muted); font-size: .8125rem; font-weight: 600; }
+  .toon-search .ts-also ul { display: contents; }
+  .toon-search .ts-also a {
+    display: block; padding: .25rem .625rem; border-radius: 999px; background: var(--night-2); border: 1.5px solid var(--night-line);
+    color: var(--on-night); text-decoration: none; font-size: .8125rem;
+  }
+  .toon-search .ts-also a:hover { border-color: var(--on-night); }
+
+  /* Page rows */
+  .toon-search .ts-rows { display: grid; gap: .5rem; }
+  .toon-search .ts-row {
+    display: grid; gap: .375rem; padding: .875rem 1.25rem; border-radius: 18px; background: var(--sat-cream); color: var(--sat-candy-ink);
+    text-decoration: none; border: 3px solid transparent;
+  }
+  .toon-search .ts-row:hover { border-color: var(--sat-outline); }
+  .toon-search .ts-row:focus-visible { outline: none; border-color: var(--sat-outline); box-shadow: 0 4px 0 var(--sat-orange); }
+  .toon-search .ts-row-head { display: flex; flex-wrap: wrap; align-items: center; gap: .625rem; }
+  .toon-search .ts-row-head b { font-weight: 700; font-size: 1.0625rem; }
+  .toon-search .ts-row-page { font-weight: 600; font-size: .8125rem; color: #63668a; }
+  .toon-search .ts-row-excerpt { font-size: .9375rem; line-height: 1.45; color: #474c78; }
+  .toon-search .ts-row-excerpt mark { background: none; color: var(--sat-candy-ink); font-weight: 700; }
+
+  /* Kind chips: one candy per kind */
+  .toon-search .ts-kind {
+    display: inline-block; padding: .125rem .625rem; border-radius: 999px; border: 2px solid var(--sat-outline);
+    background: var(--sat-yellow); color: var(--sat-candy-ink); font: 800 .75rem/1.4 var(--font-body);
+  }
+  .toon-search .ts-kind[data-kind='Principle'] { background: var(--sat-pink); }
+  .toon-search .ts-kind[data-kind='Guide'] { background: var(--sat-mint); }
+  .toon-search .ts-kind[data-kind='Example'] { background: var(--sat-blue); }
+
+  .toon-search .ts-plain-link { color: var(--on-night); font-weight: 800; text-underline-offset: 3px; width: fit-content; }
+
+  /* Keyboard hints */
+  .toon-search .ts-keys { display: flex; gap: 1.125rem; color: var(--night-muted); font-size: .8125rem; font-weight: 500; }
+  .toon-search .ts-keys span { display: flex; align-items: center; gap: .375rem; }
+  .toon-search .ts-keys kbd { background: var(--night-2); border: 1.5px solid var(--night-line); color: var(--on-night); }
+
+  /* Phones and small windows: the whole screen, a Close button, no keyboard hints */
+  @media (max-width: 49.99rem) {
+    .toon-search { margin: 0; width: 100%; max-width: 100%; height: 100%; max-height: 100%; border: 0; border-radius: 0; box-shadow: none; }
+    .toon-search .ts-frame { padding: 1.25rem 1rem; }
+    .toon-search .ts-close { display: block; }
+    .toon-search .ts-esc, .toon-search .ts-keys { display: none; }
+    .toon-search .ts-starts { grid-template-columns: minmax(0, 1fr); }
+    .toon-search .ts-best { grid-template-columns: minmax(0, 1fr); padding: 1rem; }
+    .toon-search .ts-spec { display: none; }
+    .toon-search .ts-row { padding: .875rem 1rem; }
+    .toon-search .ts-row-page { display: none; }
+  }
+  @media (any-pointer: coarse) { .toon-search .ts-keys { display: none; } }
+</style>

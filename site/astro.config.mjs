@@ -45,11 +45,16 @@ export default defineConfig({
         Header: './src/components/Header.astro', ThemeSelect: './src/components/ThemeSelect.astro',
         PageTitle: './src/components/PageTitle.astro', EditLink: './src/components/EditLink.astro',
         PageFrame: './src/components/PageFrame.astro', Hero: './src/components/Hero.astro',
+        Search: './src/components/Search.astro',
       },
       // "Edit this page" (components/PageTitle.astro) opens the page's source on GitHub.
       editLink: { baseUrl: 'https://github.com/kelseythejackson/toon/edit/main/site/' },
       // Code block options (wrapping, collapsible setup lines) are in ec.config.mjs.
-      head: [{ tag: 'script', content: motionScript }],
+      // favicon.svg (Starlight's default) switches its outline for dark tabs; Safari and home screens use the PNG.
+      head: [
+        { tag: 'script', content: motionScript },
+        { tag: 'link', attrs: { rel: 'apple-touch-icon', href: `${base}apple-touch-icon.png` } },
+      ],
       sidebar: [
         { label: 'Start here', items: ['install', 'first-animation', 'find-an-effect', 'everyday-html', 'recipes'] },
         { label: 'Guides', items: [{ autogenerate: { directory: 'guides' } }] },

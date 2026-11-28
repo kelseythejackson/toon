@@ -177,10 +177,37 @@ let llmsLinks = 0;
   }
 }
 
+// 6. Search (components/Search.astro): a name gets its best match, page excerpts are prose (no code from demos or
+//    code blocks), an unknown word gets the no-results suggestions, and the open dialog passes axe in light and dark.
+let searchChecks = 0;
+for (const mode of ['light', 'dark']) {
+  const url = origin + BASE + 'install/';
+  await desktop.goto(url + (mode === 'dark' ? '?theme=dark' : ''));
+  const query = (q) => desktop.evaluate(async (q) => {
+    const input = /** @type {HTMLInputElement} */ (document.querySelector('.toon-search input'));
+    const dialog = /** @type {HTMLDialogElement} */ (document.querySelector('.toon-search'));
+    if (!dialog.open) /** @type {HTMLButtonElement} */ (document.querySelector('button[data-open-modal]')).click();
+    input.value = q; input.dispatchEvent(new Event('input'));
+    await new Promise((r) => setTimeout(r, 1500));
+    const view = [...document.querySelectorAll(/** @type {'section'} */ ('.toon-search [data-view]'))].find((s) => !s.hidden)?.dataset.view;
+    return { view, best: document.querySelector('.ts-best code, .ts-best b')?.textContent ?? '',
+      excerpts: [...document.querySelectorAll('.ts-row-excerpt')].map((e) => e.textContent) };
+  }, q);
+  const bounce = await query('bounce');
+  searchChecks++;
+  if (bounce.best !== '.toon-bounce') problems.push(`search (${mode}): "bounce" has best match "${bounce.best}", not .toon-bounce`);
+  if (!bounce.excerpts.length) problems.push(`search (${mode}): "bounce" found no pages`);
+  for (const e of bounce.excerpts) if (/=>|ctx\.|\{\s*\w+:|<\/?[a-z]/.test(e)) problems.push(`search (${mode}): an excerpt looks like code: ${e.slice(0, 80)}`);
+  await axe(desktop, url + ' (search open)', mode);
+  const none = await query('jiggle');
+  searchChecks++;
+  if (none.view !== 'none') problems.push(`search (${mode}): "jiggle" shows ${none.view}, not the no-results suggestions`);
+}
+
 await browser.close();
 server.close();
 
 const unique = [...new Set(problems)];
-console.log(`${unique.length ? '✗' : '✓'} site: ${pages.size} pages, ${checked.size} links and demo files, ${anchors.length} anchors, ${axeRuns} axe scans (WCAG 2.2 AA, light and dark), phones at ${PHONES.join(' and ')}px, llms.txt (${llmsLinks} links)`);
+console.log(`${unique.length ? '✗' : '✓'} site: ${pages.size} pages, ${checked.size} links and demo files, ${anchors.length} anchors, ${axeRuns} axe scans (WCAG 2.2 AA, light and dark), phones at ${PHONES.join(' and ')}px, llms.txt (${llmsLinks} links), ${searchChecks} search checks`);
 for (const p of unique) console.log('  - ' + p);
 process.exit(unique.length ? 1 : 0);

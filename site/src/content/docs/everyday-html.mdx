@@ -1,9 +1,9 @@
 ---
-title: Everyday HTML
+title: With HTML
 description: Twelve ordinary interface elements, each brought to life by one toon class.
 ---
 
-import Recipe from '../../components/Recipe.astro';
+import Recipe from "../../components/Recipe.astro";
 
 Each example below is a plain HTML element with one toon class on it, running on the screen. Press **Show code** to see the snippet; copy it into a page that loads `toon.css` and it works as shown. The demos only add page styling (colors, borders and fonts).
 
@@ -15,7 +15,11 @@ Every preset here switches off when the viewer has asked for reduced motion, and
 
 To make a button feel physical, add `.toon-press`. It dips while it's held and springs a little past its size on release.
 
-<Recipe dir="html" file="button.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='button.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 At the default `--toon-squash` of .22 it dips to 91%. Add `.toon-subtle` to halve that. To make it wind up on hover as well, add `.toon-anticipate` from the card below.
 
@@ -23,7 +27,11 @@ At the default `--toon-squash` of .22 it dips to 91%. Add `.toon-subtle` to halv
 
 To show that a card is ready to open, add `.toon-anticipate`. On hover or keyboard focus it crouches, springs up and settles 4px higher.
 
-<Recipe dir="html" file="hover-card.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='hover-card.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 The wind-up takes 560 ms, 70% of `--toon-duration`. Turn `--toon-exaggeration` up or down to change the crouch and the jump.
 
@@ -31,7 +39,11 @@ The wind-up takes 560 ms, 70% of `--toon-duration`. Turn `--toon-exaggeration` u
 
 To bring a list in item by item, put `.toon-follow` on the list, not the items. Each item arrives 70 ms after the one above and swings past its stop before it settles (follow-through).
 
-<Recipe dir="html" file="list.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='list.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 Set the stagger with `--toon-overlap`. The first 12 items stagger on their own; set `--toon-i` inline on later ones.
 
@@ -39,7 +51,11 @@ Set the stagger with `--toon-overlap`. The first 12 items stagger on their own; 
 
 To open a dialog, popover or tooltip with a friendly bounce, add `.toon-pop-in`. It grows from nothing, overshoots to 127% and wobbles to rest in 800 ms.
 
-<Recipe dir="html" file="dialog.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='dialog.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 To play a one-shot class again in your own page, remove the class, read `offsetWidth` and add the class back. [Replay a one-shot effect](../guides/frameworks/#replay-a-one-shot-effect-without-a-framework) shows the script, and how to do it in React, Vue and Svelte.
 
@@ -47,7 +63,11 @@ To play a one-shot class again in your own page, remove the class, read `offsetW
 
 To slide one message in, add `.toon-settle`. It's the list's entrance for a single element: it stops, then its weight tips it back, past and level.
 
-<Recipe dir="html" file="toast.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='toast.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 It starts half of `--toon-distance` to the left (120px by default).
 
@@ -55,7 +75,11 @@ It starts half of `--toon-distance` to the left (120px by default).
 
 To direct attention to one choice, put `.toon-stage` on the group. The hovered or focused child grows to 104% while the others shrink to 96% and fade to 75% opacity, still readable.
 
-<Recipe dir="html" file="tabs.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='tabs.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 Add `.is-featured` to the child that should stay in focus when nothing is hovered.
 
@@ -63,7 +87,12 @@ Add `.is-featured` to the child that should stay in focus when nothing is hovere
 
 To throw something into a cart, wrap it in `.toon-arc`. The wrapper moves sideways at a steady speed while its child rises and falls like a real throw (an arc).
 
-<Recipe dir="html" file="add-to-cart.html" join before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='add-to-cart.html'
+  join
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 Set how far it travels with `--toon-distance` and how high it goes with `--toon-height`. The [throwing recipe](../recipes/#throwing-something-along-a-path) aims at a real target with `toon.js`.
 
@@ -71,7 +100,12 @@ Set how far it travels with `--toon-distance` and how high it goes with `--toon-
 
 To make a button take off when it's pressed, add `.toon-launch`. It pulls back, shoots forward `--toon-distance`, flies past and settles there.
 
-<Recipe dir="html" file="send.html" join before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='send.html'
+  join
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 It pulls back 12% of the distance and overshoots by 14px.
 
@@ -79,7 +113,11 @@ It pulls back 12% of the distance and overshoots by 14px.
 
 To hint that something new is waiting, add `.toon-sway`. It rocks 4° each way from its base, one swing every 2.4 seconds.
 
-<Recipe dir="html" file="bell.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='bell.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 A small, slow motion like this supports the page without competing with it (secondary action).
 
@@ -87,7 +125,11 @@ A small, slow motion like this supports the page without competing with it (seco
 
 To show that something is loading, bounce a ball with `.toon-bounce` and put `.toon-bounce-shadow` on its shadow. The ball squashes on the ground, stretches at speed and goes round at the top.
 
-<Recipe dir="html" file="loader.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='loader.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 Lower `--toon-height` for a small loader (60px here), or add `.toon-light` for a quick, squashy bounce.
 
@@ -95,7 +137,11 @@ Lower `--toon-height` for a small loader (60px here), or add `.toon-light` for a
 
 To make a mascot or empty state feel alive, add `.toon-breathe` to the body and `.toon-blink` to each eye. It breathes every 2 seconds and blinks every 4 seconds.
 
-<Recipe dir="html" file="avatar.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='avatar.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 Both clocks follow `--toon-duration`, so one property slows the whole character down.
 
@@ -103,8 +149,16 @@ Both clocks follow `--toon-duration`, so one property slows the whole character 
 
 To fit the motion to the product, put a modifier on a container and everything inside follows. `.toon-subtle` halves the motion for business software, and `.toon-exaggerate` pushes it 1.8 times further for games.
 
-<Recipe dir="html" file="intensity.html" before={'<link rel="stylesheet" href="toon.css">\n'} />
+<Recipe
+  dir='html'
+  file='intensity.html'
+  before={'<link rel="stylesheet" href="toon.css">\n'}
+/>
 
 Held down, the three buttons dip to 96%, 91% and 84%.
 
-<p class="next-links">To start from what you want to build, see <a href="../find-an-effect/">Find an effect</a>. For every class and property, see the <a href="../api/css/">CSS API</a>.</p>
+<p class='next-links'>
+  To start from what you want to build, see{" "}
+  <a href='../find-an-effect/'>Find an effect</a>. For every class and property,
+  see the <a href='../api/css/'>CSS API</a>.
+</p>

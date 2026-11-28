@@ -45,6 +45,11 @@ this file is the short list of rules that keep changes from breaking things.
 - `site/src/components/PageFrame.astro` and `Hero.astro` are copies of Starlight **0.42.10**'s: PageFrame plus one
   `<SiteFooter />` line, Hero plus the `.hero-install` block and its script. When you upgrade Starlight, copy the new
   files and keep those additions.
+- Search is `site/src/components/Search.astro` (Starlight's Search replaced, Pagefind's JS API underneath). Names are
+  answered from `/search-index.json` (`site/src/searchIndex.ts`, read from the API tables and `toon.d.ts`): a new API
+  table row is searchable without other changes. Demos (`Demo.astro`) and code blocks (`site/ec.config.mjs`) are
+  marked `data-pagefind-ignore`, so excerpts are prose. Pagefind's index only exists in a build, so test search with
+  `npm run build` then `npm run docs:preview`.
 - Docs structure: Start here (Install, Your first animation, …), Guides (`site/src/content/docs/guides/`), The 12
   principles, Reference. `/getting-started/` is a redirect in `astro.config.mjs`.
 - Record user-visible changes in `CHANGELOG.md` under "Unreleased", newest first.

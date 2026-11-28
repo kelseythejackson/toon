@@ -107,7 +107,7 @@ Everything else (how to use each preset and function, live demos and runnable re
 | **Your first animation** | A bouncing ball in CSS and a thrown ball on a canvas, with live results |
 | **Guides** | Using toon with frameworks, timing and units, composing and debugging, browser support |
 | **Find an effect** | "I want to…" → the class or function to use |
-| **Everyday HTML** | One class on an ordinary element: button, card, list, dialog, toast, tabs, loader… |
+| **HTML** | One class on an ordinary element: button, card, list, dialog, toast, tabs, loader… |
 | **Recipes** | Scripted canvas effects with `toon.js`: a character jump, a throw along a path, reduced motion |
 | **The 12 principles** | One page per principle: live demo, CSS, Canvas, tuning tips |
 | **CSS API / Canvas API** | Every class, custom property, function and option, including *Errors and debugging* |
@@ -233,6 +233,7 @@ site/                          Astro Starlight docs site
     │                          Header, PageFrame, SiteFooter, PageTitle, EditLink and ThemeSelect override Starlight's
     ├── styles/saturday.css    the site's look (see "The Saturday morning look" below)
     ├── llms.ts, pages/        /llms.txt and /llms-full.txt: the docs as plain text for AI agents
+    ├── searchIndex.ts         /search-index.json: API names and pages the search answers directly (components/Search.astro)
     └── content/docs/          the docs pages (Markdown/MDX)
 scripts/setup.mjs              npm run setup: Node check, npm ci, browser for the checks
 scripts/check.mjs              size budget (≤520 lines), smoke test of every example, error-handling tests

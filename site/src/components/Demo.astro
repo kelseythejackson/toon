@@ -57,8 +57,9 @@ const icon = {
 };
 const svg = (k: keyof typeof icon) => `<svg class="ex-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon[k]}</svg>`;
 ---
+{/* data-pagefind-ignore: search indexes prose, not the demo inside (its markup and its script, kept as text). */}
 {hasCode ? (
-  <figure class="toon-demo toon-example not-content" data-example>
+  <figure class="toon-demo toon-example not-content" data-example data-pagefind-ignore="all">
     <div class="ex-screen">
       <toon-demo name={name} data-scripts={JSON.stringify(scripts)} data-motion-control={motionControl} role="group" aria-label={title}>
         <template shadowrootmode="open" set:html={shadow} />
@@ -82,7 +83,7 @@ const svg = (k: keyof typeof icon) => `<svg class="ex-icon" viewBox="0 0 24 24" 
     </div>
   </figure>
 ) : (
-<figure class="toon-demo not-content">
+<figure class="toon-demo not-content" data-pagefind-ignore="all">
   <toon-demo name={name} data-scripts={JSON.stringify(scripts)} data-motion-control={motionControl} role="group" aria-label={title}>
     <template shadowrootmode="open" set:html={shadow} />
     {inline && <Fragment set:html={`<script type="text/plain" data-demo-script>${inline}</script>`} />}

@@ -5,6 +5,19 @@
 Everything since 1.1.0, newest first. The first version prepared for npm: replace "not yet published" with the
 release date when you run `npm publish`.
 
+### Docs: a new favicon
+- The site's icon is toon's orange "t" from the Figma file. Its outline is near-black on light browser tabs and cream on dark ones (`prefers-color-scheme` inside `favicon.svg`). Safari and phone home screens get `apple-touch-icon.png`, 180×180px on cream.
+
+### Docs: "Everyday HTML" is now "HTML"
+- The page's title in the sidebar, the search dialog, Recipes and the README is "HTML", and the home page section is "On HTML". Its address stays `/everyday-html/`, so existing links still work.
+
+### Search, answer first
+- **Names get a direct answer.** Searching a class, custom property, Canvas function or page title (`bounce`, `tween`, `anticipation`) shows a best-match card with what it does and links to its API entry and to a page where it runs. Effect classes play on a small specimen in the card. Related names follow under "Also matches". The names come from the CSS and Canvas API pages and `toon.d.ts`, at build time (`/search-index.json`).
+- **Page results are prose.** Each row is one matching section with its page, a kind (Principle, Guide, Example, Reference) and an excerpt that doesn't repeat the heading. Demos and code blocks are no longer indexed: excerpts like `withSquash(ctx, sx, …` came from the scripts inside demos.
+- **Before typing** the dialog suggests names to try and three starting pages; it waits for two letters. **With no match** it offers toon's own word for common ones (jiggle, shake, spring, fade, loading…).
+- The Saturday morning look: a navy dialog with a cream field, full screen with a Close button on phones. `npm run check:site` now opens the search, checks the best match and excerpts, and runs axe on the open dialog in light and dark.
+- The light/dark menu is wide enough for "System".
+
 ### Demos: plain hints
 - The light/dark menu's third choice is "System" (it was "Auto"): it follows the operating system's setting. Set in `site/src/content/i18n/en.json`, which overrides Starlight's own interface text.
 - Demos in the docs have the same 16px of space on every side. The bottom had 48px: 32px of padding plus the hint's own margin.

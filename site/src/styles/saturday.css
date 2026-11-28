@@ -48,7 +48,6 @@
  * asides) take navy ink. Every pair is at least 3:1 (WCAG 1.4.11) in both modes. */
 :root[data-style] { --focus-ring: var(--link); }
 :root[data-style] :is(header.header, .hero, .site-footer, .install-tabs starlight-tabs, .expressive-code) { --focus-ring: var(--sat-orange); }
-:root[data-style] header.header dialog { --focus-ring: var(--link); }   /* the search dialog lives in the header but sits on paper */
 :root[data-style] :is(.toon-demo, .card, .sl-link-card, .starlight-aside, .start-step) { --focus-ring: var(--sat-candy-ink); }
 :root[data-style] :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
